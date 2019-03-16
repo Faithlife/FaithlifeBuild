@@ -17,7 +17,9 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-  </PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <IsTestProject>false</IsTestProject>
+   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Faithlife.Analyzers" Version="1.0.5" />
