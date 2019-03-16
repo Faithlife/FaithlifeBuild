@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 
 ## Released
 
+### 0.1.1
+
+* Upgrade dependencies (especially Glob, which now targets `netstandard2.0`).
+
 ### 0.1.0
 
 * Initial release.
