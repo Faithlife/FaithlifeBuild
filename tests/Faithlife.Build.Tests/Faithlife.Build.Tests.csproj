@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ProjectName\ProjectName.csproj" />
+    <ProjectReference Include="..\..\src\Faithlife.Build\Faithlife.Build.csproj" />
   </ItemGroup>
 
 </Project>

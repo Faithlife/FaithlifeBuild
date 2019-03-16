@@ -1,4 +1,4 @@
-# Contributing to RepoName
+# Contributing to FaithlifeBuild
 
 ## Prerequisites
 
@@ -13,6 +13,6 @@
 
 ## How to Build
 
-* `git clone https://github.com/Faithlife/RepoName.git`
-* `cd RepoName`
+* `git clone https://github.com/Faithlife/FaithlifeBuild.git`
+* `cd FaithlifeBuild`
 * `dotnet test`

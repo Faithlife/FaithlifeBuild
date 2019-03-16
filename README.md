@@ -1,10 +1,10 @@
-# ProjectName
+# Faithlife.Build
 
-Documentation: https://faithlife.github.io/RepoName/
+Documentation: https://faithlife.github.io/FaithlifeBuild/
 
 Ubuntu | Windows | NuGet
 --- | --- | ---
-[![Travis CI](https://img.shields.io/travis/Faithlife/RepoName/master.svg)](https://travis-ci.org/Faithlife/RepoName) | [![AppVeyor](https://img.shields.io/appveyor/ci/Faithlife/reponame/master.svg)](https://ci.appveyor.com/project/Faithlife/reponame) | [![NuGet](https://img.shields.io/nuget/v/ProjectName.svg)](https://www.nuget.org/packages/ProjectName)
+[![Travis CI](https://img.shields.io/travis/Faithlife/FaithlifeBuild/master.svg)](https://travis-ci.org/Faithlife/FaithlifeBuild) | [![AppVeyor](https://img.shields.io/appveyor/ci/Faithlife/faithlifebuild/master.svg)](https://ci.appveyor.com/project/Faithlife/faithlifebuild) | [![NuGet](https://img.shields.io/nuget/v/Faithlife.Build.svg)](https://www.nuget.org/packages/Faithlife.Build)
 
 * License: [MIT](LICENSE)
 * [Version History](VersionHistory.md)
