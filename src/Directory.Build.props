@@ -20,7 +20,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <IsPackable>true</IsPackable>
     <IsTestProject>false</IsTestProject>
-   </PropertyGroup>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Faithlife.Analyzers" Version="1.0.5" PrivateAssets="All" />
