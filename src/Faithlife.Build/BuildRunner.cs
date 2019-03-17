@@ -7,8 +7,21 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Faithlife.Build
 {
+	/// <summary>
+	/// Used to execute an automated build.
+	/// </summary>
 	public static class BuildRunner
 	{
+		/// <summary>
+		/// Executes an automated build. Called from <c>Main</c>.
+		/// </summary>
+		/// <param name="args">The command-line arguments from <c>Main</c>.</param>
+		/// <param name="initialize">Called to initialize the build.</param>
+		/// <param name="workingDirectory">The working directory for the build. (Optional.)</param>
+		/// <param name="callerFilePath">The compiler-generated path to the source code of the caller.</param>
+		/// <returns>The exit code for the build.</returns>
+		/// <remarks>If <paramref name="workingDirectory"/> is omitted, the parent of the parent of the
+		/// directory containing the source code of the caller is used.</remarks>
 		public static int Execute(string[] args, Action<BuildApp> initialize, string workingDirectory = null, [CallerFilePath] string callerFilePath = null)
 		{
 			if (args == null)

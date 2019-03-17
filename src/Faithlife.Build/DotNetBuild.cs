@@ -9,8 +9,16 @@ using static Faithlife.Build.DotNetRunner;
 
 namespace Faithlife.Build
 {
+	/// <summary>
+	/// Supports .NET builds.
+	/// </summary>
 	public static class DotNetBuild
 	{
+		/// <summary>
+		/// Adds the standard .NET targets to the build.
+		/// </summary>
+		/// <param name="build">The build to which to add targets.</param>
+		/// <param name="settings">The build settings.</param>
 		public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings settings)
 		{
 			var configurationOption = build.AddOption("-c|--configuration <name>", "The configuration to build", "Release");

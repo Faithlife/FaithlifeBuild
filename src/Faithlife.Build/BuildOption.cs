@@ -2,8 +2,15 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Faithlife.Build
 {
+	/// <summary>
+	/// A single-value command-line option for the build.
+	/// </summary>
 	public sealed class BuildOption
 	{
+		/// <summary>
+		/// The option value, or <c>null</c> if the option was not specified.
+		/// </summary>
+		/// <remarks>This properly must only be accessed while running a target.</remarks>
 		public string Value => m_option.HasValue() ? m_option.Value() : m_defaultValue;
 
 		internal BuildOption(CommandOption option, string defaultValue)
