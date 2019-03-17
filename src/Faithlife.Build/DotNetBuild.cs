@@ -126,8 +126,8 @@ namespace Faithlife.Build
 						foreach (var nupkgPath in nupkgPaths)
 							RunDotNet("nuget", "push", nupkgPath, "--source", nugetSource, "--api-key", nugetApiKey);
 
-						var buildBotSettings = settings.BuildBotSettings;
-						if (buildBotSettings != null &&
+						if (settings.GitLogin != null &&
+							settings.GitAuthor != null &&
 							Directory.Exists(docsBranchName) &&
 							Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH") == "master" &&
 							!version.Contains("-"))
@@ -138,9 +138,9 @@ namespace Faithlife.Build
 								{
 									Console.WriteLine("Publishing documentation changes.");
 									Commands.Stage(repository, "*");
-									var author = new Signature(buildBotSettings.DisplayName, buildBotSettings.Email, DateTimeOffset.Now);
+									var author = new Signature(settings.GitAuthor.Name, settings.GitAuthor.Email, DateTimeOffset.Now);
 									repository.Commit(message: "Automatic documentation update.", author, author, new CommitOptions());
-									var credentials = new UsernamePasswordCredentials { Username = buildBotSettings.UserName, Password = buildBotSettings.Password };
+									var credentials = new UsernamePasswordCredentials { Username = settings.GitLogin.Username, Password = settings.GitLogin.Password };
 									repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 								}
 								else

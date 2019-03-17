@@ -21,9 +21,14 @@ namespace Faithlife.Build
 		public XmlDocMarkdownSettings XmlDocMarkdownSettings { get; set; }
 
 		/// <summary>
-		/// The properties of the build bot used to push to git as needed.
+		/// Credentials used to push to git as needed.
 		/// </summary>
-		public BuildBotSettings BuildBotSettings { get; set; }
+		public GitLoginInfo GitLogin { get; set; }
+
+		/// <summary>
+		/// Commit author used to push to git as needed.
+		/// </summary>
+		public GitAuthorInfo GitAuthor { get; set; }
 
 		/// <summary>
 		/// The directory where local .NET Core tools can be installed.
