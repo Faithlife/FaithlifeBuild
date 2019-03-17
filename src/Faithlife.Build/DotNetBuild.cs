@@ -139,7 +139,7 @@ namespace Faithlife.Build
 									Console.WriteLine("Publishing documentation changes.");
 									Commands.Stage(repository, "*");
 									var author = new Signature(settings.GitAuthor.Name, settings.GitAuthor.Email, DateTimeOffset.Now);
-									repository.Commit(message: "Automatic documentation update.", author, author, new CommitOptions());
+									repository.Commit(message: $"Automatic documentation update for {version}.", author, author, new CommitOptions());
 									var credentials = new UsernamePasswordCredentials { Username = settings.GitLogin.Username, Password = settings.GitLogin.Password };
 									repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 								}
