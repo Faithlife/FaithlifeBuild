@@ -5,6 +5,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description></Description>
     <PackageTags></PackageTags>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
