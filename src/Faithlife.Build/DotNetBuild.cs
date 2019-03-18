@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
 using XmlDocMarkdown.Core;
+using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
 
@@ -29,7 +30,7 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 
-			SetDotNetToolsDirectory(settings.DotNetToolsDirectory ?? "tools/bin");
+			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 
 			const string docsBranchName = "gh-pages";
 
@@ -76,8 +77,9 @@ namespace Faithlife.Build
 				.Describe("Tests the NuGet packages")
 				.Does(() =>
 				{
+					string sourcelink = dotNetTools.GetToolPath("sourcelink");
 					foreach (var packagePath in FindFiles("release/*.nupkg"))
-						RunDotNetTool("sourcelink", "test", packagePath);
+						RunApp(sourcelink, "test", packagePath);
 				});
 
 			build.Target("docs")

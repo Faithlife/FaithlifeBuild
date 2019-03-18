@@ -31,8 +31,9 @@ namespace Faithlife.Build
 		public GitAuthorInfo GitAuthor { get; set; }
 
 		/// <summary>
-		/// The directory where local .NET Core tools can be installed.
+		/// Used to install .NET Core Global tools.
 		/// </summary>
-		public string DotNetToolsDirectory { get; set; }
+		/// <remarks>Optional. If not specified, installs tools under <c>tools/bin</c></remarks>
+		public DotNetTools DotNetTools { get; set; }
 	}
 }

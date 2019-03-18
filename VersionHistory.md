@@ -8,6 +8,11 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 
 ## Released
 
+### 0.2.0
+
+* Add `GitLoginInfo` and `GitAuthorInfo` for settings.
+* Use `DotNetTools` to run .NET Core tools.
+
 ### 0.1.1
 
 * Upgrade dependencies (especially Glob, which now targets `netstandard2.0`).
