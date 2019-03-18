@@ -50,8 +50,8 @@ namespace Faithlife.Build
 				.Does(() => RunDotNet("test", solutionName, "-c", configurationOption.Value, "--no-build"));
 
 			build.Target("package")
-				.DependsOn("clean", "test")
-				.Describe("Builds the NuGet packages")
+				.DependsOn("test")
+				.Describe("Builds the NuGet package")
 				.Does(() =>
 				{
 					string versionSuffix = versionSuffixOption.Value;
@@ -70,60 +70,37 @@ namespace Faithlife.Build
 						versionSuffix != null ? "--version-suffix" : null, versionSuffix);
 				});
 
-			build.Target("package-test")
-				.DependsOn("package")
-				.Describe("Tests the NuGet packages")
-				.Does(() =>
-				{
-					string sourcelink = dotNetTools.GetToolPath("sourcelink");
-					foreach (var packagePath in FindFiles("release/*.nupkg"))
-						RunApp(sourcelink, "test", packagePath);
-				});
-
-			build.Target("docs")
-				.DependsOn("build")
-				.Describe("Generates reference documentation")
-				.Does(() =>
-				{
-					if (settings.DocsSettings?.Projects?.Count > 0)
-					{
-						foreach (string docsProject in settings.DocsSettings.Projects)
-						{
-							string dllPath = FindFiles($"src/{docsProject}/bin/**/{docsProject}.dll").First();
-							XmlDocMarkdownGenerator.Generate(dllPath, "docs/",
-								new XmlDocMarkdownSettings { SourceCodePath = $"{settings.DocsSettings.SourceUrl}/{docsProject}", NewLine = "\n", ShouldClean = true });
-						}
-					}
-				});
-
 			build.Target("publish")
-				.DependsOn("package-test", "docs")
-				.Describe("Publishes the NuGet packages")
+				.Describe("Publishes the NuGet package and documentation")
+				.DependsOn("clean", "package")
 				.Does(() =>
 				{
-					var nupkgPaths = FindFiles("release/*.nupkg");
+					var packagePaths = FindFiles("release/*.nupkg");
+					if (packagePaths.Count != 1)
+						throw new InvalidOperationException($"{packagePaths.Count} NuGet packages found.");
+					var packagePath = packagePaths[0];
 
-					string version = null;
-					foreach (var nupkgPath in nupkgPaths)
-					{
-						string nupkgVersion = Regex.Match(nupkgPath, @"\.([^\.]+\.[^\.]+\.[^\.]+)\.nupkg$").Groups[1].ToString();
-						if (version == null)
-							version = nupkgVersion;
-						else if (version != nupkgVersion)
-							throw new InvalidOperationException($"Mismatched package versions '{version}' and '{nupkgVersion}'.");
-					}
+					RunApp(dotNetTools.GetToolPath("sourcelink"), "test", packagePath);
+
+					var packageName = Path.GetFileName(packagePath) ?? "";
+					string[] packageNameParts = packageName.Split('.');
+					string projectName = string.Join(".", packageNameParts.Take(packageNameParts.Length - 4));
+					string version = string.Join(".", packageNameParts.Skip(packageNameParts.Length - 4).Take(3));
 
 					var nugetApiKey = nugetApiKeyOption.Value;
 					var trigger = triggerOption.Value;
-					if (version != null && nugetApiKey != null && (trigger == null || Regex.IsMatch(trigger, "^v[0-9]")))
+					if (nugetApiKey != null && (trigger == null || Regex.IsMatch(trigger, "^v[0-9]")))
 					{
 						if (trigger != null && trigger != $"v{version}")
 							throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
-						foreach (var nupkgPath in nupkgPaths)
-							RunDotNet("nuget", "push", nupkgPath, "--source", nugetSource, "--api-key", nugetApiKey);
+						RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
 
-						if (settings.DocsSettings?.Projects?.Count > 0 && settings.GitLogin != null && settings.GitAuthor != null)
+						if (settings.GitLogin != null && settings.GitAuthor != null && !version.Contains("-"))
 						{
+							string dllPath = FindFiles($"src/{projectName}/bin/**/{projectName}.dll").First();
+							XmlDocMarkdownGenerator.Generate(dllPath, "docs/",
+								new XmlDocMarkdownSettings { SourceCodePath = $"{settings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
+
 							using (var repository = new Repository("."))
 							{
 								if (repository.RetrieveStatus().IsDirty)
@@ -131,7 +108,7 @@ namespace Faithlife.Build
 									Console.WriteLine("Publishing documentation changes.");
 									Commands.Stage(repository, "*");
 									var author = new Signature(settings.GitAuthor.Name, settings.GitAuthor.Email, DateTimeOffset.Now);
-									repository.Commit(message: $"Documentation updated for {version}.", author, author, new CommitOptions());
+									repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
 									var credentials = new UsernamePasswordCredentials { Username = settings.GitLogin.Username, Password = settings.GitLogin.Password };
 									repository.Network.Push(repository.Head, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 								}

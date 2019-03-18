@@ -16,9 +16,9 @@ namespace Faithlife.Build
 		public string NuGetSource { get; set; }
 
 		/// <summary>
-		/// Settings used to generate markdown from XML documentation comments.
+		/// The GitHub URL of the directory containing the source code; used when generating documentation.
 		/// </summary>
-		public DocsSettings DocsSettings { get; set; }
+		public string SourceCodeUrl { get; set; }
 
 		/// <summary>
 		/// Credentials used to push to git as needed.
