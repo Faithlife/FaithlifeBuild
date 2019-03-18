@@ -25,7 +25,8 @@ namespace Faithlife.Build
 			var configurationOption = build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release");
 			var nugetApiKeyOption = build.AddOption("--nuget-api-key <name>", "NuGet API key for publishing");
 			var versionSuffixOption = build.AddOption("--version-suffix <suffix>", "Generates a prerelease package");
-			var triggerOption = build.AddOption("--trigger <name>", "The branch or tag that triggered the build");
+			var triggerOption = build.AddOption("--trigger <name>", "The git branch or tag that triggered the build");
+			var branchOption = build.AddOption("--branch <name>", "The git branch being built (for docs updates)");
 
 			settings = settings ?? new DotNetBuildSettings();
 			var solutionName = settings.SolutionName;
@@ -89,21 +90,28 @@ namespace Faithlife.Build
 					string version = string.Join(".", packageNameParts.Skip(packageNameParts.Length - 4).Take(3));
 
 					var nugetApiKey = nugetApiKeyOption.Value;
+					if (nugetApiKey == null)
+						throw new InvalidOperationException("--nuget-api-key option required to publish.");
+
 					var trigger = triggerOption.Value;
-					if (nugetApiKey != null && (trigger == null || Regex.IsMatch(trigger, "^v[0-9]")))
+					if (trigger == null || Regex.IsMatch(trigger, "^v[0-9]"))
 					{
 						if (trigger != null && trigger != $"v{version}")
 							throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
 						RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
 
-						if (settings.GitLogin != null && settings.GitAuthor != null && !version.Contains("-"))
+						string branchName = branchOption.Value;
+						if (settings.GitLogin != null && settings.GitAuthor != null && branchName != null && !version.Contains("-"))
 						{
-							string dllPath = FindFiles($"src/{projectName}/bin/**/{projectName}.dll").First();
-							XmlDocMarkdownGenerator.Generate(dllPath, "docs/",
-								new XmlDocMarkdownSettings { SourceCodePath = $"{settings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
-
 							using (var repository = new Repository("."))
 							{
+								var branch = repository.CreateBranch(branchName, $"origin/{branchName}");
+								Commands.Checkout(repository, branch);
+
+								string dllPath = FindFiles($"src/{projectName}/bin/**/{projectName}.dll").First();
+								XmlDocMarkdownGenerator.Generate(dllPath, "docs/",
+									new XmlDocMarkdownSettings { SourceCodePath = $"{settings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
+
 								if (repository.RetrieveStatus().IsDirty)
 								{
 									Console.WriteLine("Publishing documentation changes.");
@@ -111,7 +119,7 @@ namespace Faithlife.Build
 									var author = new Signature(settings.GitAuthor.Name, settings.GitAuthor.Email, DateTimeOffset.Now);
 									repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
 									var credentials = new UsernamePasswordCredentials { Username = settings.GitLogin.Username, Password = settings.GitLogin.Password };
-									repository.Network.Push(repository.Head, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
+									repository.Network.Push(branch, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 								}
 								else
 								{
