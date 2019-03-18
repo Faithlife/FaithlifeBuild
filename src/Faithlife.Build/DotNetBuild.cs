@@ -20,13 +20,14 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="build">The build to which to add targets.</param>
 		/// <param name="settings">The build settings.</param>
-		public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings settings)
+		public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings settings = null)
 		{
-			var configurationOption = build.AddOption("-c|--configuration <name>", "The configuration to build", "Release");
+			var configurationOption = build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release");
 			var nugetApiKeyOption = build.AddOption("--nuget-api-key <name>", "NuGet API key for publishing");
 			var versionSuffixOption = build.AddOption("--version-suffix <suffix>", "Generates a prerelease package");
 			var triggerOption = build.AddOption("--trigger <name>", "The branch or tag that triggered the build");
 
+			settings = settings ?? new DotNetBuildSettings();
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 
