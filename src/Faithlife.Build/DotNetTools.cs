@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using static Faithlife.Build.DotNetRunner;
 
@@ -24,7 +23,7 @@ namespace Faithlife.Build
 		/// <param name="package">The package name. To install a particular version,
 		/// indicate it after the name, separated by a slash.</param>
 		/// <param name="name">The tool name, if it differs from the package name.</param>
-		/// <returns>The path to the installed tool executable.</returns>
+		/// <returns>The path to the installed tool.</returns>
 		public string GetToolPath(string package, string name = null)
 		{
 			string version = null;
@@ -36,12 +35,11 @@ namespace Faithlife.Build
 			}
 
 			string directory = Path.Combine(m_directory, package, version ?? "latest");
-			string executable = Path.Combine(directory, $"{name ?? package}.exe");
-			if (!File.Exists(executable))
+			if (!Directory.Exists(directory))
 				RunDotNet("tool", "install", package, "--tool-path", directory, version != null ? "--version" : null, version);
-			if (!File.Exists(executable))
-				throw new InvalidOperationException($"Failed to install {package} (version {version ?? "latest"}); missing executable: {executable}");
-			return executable;
+			else if (version == null)
+				RunDotNet("tool", "update", package, "--tool-path", directory);
+			return Path.Combine(directory, name ?? package);
 		}
 
 		private readonly string m_directory;
