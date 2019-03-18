@@ -57,7 +57,9 @@ namespace Faithlife.Build
 				}
 				else
 				{
-					Bullseye.Targets.RunTargetsAndExit(targets);
+#pragma warning disable 618
+					Bullseye.Targets.RunTargets(targets);
+#pragma warning restore 618
 				}
 			});
 
