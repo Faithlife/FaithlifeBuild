@@ -10,8 +10,9 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 
 ### 0.2.0
 
-* Add `GitLoginInfo` and `GitAuthorInfo` for settings.
 * Use `DotNetTools` to run .NET Core tools.
+* Change settings for documentation generation.
+* Generate documentation in `docs` folder instead of `gh_pages` branch.
 
 ### 0.1.1
 

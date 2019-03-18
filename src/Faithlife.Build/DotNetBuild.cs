@@ -32,8 +32,6 @@ namespace Faithlife.Build
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 
-			const string docsBranchName = "gh-pages";
-
 			build.Target("clean")
 				.Describe("Deletes all build output")
 				.Does(() =>
@@ -87,17 +85,13 @@ namespace Faithlife.Build
 				.Describe("Generates reference documentation")
 				.Does(() =>
 				{
-					var docsSettings = settings.XmlDocMarkdownSettings;
-					if (docsSettings != null)
+					if (settings.DocsSettings?.Projects?.Count > 0)
 					{
-						if (!Directory.Exists(docsBranchName))
-							Repository.Clone(docsSettings.RepoUrl, docsBranchName, new CloneOptions { BranchName = docsBranchName });
-
-						foreach (string docsProject in docsSettings.Projects)
+						foreach (string docsProject in settings.DocsSettings.Projects)
 						{
 							string dllPath = FindFiles($"src/{docsProject}/bin/**/{docsProject}.dll").First();
-							XmlDocMarkdownGenerator.Generate(dllPath, $"{docsBranchName}/",
-								new XmlDocMarkdown.Core.XmlDocMarkdownSettings { SourceCodePath = $"{docsSettings.SourceUrl}/{docsProject}", NewLine = "\n", ShouldClean = true });
+							XmlDocMarkdownGenerator.Generate(dllPath, "docs/",
+								new XmlDocMarkdownSettings { SourceCodePath = $"{settings.DocsSettings.SourceUrl}/{docsProject}", NewLine = "\n", ShouldClean = true });
 						}
 					}
 				});
@@ -128,32 +122,24 @@ namespace Faithlife.Build
 						foreach (var nupkgPath in nupkgPaths)
 							RunDotNet("nuget", "push", nupkgPath, "--source", nugetSource, "--api-key", nugetApiKey);
 
-						if (settings.GitLogin != null &&
-							settings.GitAuthor != null &&
-							Directory.Exists(docsBranchName) &&
-							Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH") == "master" &&
-							!version.Contains("-"))
+						if (settings.DocsSettings?.Projects?.Count > 0 && settings.GitLogin != null && settings.GitAuthor != null)
 						{
-							using (var repository = new Repository(docsBranchName))
+							using (var repository = new Repository("."))
 							{
 								if (repository.RetrieveStatus().IsDirty)
 								{
 									Console.WriteLine("Publishing documentation changes.");
 									Commands.Stage(repository, "*");
 									var author = new Signature(settings.GitAuthor.Name, settings.GitAuthor.Email, DateTimeOffset.Now);
-									repository.Commit(message: $"Automatic documentation update for {version}.", author, author, new CommitOptions());
+									repository.Commit(message: $"Documentation updated for {version}.", author, author, new CommitOptions());
 									var credentials = new UsernamePasswordCredentials { Username = settings.GitLogin.Username, Password = settings.GitLogin.Password };
-									repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
+									repository.Network.Push(repository.Head, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 								}
 								else
 								{
 									Console.WriteLine("No documentation changes detected.");
 								}
 							}
-						}
-						else
-						{
-							Console.WriteLine("Documentation not published for this build.");
 						}
 					}
 					else

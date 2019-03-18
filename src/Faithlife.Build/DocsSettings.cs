@@ -5,17 +5,12 @@ namespace Faithlife.Build
 	/// <summary>
 	/// Settings used when generating markdown from XML documentation comments; see <see cref="DotNetBuildSettings"/>.
 	/// </summary>
-	public sealed class XmlDocMarkdownSettings
+	public sealed class DocsSettings
 	{
 		/// <summary>
 		/// The projects for which to generate markdown documentation.
 		/// </summary>
 		public IReadOnlyList<string> Projects { get; set; }
-
-		/// <summary>
-		/// The GitHub URL of the repository where the documentation lives.
-		/// </summary>
-		public string RepoUrl { get; set; }
 
 		/// <summary>
 		/// The GitHub URL of the parent directory of the source code of the projects.

@@ -18,7 +18,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Settings used to generate markdown from XML documentation comments.
 		/// </summary>
-		public XmlDocMarkdownSettings XmlDocMarkdownSettings { get; set; }
+		public DocsSettings DocsSettings { get; set; }
 
 		/// <summary>
 		/// Credentials used to push to git as needed.
