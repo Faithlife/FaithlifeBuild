@@ -135,7 +135,7 @@ namespace Faithlife.Build
 								repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
 								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
 								repository.Network.Push(repository.Network.Remotes["origin"],
-									"master", "master", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
+									branchName, branchName, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 							}
 						}
 					}
