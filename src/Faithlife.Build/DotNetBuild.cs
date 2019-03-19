@@ -119,7 +119,8 @@ namespace Faithlife.Build
 									var author = new Signature(settings.GitAuthor.Name, settings.GitAuthor.Email, DateTimeOffset.Now);
 									repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
 									var credentials = new UsernamePasswordCredentials { Username = settings.GitLogin.Username, Password = settings.GitLogin.Password };
-									repository.Network.Push(branch, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
+									repository.Network.Push(repository.Network.Remotes["origin"],
+										"master", "origin/master", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 								}
 								else
 								{
