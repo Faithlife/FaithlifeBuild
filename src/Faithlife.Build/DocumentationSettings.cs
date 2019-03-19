@@ -6,7 +6,7 @@ namespace Faithlife.Build
 	public sealed class DocumentationSettings
 	{
 		/// <summary>
-		/// The target directory for generated documentation; defaults to <c>docs</c>.
+		/// The target directory for generated documentation; defaults to <c>"docs"</c>.
 		/// </summary>
 		public string TargetDirectory { get; set; }
 
@@ -24,5 +24,12 @@ namespace Faithlife.Build
 		/// Commit author used to push to git.
 		/// </summary>
 		public GitAuthorInfo GitAuthor { get; set; }
+
+		/// <summary>
+		/// The target framework from which to generate documentation. (Optional.)
+		/// </summary>
+		/// <remarks>Defaults to any target framework. Supports wildcards, e.g. <c>"netstandard*"</c>.
+		/// Uses the last matching DLL when sorted by path.</remarks>
+		public string TargetFramework { get; set; }
 	}
 }

@@ -112,8 +112,11 @@ namespace Faithlife.Build
 								var branch = repository.CreateBranch(branchName, $"origin/{branchName}");
 								Commands.Checkout(repository, branch);
 
-								string dllPath = FindFiles($"src/{projectName}/bin/**/{projectName}.dll").First();
-								XmlDocMarkdownGenerator.Generate(dllPath, docsSettings.TargetDirectory ?? "docs",
+								var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
+									.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
+								if (dllPaths.Count == 0)
+									throw new InvalidOperationException($"Could not find DLL for {projectName}.");
+								XmlDocMarkdownGenerator.Generate(dllPaths[0], docsSettings.TargetDirectory ?? "docs",
 									new XmlDocMarkdownSettings { SourceCodePath = $"{docsSettings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
 
 								shouldPublishDocs = repository.RetrieveStatus().IsDirty;
