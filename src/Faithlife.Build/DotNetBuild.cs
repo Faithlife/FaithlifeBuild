@@ -101,24 +101,28 @@ namespace Faithlife.Build
 						RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
 
 						string branchName = branchOption.Value;
-						if (settings.GitLogin != null && settings.GitAuthor != null && branchName != null && !version.Contains("-"))
+						var docsSettings = settings.DocumentationSettings;
+						if (docsSettings != null && branchName != null && !version.Contains("-"))
 						{
+							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
+								throw new InvalidOperationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
+
 							using (var repository = new Repository("."))
 							{
 								var branch = repository.CreateBranch(branchName, $"origin/{branchName}");
 								Commands.Checkout(repository, branch);
 
 								string dllPath = FindFiles($"src/{projectName}/bin/**/{projectName}.dll").First();
-								XmlDocMarkdownGenerator.Generate(dllPath, "docs/",
-									new XmlDocMarkdownSettings { SourceCodePath = $"{settings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
+								XmlDocMarkdownGenerator.Generate(dllPath, docsSettings.TargetDirectory ?? "docs",
+									new XmlDocMarkdownSettings { SourceCodePath = $"{docsSettings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
 
 								if (repository.RetrieveStatus().IsDirty)
 								{
 									Console.WriteLine("Publishing documentation changes.");
 									Commands.Stage(repository, "*");
-									var author = new Signature(settings.GitAuthor.Name, settings.GitAuthor.Email, DateTimeOffset.Now);
+									var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
 									repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
-									var credentials = new UsernamePasswordCredentials { Username = settings.GitLogin.Username, Password = settings.GitLogin.Password };
+									var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
 									repository.Network.Push(repository.Network.Remotes["origin"],
 										"master", "origin/master", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 								}
