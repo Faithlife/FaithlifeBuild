@@ -3,7 +3,7 @@ namespace Faithlife.Build
 	/// <summary>
 	/// Used to generate Markdown documentation from XML comments.
 	/// </summary>
-	public sealed class DocumentationSettings
+	public sealed class DotNetDocsSettings
 	{
 		/// <summary>
 		/// The target directory for generated documentation; defaults to <c>"docs"</c>.

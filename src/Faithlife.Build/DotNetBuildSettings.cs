@@ -24,6 +24,6 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Used to generate Markdown documentation from XML comments.
 		/// </summary>
-		public DocumentationSettings DocumentationSettings { get; set; }
+		public DotNetDocsSettings DocsSettings { get; set; }
 	}
 }

@@ -100,7 +100,7 @@ namespace Faithlife.Build
 							throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
 
 						string branchName = branchOption.Value;
-						var docsSettings = settings.DocumentationSettings;
+						var docsSettings = settings.DocsSettings;
 						bool shouldPublishDocs = false;
 						if (docsSettings != null && branchName != null && !version.Contains("-"))
 						{
