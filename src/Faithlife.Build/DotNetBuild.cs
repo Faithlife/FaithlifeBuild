@@ -109,7 +109,7 @@ namespace Faithlife.Build
 
 							using (var repository = new Repository("."))
 							{
-								var branch = repository.CreateBranch(branchName, $"origin/{branchName}");
+								var branch = repository.Branches[branchName] ?? repository.CreateBranch(branchName);
 								Commands.Checkout(repository, branch);
 
 								var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
@@ -135,7 +135,7 @@ namespace Faithlife.Build
 								repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
 								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
 								repository.Network.Push(repository.Network.Remotes["origin"],
-									branchName, branchName, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
+									$"refs/heads/{branchName}", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 							}
 						}
 					}
