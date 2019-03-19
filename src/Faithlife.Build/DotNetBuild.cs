@@ -98,10 +98,10 @@ namespace Faithlife.Build
 					{
 						if (trigger != null && trigger != $"v{version}")
 							throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
-						RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
 
 						string branchName = branchOption.Value;
 						var docsSettings = settings.DocumentationSettings;
+						bool shouldPublishDocs = false;
 						if (docsSettings != null && branchName != null && !version.Contains("-"))
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
@@ -116,20 +116,23 @@ namespace Faithlife.Build
 								XmlDocMarkdownGenerator.Generate(dllPath, docsSettings.TargetDirectory ?? "docs",
 									new XmlDocMarkdownSettings { SourceCodePath = $"{docsSettings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
 
-								if (repository.RetrieveStatus().IsDirty)
-								{
-									Console.WriteLine("Publishing documentation changes.");
-									Commands.Stage(repository, "*");
-									var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
-									repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
-									var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
-									repository.Network.Push(repository.Network.Remotes["origin"],
-										"master", "origin/master", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
-								}
-								else
-								{
-									Console.WriteLine("No documentation changes detected.");
-								}
+								shouldPublishDocs = repository.RetrieveStatus().IsDirty;
+							}
+						}
+
+						RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
+
+						if (shouldPublishDocs)
+						{
+							using (var repository = new Repository("."))
+							{
+								Console.WriteLine("Publishing documentation changes.");
+								Commands.Stage(repository, "*");
+								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
+								repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
+								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
+								repository.Network.Push(repository.Network.Remotes["origin"],
+									"master", "origin/master", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 							}
 						}
 					}
