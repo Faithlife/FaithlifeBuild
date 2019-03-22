@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 
 ## Released
 
+### 0.3.0
+
+* Support `--nuget-output` with .NET builds.
+
 ### 0.2.0
 
 * Use `DotNetTools` to run .NET Core tools.

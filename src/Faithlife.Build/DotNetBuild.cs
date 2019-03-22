@@ -25,6 +25,7 @@ namespace Faithlife.Build
 			var configurationOption = build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release");
 			var nugetApiKeyOption = build.AddOption("--nuget-api-key <name>", "NuGet API key for publishing");
 			var versionSuffixOption = build.AddOption("--version-suffix <suffix>", "Generates a prerelease package");
+			var nugetOutputOption = build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release");
 			var triggerOption = build.AddOption("--trigger <name>", "The git branch or tag that triggered the build");
 			var branchOption = build.AddOption("--branch <name>", "The git branch being built (for docs updates)");
 
@@ -68,7 +69,7 @@ namespace Faithlife.Build
 					RunDotNet("pack", solutionName,
 						"-c", configurationOption.Value,
 						"--no-build",
-						"--output", Path.GetFullPath("release"),
+						"--output", Path.GetFullPath(nugetOutputOption.Value),
 						versionSuffix != null ? "--version-suffix" : null, versionSuffix);
 				});
 
