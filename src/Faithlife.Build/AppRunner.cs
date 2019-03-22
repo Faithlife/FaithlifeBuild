@@ -16,7 +16,7 @@ namespace Faithlife.Build
 		/// Runs the specified command-line app.
 		/// </summary>
 		/// <param name="path">The path of the command-line app.</param>
-		/// <param name="args"></param>
+		/// <param name="args">The arguments to send to the command-line app.</param>
 		public static void RunApp(string path, params string[] args) =>
 			Command.Run(path, ArgumentEscaper.EscapeAndConcatenate(args.Where(x => x != null)));
 	}
