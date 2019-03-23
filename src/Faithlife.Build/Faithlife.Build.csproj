@@ -13,7 +13,6 @@
     <PackageReference Include="LibGit2Sharp" Version="0.26.0" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.3.3" />
     <PackageReference Include="SimpleExec" Version="5.0.1" />
-    <PackageReference Include="XmlDocMarkdown.Core" Version="1.4.1" />
   </ItemGroup>
 
 </Project>

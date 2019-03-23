@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
-using XmlDocMarkdown.Core;
 using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
@@ -117,8 +116,8 @@ namespace Faithlife.Build
 									.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
 								if (dllPaths.Count == 0)
 									throw new InvalidOperationException($"Could not find DLL for {projectName}.");
-								XmlDocMarkdownGenerator.Generate(dllPaths[0], docsSettings.TargetDirectory ?? "docs",
-									new XmlDocMarkdownSettings { SourceCodePath = $"{docsSettings.SourceCodeUrl}/{projectName}", NewLine = "\n", ShouldClean = true });
+								RunApp(dotNetTools.GetToolPath("xmldocmd"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
+									"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 
 								shouldPublishDocs = repository.RetrieveStatus().IsDirty;
 							}
