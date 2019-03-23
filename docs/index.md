@@ -15,7 +15,7 @@ This library allows developers to use C# to write build scripts. It is similar t
 
 ## Usage
 
-To use this library for your automated build, create a .NET Core Console App project in `tools/build` that references the latest `Faithlife.Build` NuGet package. Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project; there are project properties in that file that you may need for everything to work as expected.
+To use this library for your automated build, create a .NET Core Console App project in `tools/build` that references the latest `Faithlife.Build` [NuGet package](https://www.nuget.org/packages/Faithlife.Build). Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project; there are project properties in that file that you may need for everything to work as expected.
 
 The `Main` method of the console app should call [`BuildRunner.Execute`](Faithlife.Build/BuildRunner/Execute.md) with the `args` and a delegate that defines the build targets and any desired command-line options by calling methods on the provided [`BuildApp`](Faithlife.Build/BuildApp.md).
 
