@@ -10,14 +10,14 @@ This library allows developers to use C# to write build scripts. It is similar t
 * add custom command-line [flags](Faithlife.Build/BuildApp/AddFlag.md) and [options](Faithlife.Build/BuildApp/AddOption.md)
 * run [command-line apps](Faithlife.Build/AppRunner.md), [dotnet commands](Faithlife.Build/DotNetRunner.md), and [.NET Core Global Tools](Faithlife.Build/DotNetTools.md) with automatic argument escaping
 * [find files and directories](Faithlife.Build/BuildUtility.md) using [globs](https://github.com/kthompson/glob/)
-* define [standard targets for .NET builds](dotnet.md) that build, test, package, and generate documentation for your libraries
+* define [standard targets for .NET builds](#net-targets) that build, test, package, and generate documentation for your libraries
 * `--help` displays supported command-line options and targets with descriptions
 
 ## Usage
 
-To use this library for your automated build, create a .NET Core Console App project in `tools/build` that references the latest `Faithlife.Build` NuGet package. Optionally add the project to your Visual Studio solution file. See [Build.csproj](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project; there are project properties in that file that you will need for everything to work as expected.
+To use this library for your automated build, create a .NET Core Console App project in `tools/build` that references the latest `Faithlife.Build` NuGet package. Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project; there are project properties in that file that you may need for everything to work as expected.
 
-The `Main` method of the console app should call [`BuildRunner.Execute`](Faithlife.Build/BuildRunner/Execute.md) with `args` and a delegate that defines the command-line options and build targets by calling methods on the provided [`BuildApp`](Faithlife.Build/BuildApp.md).
+The `Main` method of the console app should call [`BuildRunner.Execute`](Faithlife.Build/BuildRunner/Execute.md) with the `args` and a delegate that defines the build targets and any desired command-line options by calling methods on the provided [`BuildApp`](Faithlife.Build/BuildApp.md).
 
 ```csharp
 using Faithlife.Build;
@@ -38,9 +38,9 @@ Perform the build by calling `dotnet run` on the build project, which is most ea
 
 Consult the full [reference documentation](Faithlife.Build.md) for additional details.
 
-# .NET Targets
+## .NET Targets
 
-To create standard targets for a .NET build, call [`DotNetBuild.AddDotNetTargets`](Faithlife.Build/DotNetBuild/AddDotNetTargets.md) with [custom settings](Faithlife.Build/DotNetBuildSettings.cs) as needed. See [Build.cs](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.cs) for an example.
+To create standard targets for a .NET build, call [`DotNetBuild.AddDotNetTargets`](Faithlife.Build/DotNetBuild/AddDotNetTargets.md) with [custom settings](Faithlife.Build/DotNetBuildSettings.md) as needed. See [`Build.cs`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.cs) for an example.
 
 For now, the best documentation for the supported targets and command-line options is the [source code](https://github.com/Faithlife/FaithlifeBuild/blob/master/src/Faithlife.Build/DotNetBuild.cs).
 
@@ -55,4 +55,4 @@ Special thanks to the libraries and tools used by `Faithlife.Build`:
 * [SimpleExec](https://github.com/adamralph/simple-exec)
 * [XmlDocMarkdown](http://ejball.com/XmlDocMarkdown/)
 
-Also thanks to [this article](https://pknopf.com/post/2019-03-10-you-dont-need-cake-anymore-the-way-to-build-dotnet-projects-going-forward/) by Paul Knopf which inspired us to think beyond Cake.
+Also thanks to Paul Knopf for [this article](https://pknopf.com/post/2019-03-10-you-dont-need-cake-anymore-the-way-to-build-dotnet-projects-going-forward/), which inspired us to think beyond Cake.
