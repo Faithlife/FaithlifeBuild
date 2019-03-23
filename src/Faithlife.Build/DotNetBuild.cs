@@ -33,6 +33,8 @@ namespace Faithlife.Build
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
+			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.0.0";
+			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.4.2";
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -82,7 +84,7 @@ namespace Faithlife.Build
 						throw new InvalidOperationException($"{packagePaths.Count} NuGet packages found.");
 					var packagePath = packagePaths[0];
 
-					RunApp(dotNetTools.GetToolPath("sourcelink"), "test", packagePath);
+					RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
 
 					var packageName = Path.GetFileName(packagePath) ?? "";
 					string[] packageNameParts = packageName.Split('.');
@@ -116,7 +118,7 @@ namespace Faithlife.Build
 									.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
 								if (dllPaths.Count == 0)
 									throw new InvalidOperationException($"Could not find DLL for {projectName}.");
-								RunApp(dotNetTools.GetToolPath("xmldocmd"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
+								RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
 									"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 
 								shouldPublishDocs = repository.RetrieveStatus().IsDirty;

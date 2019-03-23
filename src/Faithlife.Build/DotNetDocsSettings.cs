@@ -31,5 +31,12 @@ namespace Faithlife.Build
 		/// <remarks>Defaults to any target framework. Supports wildcards, e.g. <c>"netstandard*"</c>.
 		/// Uses the last matching DLL when sorted by path.</remarks>
 		public string TargetFramework { get; set; }
+
+		/// <summary>
+		/// The version of the <c>xmldocmd</c> tool to use when generating documentation.
+		/// </summary>
+		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
+		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
+		public string ToolVersion { get; set; }
 	}
 }

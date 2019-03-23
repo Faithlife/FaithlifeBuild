@@ -25,5 +25,12 @@ namespace Faithlife.Build
 		/// Used to generate Markdown documentation from XML comments.
 		/// </summary>
 		public DotNetDocsSettings DocsSettings { get; set; }
+
+		/// <summary>
+		/// The version of the <c>sourcelink</c> tool to use when testing packages.
+		/// </summary>
+		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
+		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
+		public string SourceLinkToolVersion { get; set; }
 	}
 }

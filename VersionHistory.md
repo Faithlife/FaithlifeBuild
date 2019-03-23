@@ -12,6 +12,7 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 
 * Support `--nuget-output` with .NET builds.
 * Use the `xmldocmd` .NET Core Global Tool to generate documentation.
+* Use fixed but customizable versions of .NET Core Global Tools for stable builds.
 
 ### 0.2.0
 
