@@ -91,9 +91,6 @@ namespace Faithlife.Build
 					if (packagePaths.Count == 0)
 						throw new InvalidOperationException("No NuGet packages found.");
 
-					foreach (var packagePath in packagePaths)
-						RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
-
 					var triggerMatch = Regex.Match(trigger, @"^((?<package>[^-]+)-)?v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-[^-]+)?)$", RegexOptions.ExplicitCapture);
 					if (triggerMatch.Success)
 					{
@@ -150,6 +147,9 @@ namespace Faithlife.Build
 								shouldPublishDocs = repository.RetrieveStatus().IsDirty;
 							}
 						}
+
+						foreach (var packagePath in packagePaths)
+							RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
 
 						foreach (var packagePath in packagePaths)
 							RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
