@@ -3,15 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
     <RootNamespace />
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <IsPackable>false</IsPackable>
-    <IsTestProject>false</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Faithlife.Build" Version="0.3.0-rc" />
+    <PackageReference Include="Faithlife.Build" Version="0.3.0" />
   </ItemGroup>
 
 </Project>
