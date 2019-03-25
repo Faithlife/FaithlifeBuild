@@ -57,10 +57,19 @@ namespace Faithlife.Build
 				}
 				else
 				{
+					try
+					{
 #pragma warning disable 618
-					Bullseye.Targets.RunTargets(targets);
+						Bullseye.Targets.RunTargets(targets);
 #pragma warning restore 618
+					}
+					catch (Exception exception) when (exception.GetType().FullName == "Bullseye.Internal.TargetFailedException")
+					{
+						return 1;
+					}
 				}
+
+				return 0;
 			});
 
 			return commandLineApp.Execute(args);

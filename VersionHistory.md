@@ -11,6 +11,7 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 ### 0.3.1
 
 * Support publishing multiple NuGet packages.
+* Catch exceptions from Bullseye.
 
 ### 0.3.0
 
