@@ -79,32 +79,55 @@ namespace Faithlife.Build
 				.DependsOn("clean", "package")
 				.Does(() =>
 				{
-					var packagePaths = FindFiles("release/*.nupkg");
-					if (packagePaths.Count != 1)
-						throw new InvalidOperationException($"{packagePaths.Count} NuGet packages found.");
-					var packagePath = packagePaths[0];
-
-					RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
-
-					var packageName = Path.GetFileName(packagePath) ?? "";
-					string[] packageNameParts = packageName.Split('.');
-					string projectName = string.Join(".", packageNameParts.Take(packageNameParts.Length - 4));
-					string version = string.Join(".", packageNameParts.Skip(packageNameParts.Length - 4).Take(3));
-
 					var nugetApiKey = nugetApiKeyOption.Value;
 					if (nugetApiKey == null)
 						throw new InvalidOperationException("--nuget-api-key option required to publish.");
 
 					var trigger = triggerOption.Value;
-					if (trigger == null || Regex.IsMatch(trigger, "^v[0-9]"))
+					if (trigger == null)
+						throw new InvalidOperationException("--trigger option required to publish.");
+
+					var packagePaths = FindFiles("release/*.nupkg");
+					if (packagePaths.Count == 0)
+						throw new InvalidOperationException("No NuGet packages found.");
+
+					foreach (var packagePath in packagePaths)
+						RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
+
+					var triggerMatch = Regex.Match(trigger, @"^((?<package>[^-]+)-)?v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-[^-]+)?)$", RegexOptions.ExplicitCapture);
+					if (triggerMatch.Success)
 					{
-						if (trigger != null && trigger != $"v{version}")
-							throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version '{version}'.");
+						var publishPackage = triggerMatch.Groups["package"].Value;
+						var publishVersion = triggerMatch.Groups["version"].Value;
+
+						(string Project, string Version) getPackageInfo(string path)
+						{
+							var match = Regex.Match(path, @"[/\\]([^/\\]*)\.([0-9]+\.[0-9]+\.[0-9]+(-[^-]+)?)\.nupkg$");
+							return (match.Groups[1].Value, match.Groups[2].Value);
+						}
+
+						if (publishPackage.Length == 0)
+						{
+							var mismatches = packagePaths.Where(x => getPackageInfo(x).Version != publishVersion).ToList();
+							if (mismatches.Count != 0)
+								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
+						}
+						else
+						{
+							var matches = packagePaths.Where(x => $".{getPackageInfo(x).Project}".EndsWith($".{publishPackage}", StringComparison.OrdinalIgnoreCase)).ToList();
+							if (matches.Count == 0)
+								throw new InvalidOperationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
+							if (matches.Count > 1)
+								throw new InvalidOperationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
+							if (getPackageInfo(matches[0]).Version != publishVersion)
+								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
+							packagePaths = matches;
+						}
 
 						string branchName = branchOption.Value;
 						var docsSettings = settings.DocsSettings;
 						bool shouldPublishDocs = false;
-						if (docsSettings != null && branchName != null && !version.Contains("-"))
+						if (docsSettings != null && branchName != null && !publishVersion.Contains("-"))
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
 								throw new InvalidOperationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
@@ -114,18 +137,22 @@ namespace Faithlife.Build
 								var branch = repository.Branches[branchName] ?? repository.CreateBranch(branchName);
 								Commands.Checkout(repository, branch);
 
-								var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
-									.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
-								if (dllPaths.Count == 0)
-									throw new InvalidOperationException($"Could not find DLL for {projectName}.");
-								RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
-									"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+								foreach (var projectName in packagePaths.Select(x => getPackageInfo(x).Project))
+								{
+									var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
+										.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
+									if (dllPaths.Count == 0)
+										throw new InvalidOperationException($"Could not find DLL for {projectName}.");
+									RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
+										"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+								}
 
 								shouldPublishDocs = repository.RetrieveStatus().IsDirty;
 							}
 						}
 
-						RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
+						foreach (var packagePath in packagePaths)
+							RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
 
 						if (shouldPublishDocs)
 						{
@@ -134,7 +161,7 @@ namespace Faithlife.Build
 								Console.WriteLine("Publishing documentation changes.");
 								Commands.Stage(repository, "*");
 								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
-								repository.Commit($"Documentation updated for {version}.", author, author, new CommitOptions());
+								repository.Commit($"Documentation updated for {trigger}.", author, author, new CommitOptions());
 								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
 								repository.Network.Push(repository.Network.Remotes["origin"],
 									$"refs/heads/{branchName}", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
@@ -143,7 +170,7 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						Console.WriteLine($"To publish this package, push this git tag: v{version}");
+						Console.WriteLine("To publish to NuGet, push a matching git tag for the release.");
 					}
 				});
 		}
