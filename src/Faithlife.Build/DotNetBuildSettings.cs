@@ -32,5 +32,12 @@ namespace Faithlife.Build
 		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
 		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
 		public string SourceLinkToolVersion { get; set; }
+
+		/// <summary>
+		/// The options and flags used by <see cref="DotNetBuild"/>.
+		/// </summary>
+		/// <remarks>Any properties not set before <see cref="DotNetBuild.AddDotNetTargets"/> is called
+		/// will be set afterward.</remarks>
+		public DotNetBuildOptions BuildOptions { get; set; }
 	}
 }

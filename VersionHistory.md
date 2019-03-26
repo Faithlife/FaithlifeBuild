@@ -6,6 +6,8 @@ Describe changes here when they're committed to the `master` branch. Move them t
 
 Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in accordance with [Semantic Versioning](https://semver.org/).
 
+* [minor] Use `DotNetBuildOptions` to access and/or override build options.
+
 ## Released
 
 ### 0.3.1

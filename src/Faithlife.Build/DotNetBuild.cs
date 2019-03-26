@@ -21,14 +21,22 @@ namespace Faithlife.Build
 		/// <param name="settings">The build settings.</param>
 		public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings settings = null)
 		{
-			var configurationOption = build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release");
-			var nugetApiKeyOption = build.AddOption("--nuget-api-key <name>", "NuGet API key for publishing");
-			var versionSuffixOption = build.AddOption("--version-suffix <suffix>", "Generates a prerelease package");
-			var nugetOutputOption = build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release");
-			var triggerOption = build.AddOption("--trigger <name>", "The git branch or tag that triggered the build");
-			var branchOption = build.AddOption("--branch <name>", "The git branch being built (for docs updates)");
-
 			settings = settings ?? new DotNetBuildSettings();
+
+			var buildOptions = settings.BuildOptions ?? (settings.BuildOptions = new DotNetBuildOptions());
+			var configurationOption = buildOptions.ConfigurationOption ?? (buildOptions.ConfigurationOption =
+				build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release"));
+			var nugetApiKeyOption = buildOptions.NuGetApiKeyOption ?? (buildOptions.NuGetApiKeyOption =
+				build.AddOption("--nuget-api-key <name>", "NuGet API key for publishing"));
+			var versionSuffixOption = buildOptions.VersionSuffixOption ?? (buildOptions.VersionSuffixOption =
+				build.AddOption("--version-suffix <suffix>", "Generates a prerelease package"));
+			var nugetOutputOption = buildOptions.NuGetOutputOption ?? (buildOptions.NuGetOutputOption =
+				build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release"));
+			var triggerOption = buildOptions.TriggerOption ?? (buildOptions.TriggerOption =
+				build.AddOption("--trigger <name>", "The git branch or tag that triggered the build"));
+			var branchOption = buildOptions.BranchOption ?? (buildOptions.BranchOption =
+				build.AddOption("--branch <name>", "The git branch being built (for docs updates)"));
+
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 
