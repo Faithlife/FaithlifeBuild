@@ -100,7 +100,8 @@ namespace Faithlife.Build
 						throw new InvalidOperationException("No NuGet packages found.");
 
 					var triggerMatch = Regex.Match(trigger, @"^((?<package>[^-]+)-)?v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-[^-]+)?)$", RegexOptions.ExplicitCapture);
-					if (triggerMatch.Success)
+					var onlyUpdateDocs = trigger == "update-docs";
+					if (triggerMatch.Success || onlyUpdateDocs)
 					{
 						var publishPackage = triggerMatch.Groups["package"].Value;
 						var publishVersion = triggerMatch.Groups["version"].Value;
@@ -111,28 +112,31 @@ namespace Faithlife.Build
 							return (match.Groups[1].Value, match.Groups[2].Value);
 						}
 
-						if (publishPackage.Length == 0)
+						if (!onlyUpdateDocs)
 						{
-							var mismatches = packagePaths.Where(x => getPackageInfo(x).Version != publishVersion).ToList();
-							if (mismatches.Count != 0)
-								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
-						}
-						else
-						{
-							var matches = packagePaths.Where(x => $".{getPackageInfo(x).Project}".EndsWith($".{publishPackage}", StringComparison.OrdinalIgnoreCase)).ToList();
-							if (matches.Count == 0)
-								throw new InvalidOperationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
-							if (matches.Count > 1)
-								throw new InvalidOperationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
-							if (getPackageInfo(matches[0]).Version != publishVersion)
-								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
-							packagePaths = matches;
+							if (publishPackage.Length == 0)
+							{
+								var mismatches = packagePaths.Where(x => getPackageInfo(x).Version != publishVersion).ToList();
+								if (mismatches.Count != 0)
+									throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
+							}
+							else
+							{
+								var matches = packagePaths.Where(x => $".{getPackageInfo(x).Project}".EndsWith($".{publishPackage}", StringComparison.OrdinalIgnoreCase)).ToList();
+								if (matches.Count == 0)
+									throw new InvalidOperationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
+								if (matches.Count > 1)
+									throw new InvalidOperationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
+								if (getPackageInfo(matches[0]).Version != publishVersion)
+									throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
+								packagePaths = matches;
+							}
 						}
 
 						string branchName = branchOption.Value;
 						var docsSettings = settings.DocsSettings;
 						bool shouldPublishDocs = false;
-						if (docsSettings != null && branchName != null && !publishVersion.Contains("-"))
+						if (docsSettings != null && branchName != null && (onlyUpdateDocs || !publishVersion.Contains("-")))
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
 								throw new InvalidOperationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
@@ -161,11 +165,14 @@ namespace Faithlife.Build
 							}
 						}
 
-						foreach (var packagePath in packagePaths)
-							RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
+						if (!onlyUpdateDocs)
+						{
+							foreach (var packagePath in packagePaths)
+								RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
 
-						foreach (var packagePath in packagePaths)
-							RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
+							foreach (var packagePath in packagePaths)
+								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
+						}
 
 						if (shouldPublishDocs)
 						{
