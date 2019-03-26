@@ -146,10 +146,15 @@ namespace Faithlife.Build
 								{
 									var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
 										.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
-									if (dllPaths.Count == 0)
-										throw new InvalidOperationException($"Could not find DLL for {projectName}.");
-									RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
-										"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+									if (dllPaths.Count != 0)
+									{
+										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
+											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+									}
+									else
+									{
+										Console.WriteLine($"Documentation not generated for {projectName}; no DLL found.");
+									}
 								}
 
 								shouldPublishDocs = repository.RetrieveStatus().IsDirty;

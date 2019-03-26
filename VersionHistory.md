@@ -9,6 +9,7 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 * [minor] Use `DotNetBuildOptions` to access and/or override build options.
 * [minor] Automatically run any target named `default`.
 * [minor] Return existing target; allow multiple actions per target.
+* [minor] Don't crash if a packaged project doesn't output a DLL.
 
 ## Released
 
