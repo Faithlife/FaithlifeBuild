@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Faithlife.Build
@@ -35,14 +36,15 @@ namespace Faithlife.Build
 			new BuildOption(m_app.Option(template, description, CommandOptionType.SingleValue), defaultValue);
 
 		/// <summary>
-		/// Adds a build target.
+		/// Creates a build target.
 		/// </summary>
 		/// <param name="name">The name of the build target, e.g. <c>clean</c>.</param>
-		/// <returns>The added target.</returns>
+		/// <returns>The specified build target. If a target with the specified name already exists, it is returned.</returns>
 		public BuildTarget Target(string name)
 		{
-			var target = new BuildTarget(name);
-			m_targets.Add(target);
+			var target = m_targets.SingleOrDefault(x => x.Name == name);
+			if (target == null)
+				m_targets.Add(target = new BuildTarget(name));
 			return target;
 		}
 

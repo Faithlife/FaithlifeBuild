@@ -46,13 +46,13 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
-		/// Specifies the target action.
+		/// Adds an action to the target.
 		/// </summary>
 		/// <param name="action">The target action.</param>
 		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 		public BuildTarget Does(Action action)
 		{
-			m_action = action;
+			m_action += action;
 			return this;
 		}
 
