@@ -49,7 +49,11 @@ namespace Faithlife.Build
 
 			commandLineApp.OnExecute(() =>
 			{
-				var targets = targetsArgument.Values;
+				IReadOnlyList<string> targets = targetsArgument.Values;
+
+				if (targets.Count == 0 && buildApp.Targets.Any(x => x.Name == "default"))
+					targets = new[] { "default" };
+
 				if (helpFlag.Value || targets.Count == 0)
 				{
 					commandLineApp.ShowHelp();
