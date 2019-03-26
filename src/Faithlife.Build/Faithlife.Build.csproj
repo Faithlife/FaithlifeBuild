@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>0.3.1</VersionPrefix>
+    <VersionPrefix>0.4.0</VersionPrefix>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>A build automation system using C# build scripts.</Description>
     <PackageTags>build automation csharp</PackageTags>
