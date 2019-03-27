@@ -26,7 +26,7 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
-		private static void RunDotNetFrameworkApp(string path, params string[] args)
+		public static void RunDotNetFrameworkApp(string path, params string[] args)
 		{
 			if (BuildEnvironment.IsUnix())
 			{

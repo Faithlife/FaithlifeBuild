@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 
 ## Released
 
+### 0.4.1
+
+* [patch] Make private method public.
+
 ### 0.4.0
 
 * [minor] Use `DotNetBuildOptions` to access and/or override build options.
