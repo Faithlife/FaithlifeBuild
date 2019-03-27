@@ -51,8 +51,8 @@ namespace Faithlife.Build
 			{
 				IReadOnlyList<string> targets = targetsArgument.Values;
 
-				if (targets.Count == 0 && buildApp.Targets.Any(x => x.Name == "default"))
-					targets = new[] { "default" };
+				if (targets.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
+					targets = new[] { c_defaultTarget };
 
 				if (helpFlag.Value || targets.Count == 0)
 				{
@@ -81,13 +81,16 @@ namespace Faithlife.Build
 
 		private static void ShowTargets(IReadOnlyList<BuildTarget> targets)
 		{
-			if (targets.Count != 0)
+			var targetsToShow = targets.Where(x => x.Name != c_defaultTarget || !string.IsNullOrEmpty(x.Description)).ToList();
+			if (targetsToShow.Count != 0)
 			{
 				Console.WriteLine("Targets:");
-				int maxTargetLength = targets.Select(x => x.Name.Length).Max();
-				foreach (var target in targets)
+				int maxTargetLength = targetsToShow.Select(x => x.Name.Length).Max();
+				foreach (var target in targetsToShow)
 					Console.WriteLine("  {0}  {1}", target.Name.PadRight(maxTargetLength), target.Description);
 			}
 		}
+
+		private const string c_defaultTarget = "default";
 	}
 }
