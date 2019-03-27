@@ -15,6 +15,7 @@ Prefix the description of the change with `[major]`, `[minor]` or `[patch]` in a
 * [minor] Return existing target; allow multiple actions per target.
 * [minor] Don't crash if a packaged project doesn't output a DLL.
 * [minor] Support `update-docs` publish trigger for .NET builds.
+* [minor] Add `BuildEnvironment` and .NET Framework app support.
 
 ### 0.3.1
 
