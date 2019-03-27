@@ -1,6 +1,6 @@
 # BuildTarget.Does method
 
-Specifies the target action.
+Adds an action to the target.
 
 ```csharp
 public BuildTarget Does(Action action)

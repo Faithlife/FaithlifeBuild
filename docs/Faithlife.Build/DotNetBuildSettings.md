@@ -11,6 +11,7 @@ public sealed class DotNetBuildSettings
 | name | description |
 | --- | --- |
 | [DotNetBuildSettings](DotNetBuildSettings/DotNetBuildSettings.md)() | The default constructor. |
+| [BuildOptions](DotNetBuildSettings/BuildOptions.md) { get; set; } | The options and flags used by [`DotNetBuild`](DotNetBuild.md). |
 | [DocsSettings](DotNetBuildSettings/DocsSettings.md) { get; set; } | Used to generate Markdown documentation from XML comments. |
 | [DotNetTools](DotNetBuildSettings/DotNetTools.md) { get; set; } | Used to install .NET Core Global tools. |
 | [NuGetSource](DotNetBuildSettings/NuGetSource.md) { get; set; } | The NuGet source to which to push packages. The standard public NuGet source if omitted. |

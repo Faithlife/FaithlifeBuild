@@ -1,6 +1,6 @@
 # BuildApp.Target method
 
-Adds a build target.
+Creates a build target.
 
 ```csharp
 public BuildTarget Target(string name)
@@ -12,7 +12,7 @@ public BuildTarget Target(string name)
 
 ## Return Value
 
-The added target.
+The specified build target. If a target with the specified name already exists, it is returned.
 
 ## See Also
 

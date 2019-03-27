@@ -13,7 +13,7 @@ public sealed class BuildApp
 | [Targets](BuildApp/Targets.md) { get; } | The targets previously added to the build via [`Target`](BuildApp/Target.md). |
 | [AddFlag](BuildApp/AddFlag.md)(…) | Adds support for a no-value command-line flag. |
 | [AddOption](BuildApp/AddOption.md)(…) | Adds support for a single-value command-line option. |
-| [Target](BuildApp/Target.md)(…) | Adds a build target. |
+| [Target](BuildApp/Target.md)(…) | Creates a build target. |
 
 ## See Also
 
