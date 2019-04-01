@@ -15,6 +15,7 @@ public sealed class DotNetBuildSettings
 | [DocsSettings](DotNetBuildSettings/DocsSettings.md) { get; set; } | Used to generate Markdown documentation from XML comments. |
 | [DotNetTools](DotNetBuildSettings/DotNetTools.md) { get; set; } | Used to install .NET Core Global tools. |
 | [NuGetSource](DotNetBuildSettings/NuGetSource.md) { get; set; } | The NuGet source to which to push packages. The standard public NuGet source if omitted. |
+| [ProjectUsesSourceLink](DotNetBuildSettings/ProjectUsesSourceLink.md) { get; set; } | A function that returns true if the named project uses SourceLink. |
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
 | [SourceLinkToolVersion](DotNetBuildSettings/SourceLinkToolVersion.md) { get; set; } | The version of the `sourcelink` tool to use when testing packages. |
 
