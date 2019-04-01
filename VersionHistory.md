@@ -12,6 +12,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 * [minor] Don't document default target unless it has a description.
 * [minor] Add `DotNetBuildSettings.ProjectUsesSourceLink`.
+* [minor] Update XmlDocMarkdown.
 
 ### 0.4.1
 
