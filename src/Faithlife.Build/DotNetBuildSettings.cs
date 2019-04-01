@@ -1,3 +1,5 @@
+using System;
+
 namespace Faithlife.Build
 {
 	/// <summary>
@@ -39,5 +41,12 @@ namespace Faithlife.Build
 		/// <remarks>Any properties not set before <see cref="DotNetBuild.AddDotNetTargets"/> is called
 		/// will be set afterward.</remarks>
 		public DotNetBuildOptions BuildOptions { get; set; }
+
+		/// <summary>
+		/// A function that returns true if the named project uses SourceLink.
+		/// </summary>
+		/// <remarks>If not specified, all projects are assumed to use SourceLink. This property
+		/// determines whether the <c>sourcelink</c> tool is used to test each package.</remarks>
+		public Func<string, bool> ProjectUsesSourceLink { get; set; }
 	}
 }

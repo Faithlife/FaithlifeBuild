@@ -167,8 +167,12 @@ namespace Faithlife.Build
 
 						if (!onlyUpdateDocs)
 						{
+							var projectUsesSourceLink = settings.ProjectUsesSourceLink;
 							foreach (var packagePath in packagePaths)
-								RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
+							{
+								if (projectUsesSourceLink == null || projectUsesSourceLink(getPackageInfo(packagePath).Project))
+									RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
+							}
 
 							foreach (var packagePath in packagePaths)
 								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);

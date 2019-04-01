@@ -6,9 +6,12 @@ Describe changes here when they're committed to the `master` branch. Move them t
 
 Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in accordance with [Semantic Versioning](https://semver.org/).
 
-* [minor] Don't document default target unless it has a description.
-
 ## Released
+
+### 0.5.0
+
+* [minor] Don't document default target unless it has a description.
+* [minor] Add `DotNetBuildSettings.ProjectUsesSourceLink`.
 
 ### 0.4.1
 
