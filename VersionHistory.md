@@ -6,16 +6,18 @@ Describe changes here when they're committed to the `master` branch. Move them t
 
 Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in accordance with [Semantic Versioning](https://semver.org/).
 
+## Released
+
+### 0.6.0
+
 * [minor] Add `FindFilesFrom` and `FindDirectoriesFrom` to `BuildUtility`.
 * [minor] Globs should use case-insensitive matching.
 * [patch] Don't return the same found file/directory twice.
 * [minor] `BuildUtility.CopyFiles` uses globs to copy files.
 * [minor] Run MSBuild via `MSBuildRunner`.
-* [minor] Support running tools from NuGet packages.
+* [minor] Support running tools from NuGet packages via `PackagedTools`.
 * [minor] Support `IEnumerable<string> args`.
 * [patch] Handle `InvalidUsageException`.
-
-## Released
 
 ### 0.5.0
 
