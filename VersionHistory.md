@@ -13,6 +13,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 * [minor] Run MSBuild via `MSBuildRunner`.
 * [minor] Support running tools from NuGet packages.
 * [minor] Support `IEnumerable<string> args`.
+* [patch] Handle `InvalidUsageException`.
 
 ## Released
 

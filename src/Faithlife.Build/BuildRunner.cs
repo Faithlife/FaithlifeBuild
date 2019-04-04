@@ -71,6 +71,11 @@ namespace Faithlife.Build
 					{
 						return 1;
 					}
+					catch (Exception exception) when (exception.GetType().FullName == "Bullseye.Internal.InvalidUsageException")
+					{
+						Console.Error.WriteLine(exception.Message);
+						return 2;
+					}
 				}
 
 				return 0;
