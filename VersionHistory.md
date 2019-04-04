@@ -10,6 +10,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 * [minor] Globs should use case-insensitive matching.
 * [patch] Don't return the same found file/directory twice.
 * [minor] `BuildUtility.CopyFiles` uses globs to copy files.
+* [minor] Run MSBuild via `MSBuildRunner`.
 
 ## Released
 
