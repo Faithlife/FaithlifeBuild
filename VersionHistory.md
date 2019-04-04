@@ -12,6 +12,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 * [minor] `BuildUtility.CopyFiles` uses globs to copy files.
 * [minor] Run MSBuild via `MSBuildRunner`.
 * [minor] Support running tools from NuGet packages.
+* [minor] Support `IEnumerable<string> args`.
 
 ## Released
 

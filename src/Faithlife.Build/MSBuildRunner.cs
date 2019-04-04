@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using static Faithlife.Build.AppRunner;
 
 namespace Faithlife.Build
@@ -44,7 +46,13 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="version">The version of MSBuild.</param>
 		/// <param name="args">The arguments, if any.</param>
-		public static void RunMSBuild(MSBuildVersion version, params string[] args) =>
-			RunDotNetFrameworkApp(GetMSBuildPath(MSBuildVersion.VS2017), args);
+		public static void RunMSBuild(MSBuildVersion version, params string[] args) => RunMSBuild(version, args.AsEnumerable());
+
+		/// <summary>
+		/// Runs MSBuild with the specified arguments.
+		/// </summary>
+		/// <param name="version">The version of MSBuild.</param>
+		/// <param name="args">The arguments, if any.</param>
+		public static void RunMSBuild(MSBuildVersion version, IEnumerable<string> args) => RunDotNetFrameworkApp(GetMSBuildPath(version), args);
 	}
 }
