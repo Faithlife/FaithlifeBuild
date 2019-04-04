@@ -61,10 +61,15 @@ namespace Faithlife.Build
 				}
 				else
 				{
+					var bullseyeArgs = new List<string>();
+					if (!Environment.UserInteractive)
+						bullseyeArgs.Add("--no-color");
+					bullseyeArgs.AddRange(targets);
+
 					try
 					{
 #pragma warning disable 618
-						Bullseye.Targets.RunTargets(targets);
+						Bullseye.Targets.RunTargets(bullseyeArgs);
 #pragma warning restore 618
 					}
 					catch (Exception exception) when (exception.GetType().FullName == "Bullseye.Internal.TargetFailedException")

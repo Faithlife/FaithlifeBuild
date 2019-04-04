@@ -18,6 +18,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 * [minor] Support running tools from NuGet packages via `PackagedTools`.
 * [minor] Support `IEnumerable<string> args`.
 * [patch] Handle `InvalidUsageException`.
+* [patch] Only change output color when interactive.
 
 ### 0.5.0
 
