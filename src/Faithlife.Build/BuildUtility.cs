@@ -45,5 +45,22 @@ namespace Faithlife.Build
 		/// <returns>The paths of the matching directories.</returns>
 		public static IReadOnlyList<string> FindDirectoriesFrom(string directory, params string[] globs) =>
 			globs.SelectMany(glob => Glob.Directories(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
+
+		/// <summary>
+		/// Copies the files matching the specified globs from one directory to another, creating subdirectories as needed.
+		/// </summary>
+		/// <param name="fromDirectory">The source directory.</param>
+		/// <param name="toDirectory">The target directory.</param>
+		/// <param name="globs">The globs to match. Use <c>"**"</c> to copy all files and directories.</param>
+		public static void CopyFiles(string fromDirectory, string toDirectory, params string[] globs)
+		{
+			foreach (var filePath in globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct())
+			{
+				if (Path.GetDirectoryName(filePath) is string directoryName)
+					Directory.CreateDirectory(Path.Combine(toDirectory, directoryName));
+
+				File.Copy(Path.Combine(fromDirectory, filePath), Path.Combine(toDirectory, filePath));
+			}
+		}
 	}
 }
