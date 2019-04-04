@@ -11,6 +11,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 * [patch] Don't return the same found file/directory twice.
 * [minor] `BuildUtility.CopyFiles` uses globs to copy files.
 * [minor] Run MSBuild via `MSBuildRunner`.
+* [minor] Support running tools from NuGet packages.
 
 ## Released
 
