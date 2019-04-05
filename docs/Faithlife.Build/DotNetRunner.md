@@ -10,7 +10,7 @@ public static class DotNetRunner
 
 | name | description |
 | --- | --- |
-| static [RunDotNet](DotNetRunner/RunDotNet.md)(…) | Runs `dotnet` with the specified arguments. |
+| static [RunDotNet](DotNetRunner/RunDotNet.md)(…) | Runs `dotnet` with the specified arguments. (2 methods) |
 
 ## Remarks
 

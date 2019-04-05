@@ -10,8 +10,11 @@ public static class BuildUtility
 
 | name | description |
 | --- | --- |
-| static [FindDirectories](BuildUtility/FindDirectories.md)(…) | Finds the directories matching the specified globs. |
-| static [FindFiles](BuildUtility/FindFiles.md)(…) | Finds the files matching the specified globs. |
+| static [CopyFiles](BuildUtility/CopyFiles.md)(…) | Copies the files matching the specified globs from one directory to another, creating subdirectories as needed. |
+| static [FindDirectories](BuildUtility/FindDirectories.md)(…) | Finds the directories matching the specified globs, from the current working directory. |
+| static [FindDirectoriesFrom](BuildUtility/FindDirectoriesFrom.md)(…) | Finds the directories matching the specified globs. |
+| static [FindFiles](BuildUtility/FindFiles.md)(…) | Finds the files matching the specified globs, from the current working directory. |
+| static [FindFilesFrom](BuildUtility/FindFilesFrom.md)(…) | Finds the files matching the specified globs. |
 
 ## Remarks
 

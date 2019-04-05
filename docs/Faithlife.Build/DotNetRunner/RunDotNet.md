@@ -1,4 +1,23 @@
-# DotNetRunner.RunDotNet method
+# DotNetRunner.RunDotNet method (1 of 2)
+
+Runs `dotnet` with the specified arguments.
+
+```csharp
+public static void RunDotNet(IEnumerable<string> args)
+```
+
+| parameter | description |
+| --- | --- |
+| args | The command-line arguments. |
+
+## See Also
+
+* class [DotNetRunner](../DotNetRunner.md)
+* namespace [Faithlife.Build](../../Faithlife.Build.md)
+
+---
+
+# DotNetRunner.RunDotNet method (2 of 2)
 
 Runs `dotnet` with the specified arguments.
 
@@ -8,7 +27,7 @@ public static void RunDotNet(string[] args)
 
 | parameter | description |
 | --- | --- |
-| args | The arguments, if any. |
+| args | The command-line arguments. |
 
 ## See Also
 

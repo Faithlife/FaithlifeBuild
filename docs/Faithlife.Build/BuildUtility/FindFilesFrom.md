@@ -1,18 +1,19 @@
-# BuildUtility.FindDirectories method
+# BuildUtility.FindFilesFrom method
 
-Finds the directories matching the specified globs, from the current working directory.
+Finds the files matching the specified globs.
 
 ```csharp
-public static IReadOnlyList<string> FindDirectories(string[] globs)
+public static IReadOnlyList<string> FindFilesFrom(string directory, string[] globs)
 ```
 
 | parameter | description |
 | --- | --- |
+| directory | The starting directory. |
 | globs | The globs to match. |
 
 ## Return Value
 
-The paths of the matching directories.
+The paths of the matching files.
 
 ## See Also
 

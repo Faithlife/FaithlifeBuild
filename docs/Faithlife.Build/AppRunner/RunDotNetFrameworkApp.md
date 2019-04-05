@@ -1,4 +1,28 @@
-# AppRunner.RunDotNetFrameworkApp method
+# AppRunner.RunDotNetFrameworkApp method (1 of 2)
+
+Runs the specified .NET Framework command-line app.
+
+```csharp
+public static void RunDotNetFrameworkApp(string path, IEnumerable<string> args)
+```
+
+| parameter | description |
+| --- | --- |
+| path | The path of the command-line app. |
+| args | The arguments to send to the command-line app. |
+
+## Remarks
+
+On Linux and macOS, Mono is used to run the app.
+
+## See Also
+
+* class [AppRunner](../AppRunner.md)
+* namespace [Faithlife.Build](../../Faithlife.Build.md)
+
+---
+
+# AppRunner.RunDotNetFrameworkApp method (2 of 2)
 
 Runs the specified .NET Framework command-line app.
 

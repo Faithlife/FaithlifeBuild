@@ -1,6 +1,6 @@
 # BuildUtility.FindFiles method
 
-Finds the files matching the specified globs.
+Finds the files matching the specified globs, from the current working directory.
 
 ```csharp
 public static IReadOnlyList<string> FindFiles(string[] globs)
