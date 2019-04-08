@@ -9,7 +9,7 @@ namespace Faithlife.Build
 	/// Helper methods for build scripts.
 	/// </summary>
 	/// <remarks>
-	/// <para>See https://github.com/kthompson/glob for documentation on globs.</para>
+	/// <para>See <see href="https://github.com/kthompson/glob" /> for documentation on globs.</para>
 	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.BuildUtility;</c></para>
 	/// </remarks>
 	public static class BuildUtility
