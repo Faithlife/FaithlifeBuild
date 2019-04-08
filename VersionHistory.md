@@ -6,6 +6,8 @@ Describe changes here when they're committed to the `master` branch. Move them t
 
 Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in accordance with [Semantic Versioning](https://semver.org/).
 
+* [minor] Update XmlDocMarkdown.
+
 ## Released
 
 ### 0.6.0
