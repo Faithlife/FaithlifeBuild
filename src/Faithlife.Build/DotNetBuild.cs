@@ -52,9 +52,14 @@ namespace Faithlife.Build
 						Directory.Delete(directory, recursive: true);
 				});
 
+			build.Target("restore")
+				.Describe("Restores NuGet packages")
+				.Does(() => RunDotNet("restore", solutionName, "-c", configurationOption.Value, "--verbosity", "normal"));
+
 			build.Target("build")
+				.DependsOn("restore")
 				.Describe("Builds the solution")
-				.Does(() => RunDotNet("build", solutionName, "-c", configurationOption.Value, "--verbosity", "normal"));
+				.Does(() => RunDotNet("build", solutionName, "-c", configurationOption.Value, "--no-restore", "--verbosity", "normal"));
 
 			build.Target("test")
 				.DependsOn("build")
