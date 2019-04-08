@@ -24,7 +24,7 @@ public static void RunMSBuild(MSBuildVersion version, IEnumerable<string> args)
 Runs MSBuild with the specified arguments.
 
 ```csharp
-public static void RunMSBuild(MSBuildVersion version, string[] args)
+public static void RunMSBuild(MSBuildVersion version, params string[] args)
 ```
 
 | parameter | description |

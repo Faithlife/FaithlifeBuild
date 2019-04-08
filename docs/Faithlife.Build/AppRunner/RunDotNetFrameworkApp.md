@@ -27,7 +27,7 @@ On Linux and macOS, Mono is used to run the app.
 Runs the specified .NET Framework command-line app.
 
 ```csharp
-public static void RunDotNetFrameworkApp(string path, string[] args)
+public static void RunDotNetFrameworkApp(string path, params string[] args)
 ```
 
 | parameter | description |

@@ -3,7 +3,7 @@
 Adds a target dependency by name.
 
 ```csharp
-public BuildTarget DependsOn(string[] targets)
+public BuildTarget DependsOn(params string[] targets)
 ```
 
 | parameter | description |

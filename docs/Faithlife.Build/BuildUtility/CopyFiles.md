@@ -3,7 +3,7 @@
 Copies the files matching the specified globs from one directory to another, creating subdirectories as needed.
 
 ```csharp
-public static void CopyFiles(string fromDirectory, string toDirectory, string[] globs)
+public static void CopyFiles(string fromDirectory, string toDirectory, params string[] globs)
 ```
 
 | parameter | description |

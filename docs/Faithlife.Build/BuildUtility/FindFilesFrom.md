@@ -3,7 +3,7 @@
 Finds the files matching the specified globs.
 
 ```csharp
-public static IReadOnlyList<string> FindFilesFrom(string directory, string[] globs)
+public static IReadOnlyList<string> FindFilesFrom(string directory, params string[] globs)
 ```
 
 | parameter | description |

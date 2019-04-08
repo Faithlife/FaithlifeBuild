@@ -23,7 +23,7 @@ public static void RunApp(string path, IEnumerable<string> args)
 Runs the specified command-line app.
 
 ```csharp
-public static void RunApp(string path, string[] args)
+public static void RunApp(string path, params string[] args)
 ```
 
 | parameter | description |

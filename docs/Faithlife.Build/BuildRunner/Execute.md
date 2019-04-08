@@ -4,7 +4,7 @@ Executes an automated build. Called from `Main`.
 
 ```csharp
 public static int Execute(string[] args, Action<BuildApp> initialize, 
-    string workingDirectory = null, string callerFilePath = null)
+    string workingDirectory = null, [CallerFilePath] string callerFilePath = null)
 ```
 
 | parameter | description |

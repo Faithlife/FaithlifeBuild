@@ -22,7 +22,7 @@ public static void RunDotNet(IEnumerable<string> args)
 Runs `dotnet` with the specified arguments.
 
 ```csharp
-public static void RunDotNet(string[] args)
+public static void RunDotNet(params string[] args)
 ```
 
 | parameter | description |
