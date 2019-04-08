@@ -6,10 +6,12 @@ Describe changes here when they're committed to the `master` branch. Move them t
 
 Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in accordance with [Semantic Versioning](https://semver.org/).
 
+## Released
+
+### 0.7.0
+
 * [minor] Update XmlDocMarkdown.
 * [minor] Add restore target to DotNetBuild.
-
-## Released
 
 ### 0.6.0
 
