@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 0.7.1
+
+* [patch] Restore doesn't support configuration.
+
 ### 0.7.0
 
 * [minor] Update XmlDocMarkdown.

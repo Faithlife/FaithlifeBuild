@@ -54,7 +54,7 @@ namespace Faithlife.Build
 
 			build.Target("restore")
 				.Describe("Restores NuGet packages")
-				.Does(() => RunDotNet("restore", solutionName, "-c", configurationOption.Value, "--verbosity", "normal"));
+				.Does(() => RunDotNet("restore", solutionName, "--verbosity", "normal"));
 
 			build.Target("build")
 				.DependsOn("restore")
