@@ -11,6 +11,7 @@ public sealed class DotNetTools
 | name | description |
 | --- | --- |
 | [DotNetTools](DotNetTools/DotNetTools.md)(…) | Prepares to install .NET Core Global Tools within the specified directory. |
+| [AddSource](DotNetTools/AddSource.md)(…) | Adds the specified NuGet package source. |
 | [GetToolPath](DotNetTools/GetToolPath.md)(…) | Gets the path to the specified tool, installing it if necessary. |
 
 ## See Also
