@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using static Faithlife.Build.DotNetRunner;
 
@@ -15,6 +16,7 @@ namespace Faithlife.Build
 		public DotNetTools(string directory)
 		{
 			m_directory = directory;
+			m_sources = new List<string>();
 		}
 
 		/// <summary>
@@ -34,14 +36,57 @@ namespace Faithlife.Build
 				package = package.Substring(0, slashIndex);
 			}
 
+			var args = new List<string>();
 			string directory = Path.Combine(m_directory, package, version ?? "latest");
+
 			if (!Directory.Exists(directory))
-				RunDotNet("tool", "install", package, "--tool-path", directory, version != null ? "--version" : null, version);
+			{
+				args.Add("tool");
+				args.Add("install");
+				args.Add(package);
+
+				if (version != null)
+				{
+					args.Add("--version");
+					args.Add(version);
+				}
+			}
 			else if (version == null)
-				RunDotNet("tool", "update", package, "--tool-path", directory);
+			{
+				args.Add("tool");
+				args.Add("update");
+				args.Add(package);
+			}
+
+			if (args.Count != 0)
+			{
+				args.Add("--tool-path");
+				args.Add(directory);
+
+				foreach (var source in m_sources)
+				{
+					args.Add("--add-source");
+					args.Add(source);
+				}
+
+				RunDotNet(args);
+			}
+
 			return Path.Combine(directory, name ?? package);
 		}
 
+		/// <summary>
+		/// Adds the specified NuGet package source.
+		/// </summary>
+		/// <param name="source">The path or URL of the NuGet package source.</param>
+		/// <returns>The <c>DotNetTools</c> instance, for use by the "fluent" builder pattern.</returns>
+		public DotNetTools AddSource(string source)
+		{
+			m_sources.Add(source);
+			return this;
+		}
+
 		private readonly string m_directory;
+		private readonly List<string> m_sources;
 	}
 }
