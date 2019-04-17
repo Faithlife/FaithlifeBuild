@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using static Faithlife.Build.DotNetRunner;
 
 namespace Faithlife.Build
@@ -15,7 +16,7 @@ namespace Faithlife.Build
 		/// <param name="directory">The directory path.</param>
 		public DotNetTools(string directory)
 		{
-			m_directory = directory;
+			m_directory = Path.GetFullPath(directory);
 			m_sources = new List<string>();
 		}
 
@@ -82,7 +83,7 @@ namespace Faithlife.Build
 		/// <returns>The <c>DotNetTools</c> instance, for use by the "fluent" builder pattern.</returns>
 		public DotNetTools AddSource(string source)
 		{
-			m_sources.Add(source);
+			m_sources.Add(Regex.IsMatch(source, @"^\w+:") ? source : Path.GetFullPath(source));
 			return this;
 		}
 

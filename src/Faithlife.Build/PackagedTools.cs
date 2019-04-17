@@ -25,7 +25,7 @@ namespace Faithlife.Build
 		/// <param name="directory">The directory path.</param>
 		public PackagedTools(string directory)
 		{
-			m_directory = directory;
+			m_directory = Path.GetFullPath(directory);
 		}
 
 		/// <summary>
