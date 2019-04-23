@@ -41,6 +41,7 @@ namespace Faithlife.Build
 			var buildApp = new BuildApp(commandLineApp);
 			initialize(buildApp);
 
+			var noColorFlag = buildApp.AddFlag("--no-color", "Disable color output");
 			var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
 			var targetsArgument = commandLineApp.Argument("targets", "The targets to build", multipleValues: true);
 
@@ -49,10 +50,10 @@ namespace Faithlife.Build
 
 			commandLineApp.OnExecute(() =>
 			{
-				IReadOnlyList<string> targets = targetsArgument.Values;
+				var targets = targetsArgument.Values.ToList();
 
 				if (targets.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
-					targets = new[] { c_defaultTarget };
+					targets.Add(c_defaultTarget);
 
 				if (helpFlag.Value || targets.Count == 0)
 				{
@@ -61,6 +62,9 @@ namespace Faithlife.Build
 				}
 				else
 				{
+					if (noColorFlag.Value)
+						targets.Add("--no-color");
+
 					try
 					{
 #pragma warning disable 618
