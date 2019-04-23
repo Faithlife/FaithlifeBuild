@@ -42,7 +42,7 @@ namespace Faithlife.Build
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.0.0";
-			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.0";
+			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.1";
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
