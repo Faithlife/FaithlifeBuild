@@ -75,7 +75,7 @@ namespace Faithlife.Build
 					string trigger = triggerOption.Value;
 					if (versionSuffix == null && trigger != null)
 					{
-						var group = Regex.Match(trigger, @"^v[^\.]+\.[^\.]+\.[^\.]+-(.+)").Groups[1];
+						var group = s_triggerRegex.Match(trigger).Groups["suffix"];
 						if (group.Success)
 							versionSuffix = group.ToString();
 					}
@@ -104,35 +104,29 @@ namespace Faithlife.Build
 					if (packagePaths.Count == 0)
 						throw new InvalidOperationException("No NuGet packages found.");
 
-					var triggerMatch = Regex.Match(trigger, @"^((?<package>[^-]+)-)?v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-[^-]+)?)$", RegexOptions.ExplicitCapture);
+					var triggerMatch = s_triggerRegex.Match(trigger);
 					var onlyUpdateDocs = trigger == "update-docs";
 					if (triggerMatch.Success || onlyUpdateDocs)
 					{
-						var publishPackage = triggerMatch.Groups["package"].Value;
+						var publishPackage = triggerMatch.Groups["name"].Value;
 						var publishVersion = triggerMatch.Groups["version"].Value;
-
-						(string Project, string Version) getPackageInfo(string path)
-						{
-							var match = Regex.Match(path, @"[/\\]([^/\\]*)\.([0-9]+\.[0-9]+\.[0-9]+(-[^-]+)?)\.nupkg$");
-							return (match.Groups[1].Value, match.Groups[2].Value);
-						}
 
 						if (!onlyUpdateDocs)
 						{
 							if (publishPackage.Length == 0)
 							{
-								var mismatches = packagePaths.Where(x => getPackageInfo(x).Version != publishVersion).ToList();
+								var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != publishVersion).ToList();
 								if (mismatches.Count != 0)
 									throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
 							}
 							else
 							{
-								var matches = packagePaths.Where(x => $".{getPackageInfo(x).Project}".EndsWith($".{publishPackage}", StringComparison.OrdinalIgnoreCase)).ToList();
+								var matches = packagePaths.Where(x => $".{GetPackageInfo(x).Name}".EndsWith($".{publishPackage}", StringComparison.OrdinalIgnoreCase)).ToList();
 								if (matches.Count == 0)
 									throw new InvalidOperationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
 								if (matches.Count > 1)
 									throw new InvalidOperationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
-								if (getPackageInfo(matches[0]).Version != publishVersion)
+								if (GetPackageInfo(matches[0]).Version != publishVersion)
 									throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
 								packagePaths = matches;
 							}
@@ -151,7 +145,7 @@ namespace Faithlife.Build
 								var branch = repository.Branches[branchName] ?? repository.CreateBranch(branchName);
 								Commands.Checkout(repository, branch);
 
-								foreach (var projectName in packagePaths.Select(x => getPackageInfo(x).Project))
+								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
 								{
 									var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
 										.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
@@ -175,7 +169,7 @@ namespace Faithlife.Build
 							var projectUsesSourceLink = settings.ProjectUsesSourceLink;
 							foreach (var packagePath in packagePaths)
 							{
-								if (projectUsesSourceLink == null || projectUsesSourceLink(getPackageInfo(packagePath).Project))
+								if (projectUsesSourceLink == null || projectUsesSourceLink(GetPackageInfo(packagePath).Name))
 									RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
 							}
 
@@ -203,5 +197,13 @@ namespace Faithlife.Build
 					}
 				});
 		}
+
+		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)
+		{
+			var match = Regex.Match(path, @"[/\\](?<name>[^/\\]+)\.(?<version>[0-9]+\.[0-9]+\.[0-9]+(-(?<suffix>.+))?)\.nupkg$", RegexOptions.ExplicitCapture);
+			return (match.Groups["name"].Value, match.Groups["version"].Value, match.Groups["suffix"].Value);
+		}
+
+		private static readonly Regex s_triggerRegex = new Regex(@"^((?<name>[^/\\]+)-)?v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-(?<suffix>.+))?)$", RegexOptions.ExplicitCapture);
 	}
 }
