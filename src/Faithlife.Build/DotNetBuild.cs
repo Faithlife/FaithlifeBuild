@@ -48,7 +48,7 @@ namespace Faithlife.Build
 				.Describe("Deletes all build output")
 				.Does(() =>
 				{
-					foreach (var directory in FindDirectories("{src,tests}/**/{bin,obj}", "release"))
+					foreach (var directory in FindDirectories("{src,tests}/**/{bin,obj}", "tools/bin", "release"))
 						Directory.Delete(directory, recursive: true);
 				});
 
