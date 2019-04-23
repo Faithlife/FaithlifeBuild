@@ -100,7 +100,7 @@ namespace Faithlife.Build
 					if (trigger == null)
 						throw new InvalidOperationException("--trigger option required to publish.");
 
-					var packagePaths = FindFiles("release/*.nupkg");
+					var packagePaths = FindFilesFrom(Path.GetFullPath(nugetOutputOption.Value), "*.nupkg");
 					if (packagePaths.Count == 0)
 						throw new InvalidOperationException("No NuGet packages found.");
 
