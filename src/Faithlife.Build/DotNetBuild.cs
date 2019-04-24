@@ -68,7 +68,7 @@ namespace Faithlife.Build
 
 			build.Target("package")
 				.DependsOn("test")
-				.Describe("Builds the NuGet package")
+				.Describe("Builds NuGet packages")
 				.Does(() =>
 				{
 					string versionSuffix = versionSuffixOption.Value;
@@ -88,54 +88,58 @@ namespace Faithlife.Build
 				});
 
 			build.Target("publish")
-				.Describe("Publishes the NuGet package and documentation")
+				.Describe("Publishes NuGet packages and documentation")
 				.DependsOn("clean", "package")
 				.Does(() =>
 				{
 					var nugetApiKey = nugetApiKeyOption.Value;
 					if (nugetApiKey == null)
-						throw new InvalidOperationException("--nuget-api-key option required to publish.");
+						throw new InvalidOperationException("--nuget-api-key option required.");
 
 					var trigger = triggerOption.Value;
 					if (trigger == null)
-						throw new InvalidOperationException("--trigger option required to publish.");
+						throw new InvalidOperationException("--trigger option required.");
 
 					var packagePaths = FindFilesFrom(Path.GetFullPath(nugetOutputOption.Value), "*.nupkg");
 					if (packagePaths.Count == 0)
 						throw new InvalidOperationException("No NuGet packages found.");
 
-					var triggerMatch = s_triggerRegex.Match(trigger);
-					var onlyUpdateDocs = trigger == "update-docs";
-					if (triggerMatch.Success || onlyUpdateDocs)
-					{
-						var publishPackage = triggerMatch.Groups["name"].Value;
-						var publishVersion = triggerMatch.Groups["version"].Value;
+					bool shouldPublishPackages = trigger == "publish-package" || trigger == "publish-packages" || trigger == "publish-all";
+					bool shouldPublishDocs = trigger == "publish-docs" || trigger == "publish-all";
 
-						if (!onlyUpdateDocs)
+					var triggerMatch = s_triggerRegex.Match(trigger);
+					if (triggerMatch.Success)
+					{
+						var triggerName = triggerMatch.Groups["name"].Value;
+						var triggerVersion = triggerMatch.Groups["version"].Value;
+						if (triggerName.Length == 0)
 						{
-							if (publishPackage.Length == 0)
-							{
-								var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != publishVersion).ToList();
-								if (mismatches.Count != 0)
-									throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
-							}
-							else
-							{
-								var matches = packagePaths.Where(x => $".{GetPackageInfo(x).Name}".EndsWith($".{publishPackage}", StringComparison.OrdinalIgnoreCase)).ToList();
-								if (matches.Count == 0)
-									throw new InvalidOperationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
-								if (matches.Count > 1)
-									throw new InvalidOperationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
-								if (GetPackageInfo(matches[0]).Version != publishVersion)
-									throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
-								packagePaths = matches;
-							}
+							var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
+							if (mismatches.Count != 0)
+								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
+						}
+						else
+						{
+							var matches = packagePaths.Where(x => $".{GetPackageInfo(x).Name}".EndsWith($".{triggerName}", StringComparison.OrdinalIgnoreCase)).ToList();
+							if (matches.Count == 0)
+								throw new InvalidOperationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
+							if (matches.Count > 1)
+								throw new InvalidOperationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
+							if (GetPackageInfo(matches[0]).Version != triggerVersion)
+								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
+							packagePaths = matches;
 						}
 
+						shouldPublishPackages = true;
+						shouldPublishDocs = !triggerMatch.Groups["suffix"].Success;
+					}
+
+					if (shouldPublishPackages || shouldPublishDocs)
+					{
 						string branchName = branchOption.Value;
 						var docsSettings = settings.DocsSettings;
-						bool shouldPublishDocs = false;
-						if (docsSettings != null && branchName != null && (onlyUpdateDocs || !publishVersion.Contains("-")))
+						bool shouldPushDocs = false;
+						if (shouldPublishDocs && docsSettings != null && branchName != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
 								throw new InvalidOperationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
@@ -160,11 +164,11 @@ namespace Faithlife.Build
 									}
 								}
 
-								shouldPublishDocs = repository.RetrieveStatus().IsDirty;
+								shouldPushDocs = repository.RetrieveStatus().IsDirty;
 							}
 						}
 
-						if (!onlyUpdateDocs)
+						if (shouldPublishPackages)
 						{
 							var projectUsesSourceLink = settings.ProjectUsesSourceLink;
 							foreach (var packagePath in packagePaths)
@@ -177,14 +181,14 @@ namespace Faithlife.Build
 								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
 						}
 
-						if (shouldPublishDocs)
+						if (shouldPushDocs)
 						{
 							using (var repository = new Repository("."))
 							{
 								Console.WriteLine("Publishing documentation changes.");
 								Commands.Stage(repository, "*");
 								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
-								repository.Commit($"Documentation updated for {trigger}.", author, author, new CommitOptions());
+								repository.Commit("Documentation updated.", author, author, new CommitOptions());
 								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
 								repository.Network.Push(repository.Network.Remotes["origin"],
 									$"refs/heads/{branchName}", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
