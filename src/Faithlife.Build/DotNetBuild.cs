@@ -34,8 +34,6 @@ namespace Faithlife.Build
 				build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release"));
 			var triggerOption = buildOptions.TriggerOption ?? (buildOptions.TriggerOption =
 				build.AddOption("--trigger <name>", "The git branch or tag that triggered the build"));
-			var branchOption = buildOptions.BranchOption ?? (buildOptions.BranchOption =
-				build.AddOption("--branch <name>", "The git branch being built (for docs updates)"));
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
@@ -136,26 +134,28 @@ namespace Faithlife.Build
 
 					if (shouldPublishPackages || shouldPublishDocs)
 					{
-						string branchName = branchOption.Value;
 						var docsSettings = settings.DocsSettings;
 						bool shouldPushDocs = false;
-						if (shouldPublishDocs && docsSettings != null && branchName != null)
+						if (shouldPublishDocs && docsSettings != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
 								throw new InvalidOperationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
+							if (docsSettings.GitRepositoryUrl == null || docsSettings.GitBranchName == null || docsSettings.GitCloneDirectory == null)
+								throw new InvalidOperationException("GitRepositoryUrl, GitBranchName, and docsSettings.GitCloneDirectory must be set on DocumentationSettings.");
 
-							using (var repository = new Repository("."))
+							Repository.Clone(sourceUrl: docsSettings.GitRepositoryUrl, workdirPath: docsSettings.GitCloneDirectory,
+								options: new CloneOptions { BranchName = docsSettings.GitBranchName });
+
+							using (var repository = new Repository(docsSettings.GitCloneDirectory))
 							{
-								var branch = repository.Branches[branchName] ?? repository.CreateBranch(branchName);
-								Commands.Checkout(repository, branch);
-
 								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
 								{
 									var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
 										.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
 									if (dllPaths.Count != 0)
 									{
-										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0], docsSettings.TargetDirectory ?? "docs",
+										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0],
+											Path.Combine(docsSettings.GitCloneDirectory, docsSettings.TargetDirectory ?? "docs"),
 											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 									}
 									else
@@ -183,15 +183,14 @@ namespace Faithlife.Build
 
 						if (shouldPushDocs)
 						{
-							using (var repository = new Repository("."))
+							using (var repository = new Repository(docsSettings.GitCloneDirectory))
 							{
 								Console.WriteLine("Publishing documentation changes.");
 								Commands.Stage(repository, "*");
 								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
 								repository.Commit("Documentation updated.", author, author, new CommitOptions());
 								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
-								repository.Network.Push(repository.Network.Remotes["origin"],
-									$"refs/heads/{branchName}", new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
+								repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 							}
 						}
 					}
