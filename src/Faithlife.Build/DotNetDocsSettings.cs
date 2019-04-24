@@ -36,11 +36,6 @@ namespace Faithlife.Build
 		public string GitBranchName { get; set; }
 
 		/// <summary>
-		/// The directory where the git repository is cloned.
-		/// </summary>
-		public string GitCloneDirectory { get; set; }
-
-		/// <summary>
 		/// The target framework from which to generate documentation. (Optional.)
 		/// </summary>
 		/// <remarks>Defaults to any target framework. Supports wildcards, e.g. <c>"netstandard*"</c>.

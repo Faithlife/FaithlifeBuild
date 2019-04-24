@@ -136,17 +136,19 @@ namespace Faithlife.Build
 					{
 						var docsSettings = settings.DocsSettings;
 						bool shouldPushDocs = false;
+						string cloneDirectory = null;
 						if (shouldPublishDocs && docsSettings != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
 								throw new InvalidOperationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
-							if (docsSettings.GitRepositoryUrl == null || docsSettings.GitBranchName == null || docsSettings.GitCloneDirectory == null)
+							if (docsSettings.GitRepositoryUrl == null || docsSettings.GitBranchName == null)
 								throw new InvalidOperationException("GitRepositoryUrl, GitBranchName, and docsSettings.GitCloneDirectory must be set on DocumentationSettings.");
 
-							Repository.Clone(sourceUrl: docsSettings.GitRepositoryUrl, workdirPath: docsSettings.GitCloneDirectory,
+							cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
+							Repository.Clone(sourceUrl: docsSettings.GitRepositoryUrl, workdirPath: cloneDirectory,
 								options: new CloneOptions { BranchName = docsSettings.GitBranchName });
 
-							using (var repository = new Repository(docsSettings.GitCloneDirectory))
+							using (var repository = new Repository(cloneDirectory))
 							{
 								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
 								{
@@ -155,7 +157,7 @@ namespace Faithlife.Build
 									if (dllPaths.Count != 0)
 									{
 										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0],
-											Path.Combine(docsSettings.GitCloneDirectory, docsSettings.TargetDirectory ?? "docs"),
+											Path.Combine(cloneDirectory, docsSettings.TargetDirectory ?? "docs"),
 											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 									}
 									else
@@ -183,7 +185,7 @@ namespace Faithlife.Build
 
 						if (shouldPushDocs)
 						{
-							using (var repository = new Repository(docsSettings.GitCloneDirectory))
+							using (var repository = new Repository(cloneDirectory))
 							{
 								Console.WriteLine("Publishing documentation changes.");
 								Commands.Stage(repository, "*");
@@ -192,6 +194,14 @@ namespace Faithlife.Build
 								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
 								repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 							}
+						}
+
+						if (cloneDirectory != null)
+						{
+							// delete the cloned directory
+							foreach (var fileInfo in FindFiles(cloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
+								fileInfo.IsReadOnly = false;
+							Directory.Delete(cloneDirectory, recursive: true);
 						}
 					}
 					else
