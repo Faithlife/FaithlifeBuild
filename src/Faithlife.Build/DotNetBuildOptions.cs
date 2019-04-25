@@ -11,11 +11,6 @@ namespace Faithlife.Build
 		public BuildOption ConfigurationOption { get; set; }
 
 		/// <summary>
-		/// NuGet API key for publishing.
-		/// </summary>
-		public BuildOption NuGetApiKeyOption { get; set; }
-
-		/// <summary>
 		/// Generates a prerelease package.
 		/// </summary>
 		public BuildOption VersionSuffixOption { get; set; }

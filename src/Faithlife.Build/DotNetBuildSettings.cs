@@ -13,6 +13,11 @@ namespace Faithlife.Build
 		public string SolutionName { get; set; }
 
 		/// <summary>
+		/// The NuGet API key with which to push packages.
+		/// </summary>
+		public string NuGetApiKey { get; set; }
+
+		/// <summary>
 		/// The NuGet source to which to push packages. The standard public NuGet source if omitted.
 		/// </summary>
 		public string NuGetSource { get; set; }

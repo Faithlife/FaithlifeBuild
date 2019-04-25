@@ -26,8 +26,6 @@ namespace Faithlife.Build
 			var buildOptions = settings.BuildOptions ?? (settings.BuildOptions = new DotNetBuildOptions());
 			var configurationOption = buildOptions.ConfigurationOption ?? (buildOptions.ConfigurationOption =
 				build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release"));
-			var nugetApiKeyOption = buildOptions.NuGetApiKeyOption ?? (buildOptions.NuGetApiKeyOption =
-				build.AddOption("--nuget-api-key <name>", "NuGet API key for publishing"));
 			var versionSuffixOption = buildOptions.VersionSuffixOption ?? (buildOptions.VersionSuffixOption =
 				build.AddOption("--version-suffix <suffix>", "Generates a prerelease package"));
 			var nugetOutputOption = buildOptions.NuGetOutputOption ?? (buildOptions.NuGetOutputOption =
@@ -90,17 +88,17 @@ namespace Faithlife.Build
 				.DependsOn("clean", "package")
 				.Does(() =>
 				{
-					var nugetApiKey = nugetApiKeyOption.Value;
+					var nugetApiKey = settings.NuGetApiKey;
 					if (nugetApiKey == null)
-						throw new InvalidOperationException("--nuget-api-key option required.");
+						throw new ApplicationException("NuGetApiKey required.");
 
 					var trigger = triggerOption.Value;
 					if (trigger == null)
-						throw new InvalidOperationException("--trigger option required.");
+						throw new ApplicationException("--trigger option required.");
 
 					var packagePaths = FindFilesFrom(Path.GetFullPath(nugetOutputOption.Value), "*.nupkg");
 					if (packagePaths.Count == 0)
-						throw new InvalidOperationException("No NuGet packages found.");
+						throw new ApplicationException("No NuGet packages found.");
 
 					bool shouldPublishPackages = trigger == "publish-package" || trigger == "publish-packages" || trigger == "publish-all";
 					bool shouldPublishDocs = trigger == "publish-docs" || trigger == "publish-all";
@@ -114,17 +112,17 @@ namespace Faithlife.Build
 						{
 							var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
 							if (mismatches.Count != 0)
-								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
+								throw new ApplicationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
 						}
 						else
 						{
 							var matches = packagePaths.Where(x => $".{GetPackageInfo(x).Name}".EndsWith($".{triggerName}", StringComparison.OrdinalIgnoreCase)).ToList();
 							if (matches.Count == 0)
-								throw new InvalidOperationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
+								throw new ApplicationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
 							if (matches.Count > 1)
-								throw new InvalidOperationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
+								throw new ApplicationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
 							if (GetPackageInfo(matches[0]).Version != triggerVersion)
-								throw new InvalidOperationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
+								throw new ApplicationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
 							packagePaths = matches;
 						}
 
@@ -140,9 +138,9 @@ namespace Faithlife.Build
 						if (shouldPublishDocs && docsSettings != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
-								throw new InvalidOperationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
+								throw new ApplicationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
 							if (docsSettings.GitRepositoryUrl == null || docsSettings.GitBranchName == null)
-								throw new InvalidOperationException("GitRepositoryUrl, GitBranchName, and docsSettings.GitCloneDirectory must be set on DocumentationSettings.");
+								throw new ApplicationException("GitRepositoryUrl, GitBranchName, and docsSettings.GitCloneDirectory must be set on DocumentationSettings.");
 
 							cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
 							Repository.Clone(sourceUrl: docsSettings.GitRepositoryUrl, workdirPath: cloneDirectory,
