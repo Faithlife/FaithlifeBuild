@@ -88,17 +88,13 @@ namespace Faithlife.Build
 				.DependsOn("clean", "package")
 				.Does(() =>
 				{
-					var nugetApiKey = settings.NuGetApiKey;
-					if (nugetApiKey == null)
-						throw new ApplicationException("NuGetApiKey required.");
+					var packagePaths = FindFilesFrom(Path.GetFullPath(nugetOutputOption.Value), "*.nupkg");
+					if (packagePaths.Count == 0)
+						throw new ApplicationException("No NuGet packages found.");
 
 					var trigger = triggerOption.Value;
 					if (trigger == null)
 						throw new ApplicationException("--trigger option required.");
-
-					var packagePaths = FindFilesFrom(Path.GetFullPath(nugetOutputOption.Value), "*.nupkg");
-					if (packagePaths.Count == 0)
-						throw new ApplicationException("No NuGet packages found.");
 
 					bool shouldPublishPackages = trigger == "publish-package" || trigger == "publish-packages" || trigger == "publish-all";
 					bool shouldPublishDocs = trigger == "publish-docs" || trigger == "publish-all";
@@ -183,6 +179,10 @@ namespace Faithlife.Build
 								if (projectUsesSourceLink == null || projectUsesSourceLink(GetPackageInfo(packagePath).Name))
 									RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
 							}
+
+							var nugetApiKey = settings.NuGetApiKey;
+							if (string.IsNullOrEmpty(nugetApiKey))
+								throw new ApplicationException("NuGetApiKey required to publish.");
 
 							foreach (var packagePath in packagePaths)
 								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
