@@ -135,6 +135,13 @@ namespace Faithlife.Build
 						var docsSettings = settings.DocsSettings;
 						bool shouldPushDocs = false;
 						string cloneDirectory = null;
+
+						Credentials provideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) => new UsernamePasswordCredentials
+						{
+							Username = docsSettings.GitLogin.Username ?? throw new ApplicationException("GitLogin has a null Username."),
+							Password = docsSettings.GitLogin.Password ?? throw new ApplicationException("GitLogin has a null Password."),
+						};
+
 						if (shouldPublishDocs && docsSettings != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
@@ -144,7 +151,7 @@ namespace Faithlife.Build
 
 							cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
 							Repository.Clone(sourceUrl: docsSettings.GitRepositoryUrl, workdirPath: cloneDirectory,
-								options: new CloneOptions { BranchName = docsSettings.GitBranchName });
+								options: new CloneOptions { BranchName = docsSettings.GitBranchName, CredentialsProvider = provideCredentials });
 
 							using (var repository = new Repository(cloneDirectory))
 							{
@@ -189,12 +196,7 @@ namespace Faithlife.Build
 								Commands.Stage(repository, "*");
 								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
 								repository.Commit("Documentation updated.", author, author, new CommitOptions());
-								var credentials = new UsernamePasswordCredentials
-								{
-									Username = docsSettings.GitLogin.Username ?? throw new ApplicationException("GitLogin has a null Username."),
-									Password = docsSettings.GitLogin.Password ?? throw new ApplicationException("GitLogin has a null Password."),
-								};
-								repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
+								repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = provideCredentials });
 							}
 						}
 
