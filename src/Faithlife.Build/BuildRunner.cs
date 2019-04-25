@@ -75,7 +75,7 @@ namespace Faithlife.Build
 					{
 						return 1;
 					}
-					catch (Exception exception) when (exception is CommandParsingException || exception.GetType().FullName == "Bullseye.Internal.InvalidUsageException")
+					catch (Exception exception) when (exception is ApplicationException || exception is CommandParsingException || exception.GetType().FullName == "Bullseye.Internal.InvalidUsageException")
 					{
 						Console.Error.WriteLine(exception.Message);
 						return 2;

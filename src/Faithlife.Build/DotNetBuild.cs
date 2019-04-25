@@ -191,7 +191,11 @@ namespace Faithlife.Build
 								Commands.Stage(repository, "*");
 								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
 								repository.Commit("Documentation updated.", author, author, new CommitOptions());
-								var credentials = new UsernamePasswordCredentials { Username = docsSettings.GitLogin.Username, Password = docsSettings.GitLogin.Password };
+								var credentials = new UsernamePasswordCredentials
+								{
+									Username = docsSettings.GitLogin.Username ?? throw new ApplicationException("GitLogin has a null Username."),
+									Password = docsSettings.GitLogin.Password ?? throw new ApplicationException("GitLogin has a null Password."),
+								};
 								repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = (_, __, ___) => credentials });
 							}
 						}

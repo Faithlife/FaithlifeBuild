@@ -1,5 +1,3 @@
-using System;
-
 namespace Faithlife.Build
 {
 	/// <summary>
@@ -12,8 +10,8 @@ namespace Faithlife.Build
 		/// </summary>
 		public GitLoginInfo(string username, string password)
 		{
-			Username = username ?? throw new ArgumentNullException(nameof(username));
-			Password = password ?? throw new ArgumentNullException(nameof(password));
+			Username = username;
+			Password = password;
 		}
 
 		/// <summary>
