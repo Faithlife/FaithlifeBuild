@@ -1,9 +1,9 @@
-# DotNetDocsSettings.TargetDirectory property
+# DotNetDocsSettings.GitBranchName property
 
-The target directory for generated documentation, relative to the root of the repository; defaults to `"docs"`.
+The name of the git branch where documentation is generated.
 
 ```csharp
-public string TargetDirectory { get; set; }
+public string GitBranchName { get; set; }
 ```
 
 ## See Also

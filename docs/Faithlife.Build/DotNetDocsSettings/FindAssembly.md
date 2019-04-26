@@ -1,9 +1,9 @@
-# DotNetDocsSettings.TargetDirectory property
+# DotNetDocsSettings.FindAssembly property
 
-The target directory for generated documentation, relative to the root of the repository; defaults to `"docs"`.
+Called to find the assembly for the specified project.
 
 ```csharp
-public string TargetDirectory { get; set; }
+public Func<string, string> FindAssembly { get; set; }
 ```
 
 ## See Also

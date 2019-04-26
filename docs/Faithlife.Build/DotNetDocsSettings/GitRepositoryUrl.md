@@ -1,9 +1,9 @@
-# DotNetDocsSettings.TargetDirectory property
+# DotNetDocsSettings.GitRepositoryUrl property
 
-The target directory for generated documentation, relative to the root of the repository; defaults to `"docs"`.
+The URL of the git repository where documentation is generated.
 
 ```csharp
-public string TargetDirectory { get; set; }
+public string GitRepositoryUrl { get; set; }
 ```
 
 ## See Also
