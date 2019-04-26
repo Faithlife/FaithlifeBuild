@@ -178,7 +178,7 @@ namespace Faithlife.Build
 								}
 								else
 								{
-									var branch = repository.Branches[repository.Head.FriendlyName];
+									var branch = repository.Branches.FirstOrDefault(x => x.IsCurrentRepositoryHead);
 									if (branch == null)
 									{
 										var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
