@@ -1,3 +1,5 @@
+using System;
+
 namespace Faithlife.Build
 {
 	/// <summary>
@@ -36,11 +38,9 @@ namespace Faithlife.Build
 		public string GitBranchName { get; set; }
 
 		/// <summary>
-		/// The target framework from which to generate documentation. (Optional.)
+		/// Called to find the assembly for the specified project.
 		/// </summary>
-		/// <remarks>Defaults to any target framework. Supports wildcards, e.g. <c>"netstandard*"</c>.
-		/// Uses the last matching DLL when sorted by path.</remarks>
-		public string TargetFramework { get; set; }
+		public Func<string, string> FindAssembly { get; set; }
 
 		/// <summary>
 		/// The version of the <c>xmldocmd</c> tool to use when generating documentation.

@@ -172,17 +172,18 @@ namespace Faithlife.Build
 
 								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
 								{
-									var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
-										.OrderByDescending(x => x, StringComparer.Ordinal).ToList();
-									if (dllPaths.Count != 0)
+									string defaultFindAssembly(string name) =>
+										FindFiles($"src/{projectName}/bin/**/{projectName}.dll").OrderByDescending(x => x, StringComparer.Ordinal).FirstOrDefault();
+									var assemblyPath = (docsSettings.FindAssembly ?? defaultFindAssembly)(projectName);
+									if (assemblyPath != null)
 									{
-										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0],
+										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
 											Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
 											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 									}
 									else
 									{
-										Console.WriteLine($"Documentation not generated for {projectName}; no DLL found.");
+										Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
 									}
 								}
 
