@@ -131,26 +131,45 @@ namespace Faithlife.Build
 						var docsSettings = settings.DocsSettings;
 						bool shouldPushDocs = false;
 						string cloneDirectory = null;
+						string repoDirectory = null;
 
-						Credentials provideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) => new UsernamePasswordCredentials
-						{
-							Username = docsSettings.GitLogin.Username ?? throw new ApplicationException("GitLogin has a null Username."),
-							Password = docsSettings.GitLogin.Password ?? throw new ApplicationException("GitLogin has a null Password."),
-						};
+						Credentials provideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
+							new UsernamePasswordCredentials
+							{
+								Username = docsSettings.GitLogin.Username ?? throw new ApplicationException("GitLogin has a null Username."),
+								Password = docsSettings.GitLogin.Password ?? throw new ApplicationException("GitLogin has a null Password."),
+							};
 
 						if (shouldPublishDocs && docsSettings != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
-								throw new ApplicationException("GitLogin and GitAuthor must be set on DocumentationSettings.");
-							if (docsSettings.GitRepositoryUrl == null || docsSettings.GitBranchName == null)
-								throw new ApplicationException("GitRepositoryUrl, GitBranchName, and docsSettings.GitCloneDirectory must be set on DocumentationSettings.");
+								throw new ApplicationException("GitLogin and GitAuthor must be set on DocsSettings.");
 
-							cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
-							Repository.Clone(sourceUrl: docsSettings.GitRepositoryUrl, workdirPath: cloneDirectory,
-								options: new CloneOptions { BranchName = docsSettings.GitBranchName, CredentialsProvider = provideCredentials });
+							var gitBranchName = docsSettings.GitBranchName;
+							if (gitBranchName == null)
+								throw new ApplicationException("GitBranchName must be set on DocsSettings.");
 
-							using (var repository = new Repository(cloneDirectory))
+							var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
+							if (gitRepositoryUrl != null)
 							{
+								cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
+								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: cloneDirectory,
+									options: new CloneOptions { BranchName = gitBranchName, CredentialsProvider = provideCredentials });
+								repoDirectory = cloneDirectory;
+							}
+							else
+							{
+								repoDirectory = ".";
+							}
+
+							using (var repository = new Repository(repoDirectory))
+							{
+								if (gitRepositoryUrl == null)
+								{
+									var branch = repository.Branches[gitBranchName] ?? repository.CreateBranch(gitBranchName);
+									Commands.Checkout(repository, branch);
+								}
+
 								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
 								{
 									var dllPaths = FindFiles($"src/{projectName}/bin/**/{(docsSettings.TargetFramework != null ? $"{docsSettings.TargetFramework}/" : "")}{projectName}.dll")
@@ -158,7 +177,7 @@ namespace Faithlife.Build
 									if (dllPaths.Count != 0)
 									{
 										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), dllPaths[0],
-											Path.Combine(cloneDirectory, docsSettings.TargetDirectory ?? "docs"),
+											Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
 											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 									}
 									else
@@ -190,13 +209,14 @@ namespace Faithlife.Build
 
 						if (shouldPushDocs)
 						{
-							using (var repository = new Repository(cloneDirectory))
+							using (var repository = new Repository(repoDirectory))
 							{
 								Console.WriteLine("Publishing documentation changes.");
 								Commands.Stage(repository, "*");
 								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
 								repository.Commit("Documentation updated.", author, author, new CommitOptions());
-								repository.Network.Push(repository.Branches, new PushOptions { CredentialsProvider = provideCredentials });
+								repository.Network.Push(repository.Network.Remotes["origin"],
+									$"refs/heads/{docsSettings.GitBranchName}", new PushOptions { CredentialsProvider = provideCredentials });
 							}
 						}
 
