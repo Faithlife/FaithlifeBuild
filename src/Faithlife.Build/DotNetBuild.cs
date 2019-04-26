@@ -132,6 +132,7 @@ namespace Faithlife.Build
 						bool shouldPushDocs = false;
 						string cloneDirectory = null;
 						string repoDirectory = null;
+						string gitBranchName = null;
 
 						Credentials provideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 							new UsernamePasswordCredentials
@@ -145,11 +146,9 @@ namespace Faithlife.Build
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
 								throw new ApplicationException("GitLogin and GitAuthor must be set on DocsSettings.");
 
-							var gitBranchName = docsSettings.GitBranchName;
-							if (gitBranchName == null)
-								throw new ApplicationException("GitBranchName must be set on DocsSettings.");
-
 							var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
+							gitBranchName = docsSettings.GitBranchName;
+
 							if (gitRepositoryUrl != null)
 							{
 								cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
@@ -164,10 +163,14 @@ namespace Faithlife.Build
 
 							using (var repository = new Repository(repoDirectory))
 							{
-								if (gitRepositoryUrl == null)
+								if (gitBranchName != null)
 								{
 									var branch = repository.Branches[gitBranchName] ?? repository.CreateBranch(gitBranchName);
 									Commands.Checkout(repository, branch);
+								}
+								else
+								{
+									gitBranchName = repository.Head.FriendlyName;
 								}
 
 								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
@@ -217,7 +220,7 @@ namespace Faithlife.Build
 								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
 								repository.Commit("Documentation updated.", author, author, new CommitOptions());
 								repository.Network.Push(repository.Network.Remotes["origin"],
-									$"refs/heads/{docsSettings.GitBranchName}", new PushOptions { CredentialsProvider = provideCredentials });
+									$"refs/heads/{gitBranchName}", new PushOptions { CredentialsProvider = provideCredentials });
 							}
 						}
 
