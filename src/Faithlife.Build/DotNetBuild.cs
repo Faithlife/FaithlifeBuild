@@ -163,14 +163,33 @@ namespace Faithlife.Build
 
 							using (var repository = new Repository(repoDirectory))
 							{
-								if (gitBranchName != null)
+								if (gitRepositoryUrl != null)
 								{
-									var branch = repository.Branches[gitBranchName] ?? repository.CreateBranch(gitBranchName);
-									Commands.Checkout(repository, branch);
+									if (gitBranchName == null)
+										gitBranchName = repository.Head.FriendlyName;
+								}
+								else if (gitBranchName != null)
+								{
+									if (gitBranchName != repository.Head.FriendlyName)
+									{
+										var branch = repository.Branches[gitBranchName] ?? repository.CreateBranch(gitBranchName);
+										Commands.Checkout(repository, branch);
+									}
 								}
 								else
 								{
-									gitBranchName = repository.Head.FriendlyName;
+									var branch = repository.Branches[repository.Head.FriendlyName];
+									if (branch == null)
+									{
+										var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
+										if (autoBranchName != null)
+											branch = repository.Branches[autoBranchName];
+										if (branch != null)
+											Commands.Checkout(repository, branch);
+										else
+											throw new ArgumentException("Could not determine repository branch.");
+									}
+									gitBranchName = branch.FriendlyName;
 								}
 
 								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
