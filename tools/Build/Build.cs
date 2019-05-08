@@ -16,8 +16,5 @@ internal static class Build
 					ToolVersion = "1.5.0",
 				},
 			});
-
-		build.Target("default")
-			.DependsOn("build");
 	});
 }
