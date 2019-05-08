@@ -19,6 +19,7 @@ public sealed class DotNetBuildSettings
 | [ProjectUsesSourceLink](DotNetBuildSettings/ProjectUsesSourceLink.md) { get; set; } | A function that returns true if the named project uses SourceLink. |
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
 | [SourceLinkToolVersion](DotNetBuildSettings/SourceLinkToolVersion.md) { get; set; } | The version of the `sourcelink` tool to use when testing packages. |
+| [UseMSBuildVersion](DotNetBuildSettings/UseMSBuildVersion.md) { get; set; } | Set to use `MSBuild` instead of `dotnet` to build the solution. |
 
 ## See Also
 
