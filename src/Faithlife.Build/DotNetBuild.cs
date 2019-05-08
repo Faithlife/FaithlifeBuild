@@ -193,9 +193,11 @@ namespace Faithlife.Build
 
 								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
 								{
-									string defaultFindAssembly(string name) =>
-										FindFiles($"src/{projectName}/bin/**/{projectName}.dll").OrderByDescending(x => x, StringComparer.Ordinal).FirstOrDefault();
-									var assemblyPath = (docsSettings.FindAssembly ?? defaultFindAssembly)(projectName);
+									string findAssembly(string name) =>
+										FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
+										FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+
+									var assemblyPath = (docsSettings.FindAssembly ?? findAssembly)(projectName);
 									if (assemblyPath != null)
 									{
 										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
