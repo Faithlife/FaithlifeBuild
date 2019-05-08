@@ -6,6 +6,7 @@ using LibGit2Sharp;
 using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
+using static Faithlife.Build.MSBuildRunner;
 
 namespace Faithlife.Build
 {
@@ -35,6 +36,7 @@ namespace Faithlife.Build
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
+			var msbuildVersion = settings.UseMSBuildVersion;
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.0.0";
@@ -50,12 +52,24 @@ namespace Faithlife.Build
 
 			build.Target("restore")
 				.Describe("Restores NuGet packages")
-				.Does(() => RunDotNet("restore", solutionName, "--verbosity", "normal"));
+				.Does(() =>
+				{
+					if (msbuildVersion == null)
+						RunDotNet("restore", solutionName, "--verbosity", "normal");
+					else
+						runMSBuild(solutionName, "-t:Restore");
+				});
 
 			build.Target("build")
 				.DependsOn("restore")
 				.Describe("Builds the solution")
-				.Does(() => RunDotNet("build", solutionName, "-c", configurationOption.Value, "--no-restore", "--verbosity", "normal"));
+				.Does(() =>
+				{
+					if (msbuildVersion == null)
+						RunDotNet("build", solutionName, "-c", configurationOption.Value, "--no-restore", "--verbosity", "normal");
+					else
+						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}");
+				});
 
 			build.Target("test")
 				.DependsOn("build")
@@ -76,11 +90,22 @@ namespace Faithlife.Build
 							versionSuffix = group.ToString();
 					}
 
-					RunDotNet("pack", solutionName,
-						"-c", configurationOption.Value,
-						"--no-build",
-						"--output", Path.GetFullPath(nugetOutputOption.Value),
-						versionSuffix != null ? "--version-suffix" : null, versionSuffix);
+					if (msbuildVersion == null)
+					{
+						RunDotNet("pack", solutionName,
+							"-c", configurationOption.Value,
+							"--no-build",
+							"--output", Path.GetFullPath(nugetOutputOption.Value),
+							versionSuffix != null ? "--version-suffix" : null, versionSuffix);
+					}
+					else
+					{
+						runMSBuild(solutionName, "-t:Pack",
+							$"-p:Configuration={configurationOption.Value}",
+							"-p:NoBuild=true",
+							$"-p:PackageOutputPath={Path.GetFullPath(nugetOutputOption.Value)}",
+							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null);
+					}
 				});
 
 			build.Target("publish")
@@ -257,6 +282,9 @@ namespace Faithlife.Build
 						Console.WriteLine("To publish to NuGet, push a matching git tag for the release.");
 					}
 				});
+
+			void runMSBuild(params string[] arguments) =>
+				RunMSBuild(msbuildVersion.Value, arguments.Append("-v:normal").Append("-maxcpucount").ToArray());
 		}
 
 		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)

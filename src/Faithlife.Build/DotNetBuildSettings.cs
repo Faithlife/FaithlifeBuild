@@ -53,5 +53,10 @@ namespace Faithlife.Build
 		/// <remarks>If not specified, all projects are assumed to use SourceLink. This property
 		/// determines whether the <c>sourcelink</c> tool is used to test each package.</remarks>
 		public Func<string, bool> ProjectUsesSourceLink { get; set; }
+
+		/// <summary>
+		/// Set to use <c>MSBuild</c> instead of <c>dotnet</c> to build the solution.
+		/// </summary>
+		public MSBuildVersion? UseMSBuildVersion { get; set; }
 	}
 }

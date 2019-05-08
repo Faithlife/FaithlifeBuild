@@ -6,9 +6,12 @@ Describe changes here when they're committed to the `master` branch. Move them t
 
 Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in accordance with [Semantic Versioning](https://semver.org/).
 
-* [patch] Support `XmlDocTarget` for documentation generation.
-
 ## Released
+
+### 0.10.0
+
+* [patch] Support `XmlDocTarget` for documentation generation.
+* [minor] Support building with MSBuild.
 
 ### 0.9.0
 
