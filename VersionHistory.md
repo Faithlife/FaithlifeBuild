@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 1.0.2
+
+* [patch] MSBuild is not a .NET Framework app.
+
 ### 1.0.1
 
 * [patch] Try to find MSBuild on macOS and Linux.

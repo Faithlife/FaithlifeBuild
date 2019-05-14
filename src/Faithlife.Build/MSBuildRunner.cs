@@ -71,6 +71,6 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="args">The arguments, if any.</param>
-		public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args) => RunDotNetFrameworkApp(GetMSBuildPath(settings), args);
+		public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args) => RunApp(GetMSBuildPath(settings), args);
 	}
 }
