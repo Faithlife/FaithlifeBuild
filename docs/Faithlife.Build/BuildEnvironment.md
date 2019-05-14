@@ -10,9 +10,10 @@ public static class BuildEnvironment
 
 | name | description |
 | --- | --- |
+| static [Is64Bit](BuildEnvironment/Is64Bit.md)() | Returns true if the build platform is 64-bit. |
 | static [IsLinux](BuildEnvironment/IsLinux.md)() | Returns true if the build platform is Linux. |
 | static [IsMacOS](BuildEnvironment/IsMacOS.md)() | Returns true if the build platform is macOS. |
-| static [IsUnix](BuildEnvironment/IsUnix.md)() | Returns true if the build platform is Mac or Linus. |
+| static [IsUnix](BuildEnvironment/IsUnix.md)() | Returns true if the build platform is Mac or Linux. |
 | static [IsWindows](BuildEnvironment/IsWindows.md)() | Returns true if the build platform is Windows. |
 
 ## See Also

@@ -1,14 +1,14 @@
-# DotNetBuildSettings.UseMSBuildVersion property
+# DotNetBuildSettings.MSBuildSettings property
 
 Set to use `MSBuild` instead of `dotnet` to build the solution.
 
 ```csharp
-public MSBuildVersion? UseMSBuildVersion { get; set; }
+public MSBuildSettings MSBuildSettings { get; set; }
 ```
 
 ## See Also
 
-* enum [MSBuildVersion](../MSBuildVersion.md)
+* class [MSBuildSettings](../MSBuildSettings.md)
 * class [DotNetBuildSettings](../DotNetBuildSettings.md)
 * namespace [Faithlife.Build](../../Faithlife.Build.md)
 

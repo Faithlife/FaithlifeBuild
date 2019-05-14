@@ -14,12 +14,12 @@ public sealed class DotNetBuildSettings
 | [BuildOptions](DotNetBuildSettings/BuildOptions.md) { get; set; } | The options and flags used by [`DotNetBuild`](DotNetBuild.md). |
 | [DocsSettings](DotNetBuildSettings/DocsSettings.md) { get; set; } | Used to generate Markdown documentation from XML comments. |
 | [DotNetTools](DotNetBuildSettings/DotNetTools.md) { get; set; } | Used to install .NET Core Global tools. |
+| [MSBuildSettings](DotNetBuildSettings/MSBuildSettings.md) { get; set; } | Set to use `MSBuild` instead of `dotnet` to build the solution. |
 | [NuGetApiKey](DotNetBuildSettings/NuGetApiKey.md) { get; set; } | The NuGet API key with which to push packages. |
 | [NuGetSource](DotNetBuildSettings/NuGetSource.md) { get; set; } | The NuGet source to which to push packages. The standard public NuGet source if omitted. |
 | [ProjectUsesSourceLink](DotNetBuildSettings/ProjectUsesSourceLink.md) { get; set; } | A function that returns true if the named project uses SourceLink. |
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
 | [SourceLinkToolVersion](DotNetBuildSettings/SourceLinkToolVersion.md) { get; set; } | The version of the `sourcelink` tool to use when testing packages. |
-| [UseMSBuildVersion](DotNetBuildSettings/UseMSBuildVersion.md) { get; set; } | Set to use `MSBuild` instead of `dotnet` to build the solution. |
 
 ## See Also
 

@@ -3,17 +3,17 @@
 Runs MSBuild with the specified arguments.
 
 ```csharp
-public static void RunMSBuild(MSBuildVersion version, IEnumerable<string> args)
+public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args)
 ```
 
 | parameter | description |
 | --- | --- |
-| version | The version of MSBuild. |
+| settings | The MSBuild settings. |
 | args | The arguments, if any. |
 
 ## See Also
 
-* enum [MSBuildVersion](../MSBuildVersion.md)
+* class [MSBuildSettings](../MSBuildSettings.md)
 * class [MSBuildRunner](../MSBuildRunner.md)
 * namespace [Faithlife.Build](../../Faithlife.Build.md)
 
@@ -24,17 +24,17 @@ public static void RunMSBuild(MSBuildVersion version, IEnumerable<string> args)
 Runs MSBuild with the specified arguments.
 
 ```csharp
-public static void RunMSBuild(MSBuildVersion version, params string[] args)
+public static void RunMSBuild(MSBuildSettings settings, params string[] args)
 ```
 
 | parameter | description |
 | --- | --- |
-| version | The version of MSBuild. |
+| settings | The MSBuild settings. |
 | args | The arguments, if any. |
 
 ## See Also
 
-* enum [MSBuildVersion](../MSBuildVersion.md)
+* class [MSBuildSettings](../MSBuildSettings.md)
 * class [MSBuildRunner](../MSBuildRunner.md)
 * namespace [Faithlife.Build](../../Faithlife.Build.md)
 

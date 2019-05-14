@@ -1,9 +1,9 @@
-# BuildEnvironment.IsUnix method
+# BuildEnvironment.Is64Bit method
 
-Returns true if the build platform is Mac or Linux.
+Returns true if the build platform is 64-bit.
 
 ```csharp
-public static bool IsUnix()
+public static bool Is64Bit()
 ```
 
 ## See Also

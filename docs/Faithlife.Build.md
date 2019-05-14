@@ -20,7 +20,9 @@
 | class [DotNetTools](Faithlife.Build/DotNetTools.md) | Manages .NET Core Global Tools, installed within a local directory. |
 | class [GitAuthorInfo](Faithlife.Build/GitAuthorInfo.md) | Information about a git commit author. |
 | class [GitLoginInfo](Faithlife.Build/GitLoginInfo.md) | Information used to login to git. |
+| enum [MSBuildPlatform](Faithlife.Build/MSBuildPlatform.md) | The platform of MSBuild to run. |
 | static class [MSBuildRunner](Faithlife.Build/MSBuildRunner.md) | Runs MSBuild. |
+| class [MSBuildSettings](Faithlife.Build/MSBuildSettings.md) | The settings to use when running MSBuild. |
 | enum [MSBuildVersion](Faithlife.Build/MSBuildVersion.md) | The version of MSBuild to run. |
 | class [PackagedTools](Faithlife.Build/PackagedTools.md) | Manages tools installed via NuGet packages. |
 
