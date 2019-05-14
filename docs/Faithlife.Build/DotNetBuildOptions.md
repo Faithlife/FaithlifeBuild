@@ -13,6 +13,7 @@ public sealed class DotNetBuildOptions
 | [DotNetBuildOptions](DotNetBuildOptions/DotNetBuildOptions.md)() | The default constructor. |
 | [ConfigurationOption](DotNetBuildOptions/ConfigurationOption.md) { get; set; } | The configuration to build. |
 | [NuGetOutputOption](DotNetBuildOptions/NuGetOutputOption.md) { get; set; } | Directory for generated package. |
+| [PlatformOption](DotNetBuildOptions/PlatformOption.md) { get; set; } | The platform to build. |
 | [TriggerOption](DotNetBuildOptions/TriggerOption.md) { get; set; } | The git branch or tag that triggered the build. |
 | [VersionSuffixOption](DotNetBuildOptions/VersionSuffixOption.md) { get; set; } | Generates a prerelease package. |
 

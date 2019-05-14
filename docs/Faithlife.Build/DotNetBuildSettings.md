@@ -19,6 +19,7 @@ public sealed class DotNetBuildSettings
 | [NuGetSource](DotNetBuildSettings/NuGetSource.md) { get; set; } | The NuGet source to which to push packages. The standard public NuGet source if omitted. |
 | [ProjectUsesSourceLink](DotNetBuildSettings/ProjectUsesSourceLink.md) { get; set; } | A function that returns true if the named project uses SourceLink. |
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
+| [SolutionPlatform](DotNetBuildSettings/SolutionPlatform.md) { get; set; } | The default solution platform to build (optional). |
 | [SourceLinkToolVersion](DotNetBuildSettings/SourceLinkToolVersion.md) { get; set; } | The version of the `sourcelink` tool to use when testing packages. |
 
 ## See Also
