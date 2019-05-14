@@ -57,6 +57,6 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Set to use <c>MSBuild</c> instead of <c>dotnet</c> to build the solution.
 		/// </summary>
-		public MSBuildVersion? UseMSBuildVersion { get; set; }
+		public MSBuildSettings MSBuildSettings { get; set; }
 	}
 }

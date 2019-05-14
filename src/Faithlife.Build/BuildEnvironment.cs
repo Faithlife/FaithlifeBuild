@@ -24,9 +24,14 @@ namespace Faithlife.Build
 		public static bool IsLinux() => IsPlatform(OSPlatform.Linux);
 
 		/// <summary>
-		/// Returns true if the build platform is Mac or Linus.
+		/// Returns true if the build platform is Mac or Linux.
 		/// </summary>
 		public static bool IsUnix() => IsMacOS() || IsLinux();
+
+		/// <summary>
+		/// Returns true if the build platform is 64-bit.
+		/// </summary>
+		public static bool Is64Bit() => Environment.Is64BitOperatingSystem;
 
 		private static bool IsPlatform(OSPlatform platform)
 		{

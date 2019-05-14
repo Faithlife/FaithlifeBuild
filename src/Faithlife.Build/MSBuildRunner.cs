@@ -17,8 +17,11 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Gets the path of MSBuild for the specified version.
 		/// </summary>
-		public static string GetMSBuildPath(MSBuildVersion version)
+		public static string GetMSBuildPath(MSBuildSettings settings)
 		{
+			var version = settings?.Version ?? MSBuildVersion.VS2017;
+			var platform = settings?.Platform ?? (BuildEnvironment.Is64Bit() ? MSBuildPlatform.X64 : MSBuildPlatform.X32);
+
 			(string Year, string Version) getPathParts()
 			{
 				if (version == MSBuildVersion.VS2017)
@@ -33,7 +36,7 @@ namespace Faithlife.Build
 			foreach (string edition in new[] { "Enterprise", "Professional", "Community", "BuildTools", "Preview" })
 			{
 				string msbuildPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
-					"Microsoft Visual Studio", parts.Year, edition, "MSBuild", parts.Version, "Bin", "amd64", "MSBuild.exe");
+					"Microsoft Visual Studio", parts.Year, edition, "MSBuild", parts.Version, "Bin", platform == MSBuildPlatform.X64 ? "amd64" : "", "MSBuild.exe");
 				if (File.Exists(msbuildPath))
 					return msbuildPath;
 			}
@@ -44,15 +47,15 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Runs MSBuild with the specified arguments.
 		/// </summary>
-		/// <param name="version">The version of MSBuild.</param>
+		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="args">The arguments, if any.</param>
-		public static void RunMSBuild(MSBuildVersion version, params string[] args) => RunMSBuild(version, args.AsEnumerable());
+		public static void RunMSBuild(MSBuildSettings settings, params string[] args) => RunMSBuild(settings, args.AsEnumerable());
 
 		/// <summary>
 		/// Runs MSBuild with the specified arguments.
 		/// </summary>
-		/// <param name="version">The version of MSBuild.</param>
+		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="args">The arguments, if any.</param>
-		public static void RunMSBuild(MSBuildVersion version, IEnumerable<string> args) => RunDotNetFrameworkApp(GetMSBuildPath(version), args);
+		public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args) => RunDotNetFrameworkApp(GetMSBuildPath(settings), args);
 	}
 }

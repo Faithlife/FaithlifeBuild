@@ -36,7 +36,7 @@ namespace Faithlife.Build
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
-			var msbuildVersion = settings.UseMSBuildVersion;
+			var msbuildSettings = settings.MSBuildSettings;
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.0.0";
@@ -54,7 +54,7 @@ namespace Faithlife.Build
 				.Describe("Restores NuGet packages")
 				.Does(() =>
 				{
-					if (msbuildVersion == null)
+					if (msbuildSettings == null)
 						RunDotNet("restore", solutionName, "--verbosity", "normal");
 					else
 						runMSBuild(solutionName, "-t:Restore");
@@ -65,7 +65,7 @@ namespace Faithlife.Build
 				.Describe("Builds the solution")
 				.Does(() =>
 				{
-					if (msbuildVersion == null)
+					if (msbuildSettings == null)
 						RunDotNet("build", solutionName, "-c", configurationOption.Value, "--no-restore", "--verbosity", "normal");
 					else
 						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}");
@@ -90,7 +90,7 @@ namespace Faithlife.Build
 							versionSuffix = group.ToString();
 					}
 
-					if (msbuildVersion == null)
+					if (msbuildSettings == null)
 					{
 						RunDotNet("pack", solutionName,
 							"-c", configurationOption.Value,
@@ -284,7 +284,7 @@ namespace Faithlife.Build
 				});
 
 			void runMSBuild(params string[] arguments) =>
-				RunMSBuild(msbuildVersion.Value, arguments.Append("-v:normal").Append("-maxcpucount").ToArray());
+				RunMSBuild(msbuildSettings, arguments.Append("-v:normal").Append("-maxcpucount").ToArray());
 		}
 
 		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)

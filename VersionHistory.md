@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 1.0.0
+
+* [major] Wrap MSBuildVersion and MSBuildPlatform into MSBuildSettings.
+
 ### 0.10.0
 
 * [patch] Support `XmlDocTarget` for documentation generation.
