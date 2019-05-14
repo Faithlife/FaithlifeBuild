@@ -11,6 +11,11 @@ namespace Faithlife.Build
 		public BuildOption ConfigurationOption { get; set; }
 
 		/// <summary>
+		/// The platform to build.
+		/// </summary>
+		public BuildOption PlatformOption { get; set; }
+
+		/// <summary>
 		/// Generates a prerelease package.
 		/// </summary>
 		public BuildOption VersionSuffixOption { get; set; }

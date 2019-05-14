@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 1.1.0
+
+* [minor] Support specifying solution platform (via setting and/or command-line option).
+
 ### 1.0.2
 
 * [patch] MSBuild is not a .NET Framework app.

@@ -27,6 +27,8 @@ namespace Faithlife.Build
 			var buildOptions = settings.BuildOptions ?? (settings.BuildOptions = new DotNetBuildOptions());
 			var configurationOption = buildOptions.ConfigurationOption ?? (buildOptions.ConfigurationOption =
 				build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release"));
+			var platformOption = buildOptions.PlatformOption ?? (buildOptions.PlatformOption =
+				build.AddOption("-p|--platform <name>", "The solution platform to build"));
 			var versionSuffixOption = buildOptions.VersionSuffixOption ?? (buildOptions.VersionSuffixOption =
 				build.AddOption("--version-suffix <suffix>", "Generates a prerelease package"));
 			var nugetOutputOption = buildOptions.NuGetOutputOption ?? (buildOptions.NuGetOutputOption =
@@ -66,15 +68,15 @@ namespace Faithlife.Build
 				.Does(() =>
 				{
 					if (msbuildSettings == null)
-						RunDotNet("build", solutionName, "-c", configurationOption.Value, "--no-restore", "--verbosity", "normal");
+						RunDotNet("build", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-restore", "--verbosity", "normal");
 					else
-						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}");
+						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg());
 				});
 
 			build.Target("test")
 				.DependsOn("build")
 				.Describe("Runs the unit tests")
-				.Does(() => RunDotNet("test", solutionName, "-c", configurationOption.Value, "--no-build"));
+				.Does(() => RunDotNet("test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build"));
 
 			build.Target("package")
 				.DependsOn("test")
@@ -94,6 +96,7 @@ namespace Faithlife.Build
 					{
 						RunDotNet("pack", solutionName,
 							"-c", configurationOption.Value,
+							getPlatformArg(),
 							"--no-build",
 							"--output", Path.GetFullPath(nugetOutputOption.Value),
 							versionSuffix != null ? "--version-suffix" : null, versionSuffix);
@@ -102,6 +105,7 @@ namespace Faithlife.Build
 					{
 						runMSBuild(solutionName, "-t:Pack",
 							$"-p:Configuration={configurationOption.Value}",
+							getPlatformArg(),
 							"-p:NoBuild=true",
 							$"-p:PackageOutputPath={Path.GetFullPath(nugetOutputOption.Value)}",
 							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null);
@@ -282,6 +286,12 @@ namespace Faithlife.Build
 						Console.WriteLine("To publish to NuGet, push a matching git tag for the release.");
 					}
 				});
+
+			string getPlatformArg()
+			{
+				string platformValue = platformOption.Value ?? settings?.SolutionPlatform;
+				return platformValue == null ? null : $"-p:Platform={platformValue}";
+			}
 
 			void runMSBuild(params string[] arguments) =>
 				RunMSBuild(msbuildSettings, arguments.Append("-v:normal").Append("-maxcpucount").ToArray());
