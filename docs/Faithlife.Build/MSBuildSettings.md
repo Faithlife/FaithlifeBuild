@@ -13,6 +13,7 @@ public sealed class MSBuildSettings
 | [MSBuildSettings](MSBuildSettings/MSBuildSettings.md)() | The default constructor. |
 | [Platform](MSBuildSettings/Platform.md) { get; set; } | Specifies the `MSBuild` platform to use. |
 | [Version](MSBuildSettings/Version.md) { get; set; } | Specifies the `MSBuild` version to use. |
+| [Clone](MSBuildSettings/Clone.md)() | Clones the settings. |
 
 ## See Also
 
