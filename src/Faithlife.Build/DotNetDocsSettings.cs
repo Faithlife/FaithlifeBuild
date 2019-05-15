@@ -48,5 +48,10 @@ namespace Faithlife.Build
 		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
 		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
 		public string ToolVersion { get; set; }
+
+		/// <summary>
+		/// Clones the settings.
+		/// </summary>
+		public DotNetDocsSettings Clone() => (DotNetDocsSettings) MemberwiseClone();
 	}
 }

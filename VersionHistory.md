@@ -8,6 +8,12 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 1.2.0
+
+* [minor] Support finding test assemblies explicitly.
+* [minor] Support cloning the settings.
+* [patch] Restore packages using the correct configuration and platform when using MSBuild.
+
 ### 1.1.0
 
 * [minor] Support specifying solution platform (via setting and/or command-line option).

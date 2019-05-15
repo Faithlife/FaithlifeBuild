@@ -14,5 +14,10 @@ namespace Faithlife.Build
 		/// Specifies the <c>MSBuild</c> platform to use.
 		/// </summary>
 		public MSBuildPlatform? Platform { get; set; }
+
+		/// <summary>
+		/// Clones the settings.
+		/// </summary>
+		public MSBuildSettings Clone() => (MSBuildSettings) MemberwiseClone();
 	}
 }

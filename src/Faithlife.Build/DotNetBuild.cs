@@ -59,7 +59,7 @@ namespace Faithlife.Build
 					if (msbuildSettings == null)
 						RunDotNet("restore", solutionName, "--verbosity", "normal");
 					else
-						runMSBuild(solutionName, "-t:Restore");
+						runMSBuild(solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg());
 				});
 
 			build.Target("build")
@@ -76,7 +76,19 @@ namespace Faithlife.Build
 			build.Target("test")
 				.DependsOn("build")
 				.Describe("Runs the unit tests")
-				.Does(() => RunDotNet("test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build"));
+				.Does(() =>
+				{
+					var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
+					if (findTestAssemblies != null)
+					{
+						foreach (var testAssembly in findTestAssemblies())
+							RunDotNet("vstest", testAssembly);
+					}
+					else
+					{
+						RunDotNet("test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build");
+					}
+				});
 
 			build.Target("package")
 				.DependsOn("test")

@@ -60,8 +60,25 @@ namespace Faithlife.Build
 		public MSBuildSettings MSBuildSettings { get; set; }
 
 		/// <summary>
+		/// Settings for running unit tests.
+		/// </summary>
+		public DotNetTestSettings TestSettings { get; set; }
+
+		/// <summary>
 		/// The default solution platform to build (optional).
 		/// </summary>
 		public string SolutionPlatform { get; set; }
+
+		/// <summary>
+		/// Clones the settings.
+		/// </summary>
+		public DotNetBuildSettings Clone()
+		{
+			var clone = (DotNetBuildSettings) MemberwiseClone();
+			clone.DocsSettings = clone.DocsSettings?.Clone();
+			clone.MSBuildSettings = clone.MSBuildSettings?.Clone();
+			clone.TestSettings = clone.TestSettings?.Clone();
+			return clone;
+		}
 	}
 }
