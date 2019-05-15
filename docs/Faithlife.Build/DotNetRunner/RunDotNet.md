@@ -1,4 +1,24 @@
-# DotNetRunner.RunDotNet method (1 of 2)
+# DotNetRunner.RunDotNet method (1 of 3)
+
+Runs `dotnet` with the specified settings.
+
+```csharp
+public static void RunDotNet(AppRunnerSettings settings)
+```
+
+| parameter | description |
+| --- | --- |
+| settings | The settings to use when running the app. |
+
+## See Also
+
+* class [AppRunnerSettings](../AppRunnerSettings.md)
+* class [DotNetRunner](../DotNetRunner.md)
+* namespace [Faithlife.Build](../../Faithlife.Build.md)
+
+---
+
+# DotNetRunner.RunDotNet method (2 of 3)
 
 Runs `dotnet` with the specified arguments.
 
@@ -17,7 +37,7 @@ public static void RunDotNet(IEnumerable<string> args)
 
 ---
 
-# DotNetRunner.RunDotNet method (2 of 2)
+# DotNetRunner.RunDotNet method (3 of 3)
 
 Runs `dotnet` with the specified arguments.
 

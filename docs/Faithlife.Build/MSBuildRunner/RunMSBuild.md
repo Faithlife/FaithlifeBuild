@@ -1,4 +1,26 @@
-# MSBuildRunner.RunMSBuild method (1 of 2)
+# MSBuildRunner.RunMSBuild method (1 of 3)
+
+Runs MSBuild with the specified settings.
+
+```csharp
+public static void RunMSBuild(MSBuildSettings settings, AppRunnerSettings runnerSettings)
+```
+
+| parameter | description |
+| --- | --- |
+| settings | The MSBuild settings. |
+| runnerSettings | The settings to use when running the app. |
+
+## See Also
+
+* class [MSBuildSettings](../MSBuildSettings.md)
+* class [AppRunnerSettings](../AppRunnerSettings.md)
+* class [MSBuildRunner](../MSBuildRunner.md)
+* namespace [Faithlife.Build](../../Faithlife.Build.md)
+
+---
+
+# MSBuildRunner.RunMSBuild method (2 of 3)
 
 Runs MSBuild with the specified arguments.
 
@@ -19,7 +41,7 @@ public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args
 
 ---
 
-# MSBuildRunner.RunMSBuild method (2 of 2)
+# MSBuildRunner.RunMSBuild method (3 of 3)
 
 Runs MSBuild with the specified arguments.
 

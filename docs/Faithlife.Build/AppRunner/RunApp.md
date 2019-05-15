@@ -1,4 +1,25 @@
-# AppRunner.RunApp method (1 of 2)
+# AppRunner.RunApp method (1 of 3)
+
+Runs the specified command-line app.
+
+```csharp
+public static void RunApp(string path, AppRunnerSettings settings)
+```
+
+| parameter | description |
+| --- | --- |
+| path | The path of the command-line app. |
+| settings | The settings to use when running the app. |
+
+## See Also
+
+* class [AppRunnerSettings](../AppRunnerSettings.md)
+* class [AppRunner](../AppRunner.md)
+* namespace [Faithlife.Build](../../Faithlife.Build.md)
+
+---
+
+# AppRunner.RunApp method (2 of 3)
 
 Runs the specified command-line app.
 
@@ -18,7 +39,7 @@ public static void RunApp(string path, IEnumerable<string> args)
 
 ---
 
-# AppRunner.RunApp method (2 of 2)
+# AppRunner.RunApp method (3 of 3)
 
 Runs the specified command-line app.
 

@@ -5,6 +5,7 @@
 | public type | description |
 | --- | --- |
 | static class [AppRunner](Faithlife.Build/AppRunner.md) | Runs command-line apps. |
+| class [AppRunnerSettings](Faithlife.Build/AppRunnerSettings.md) | Settings for running apps. |
 | class [BuildApp](Faithlife.Build/BuildApp.md) | Represents the command-line application for the build. |
 | static class [BuildEnvironment](Faithlife.Build/BuildEnvironment.md) | Information about the build environment. |
 | class [BuildFlag](Faithlife.Build/BuildFlag.md) | A no-value command-line flag for the build. |

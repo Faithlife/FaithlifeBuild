@@ -11,7 +11,7 @@ public static class MSBuildRunner
 | name | description |
 | --- | --- |
 | static [GetMSBuildPath](MSBuildRunner/GetMSBuildPath.md)(…) | Gets the path of MSBuild for the specified version. |
-| static [RunMSBuild](MSBuildRunner/RunMSBuild.md)(…) | Runs MSBuild with the specified arguments. (2 methods) |
+| static [RunMSBuild](MSBuildRunner/RunMSBuild.md)(…) | Runs MSBuild with the specified arguments. (3 methods) |
 
 ## Remarks
 
