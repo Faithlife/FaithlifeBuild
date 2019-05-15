@@ -25,8 +25,15 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
-		public static void RunApp(string path, IEnumerable<string> args) =>
-			Command.Run(path, EscapeAndConcatenate(args));
+		public static void RunApp(string path, IEnumerable<string> args) => RunApp(path, new AppRunnerSettings { Arguments = args });
+
+		/// <summary>
+		/// Runs the specified command-line app.
+		/// </summary>
+		/// <param name="path">The path of the command-line app.</param>
+		/// <param name="settings">The settings to use when running the app.</param>
+		public static void RunApp(string path, AppRunnerSettings settings) =>
+			Command.Run(path, EscapeAndConcatenate(settings.Arguments ?? Enumerable.Empty<string>()), workingDirectory: settings.WorkingDirectory);
 
 		/// <summary>
 		/// Runs the specified .NET Framework command-line app.
@@ -42,21 +49,29 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
-		public static void RunDotNetFrameworkApp(string path, IEnumerable<string> args)
+		public static void RunDotNetFrameworkApp(string path, IEnumerable<string> args) => RunDotNetFrameworkApp(path, new AppRunnerSettings { Arguments = args });
+
+		/// <summary>
+		/// Runs the specified .NET Framework command-line app.
+		/// </summary>
+		/// <param name="path">The path of the command-line app.</param>
+		/// <param name="settings">The settings to use when running the app.</param>
+		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
+		public static void RunDotNetFrameworkApp(string path, AppRunnerSettings settings)
 		{
 			if (BuildEnvironment.IsUnix())
 			{
-				args = new[] { path }.Concat(args).ToArray();
+				settings = settings.Clone();
+				settings.Arguments = new[] { path }.Concat(settings.Arguments ?? Enumerable.Empty<string>()).ToList();
 				path = "mono";
 			}
 
-			RunApp(path, args);
+			RunApp(path, settings);
 		}
 
 		// copied from https://github.com/natemcmaster/CommandLineUtils/blob/master/src/CommandLineUtils/Utilities/ArgumentEscaper.cs
 		// but also ignores null, escapes empty
-		private static string EscapeAndConcatenate(IEnumerable<string> args)
-			=> string.Join(" ", args.Where(x => x != null).Select(EscapeSingleArg));
+		private static string EscapeAndConcatenate(IEnumerable<string> args) => string.Join(" ", args.Where(x => x != null).Select(EscapeSingleArg));
 
 		private static string EscapeSingleArg(string arg)
 		{
@@ -125,7 +140,6 @@ namespace Faithlife.Build
 			return argument[0] == '"' && argument[argument.Length - 1] == '"';
 		}
 
-		private static bool ContainsWhitespace(string argument)
-			=> argument.IndexOfAny(new[] { ' ', '\t', '\n' }) >= 0;
+		private static bool ContainsWhitespace(string argument) => argument.IndexOfAny(new[] { ' ', '\t', '\n' }) >= 0;
 	}
 }
