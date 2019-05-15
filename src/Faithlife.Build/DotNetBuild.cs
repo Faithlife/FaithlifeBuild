@@ -82,7 +82,7 @@ namespace Faithlife.Build
 					if (findTestAssemblies != null)
 					{
 						foreach (var testAssembly in findTestAssemblies())
-							RunDotNet("vstest", testAssembly);
+							RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }, WorkingDirectory = Path.GetDirectoryName(testAssembly) });
 					}
 					else
 					{

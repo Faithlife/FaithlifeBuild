@@ -11,6 +11,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 ### 1.3.0
 
 * [minor] Support setting the working directory when running apps.
+* [patch] Run `dotnet vstest` from the output directory (for Mac).
 
 ### 1.2.0
 
