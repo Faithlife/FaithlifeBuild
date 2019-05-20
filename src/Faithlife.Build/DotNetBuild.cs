@@ -49,6 +49,7 @@ namespace Faithlife.Build
 			var packageDiffVersion = settings.PackageDiffToolVersion ?? "0.2.1";
 
 			var packagePaths = new List<string>();
+			bool hasBadPackageVersion = false;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -152,12 +153,13 @@ namespace Faithlife.Build
 						var packageInfo = GetPackageInfo(packagePath);
 						if (projectUsesSemVer == null || projectUsesSemVer(packageInfo.Name))
 						{
-							RunApp(dotNetTools.GetToolPath($"Faithlife.PackageDiffTool.Tool/{packageDiffVersion}", "packagediff"),
+							int exitCode = RunApp(dotNetTools.GetToolPath($"Faithlife.PackageDiffTool.Tool/{packageDiffVersion}", "packagediff"),
 								new AppRunnerSettings
 								{
 									Arguments = new[] { "--verifyversion", "--verbose", packagePath },
-									IsExitCodeSuccess = x => x == 0 || x == 1, // allow missing package
+									IsExitCodeSuccess = x => x >= 0 && x <= 2,
 								});
+							hasBadPackageVersion = exitCode == 2;
 						}
 					}
 				});
@@ -203,6 +205,9 @@ namespace Faithlife.Build
 						shouldPublishPackages = true;
 						shouldPublishDocs = !triggerMatch.Groups["suffix"].Success;
 					}
+
+					if (shouldPublishPackages && hasBadPackageVersion)
+						throw new ApplicationException("Use suggested package version to publish.");
 
 					if (shouldPublishPackages || shouldPublishDocs)
 					{
