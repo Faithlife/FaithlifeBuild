@@ -12,6 +12,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 * [minor] Support setting the automated build number.
 * [major] Return exit code from app runners.
+* [patch] Use [`packagediff`](https://www.nuget.org/packages/Faithlife.PackageDiffTool.Tool) to check semantic versioning.
 
 ### 1.3.0
 

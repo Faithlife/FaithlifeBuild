@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -45,6 +46,9 @@ namespace Faithlife.Build
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.0.0";
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.1";
+			var packageDiffVersion = settings.PackageDiffToolVersion ?? "0.2.1";
+
+			var packagePaths = new List<string>();
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -108,13 +112,16 @@ namespace Faithlife.Build
 							versionSuffix = group.ToString();
 					}
 
+					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
+					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
+
 					if (msbuildSettings == null)
 					{
 						RunDotNet("pack", solutionName,
 							"-c", configurationOption.Value,
 							getPlatformArg(),
 							"--no-build",
-							"--output", Path.GetFullPath(nugetOutputOption.Value),
+							"--output", tempOutputPath,
 							versionSuffix != null ? "--version-suffix" : null, versionSuffix);
 					}
 					else
@@ -123,8 +130,35 @@ namespace Faithlife.Build
 							$"-p:Configuration={configurationOption.Value}",
 							getPlatformArg(),
 							"-p:NoBuild=true",
-							$"-p:PackageOutputPath={Path.GetFullPath(nugetOutputOption.Value)}",
+							$"-p:PackageOutputPath={tempOutputPath}",
 							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null);
+					}
+
+					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
+					foreach (var tempPackagePath in tempPackagePaths)
+					{
+						var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath));
+						File.Move(tempPackagePath, packagePath);
+						packagePaths.Add(packagePath);
+					}
+					Directory.Delete(tempOutputPath);
+
+					if (packagePaths.Count == 0)
+						throw new ApplicationException("No NuGet packages created.");
+
+					var projectUsesSemVer = settings.ProjectUsesSemVer;
+					foreach (var packagePath in packagePaths)
+					{
+						var packageInfo = GetPackageInfo(packagePath);
+						if (projectUsesSemVer == null || projectUsesSemVer(packageInfo.Name))
+						{
+							RunApp(dotNetTools.GetToolPath($"Faithlife.PackageDiffTool.Tool/{packageDiffVersion}", "packagediff"),
+								new AppRunnerSettings
+								{
+									Arguments = new[] { "--verifyversion", "--verbose", packagePath },
+									IsExitCodeSuccess = x => x == 0 || x == 1, // allow missing package
+								});
+						}
 					}
 				});
 
@@ -133,7 +167,6 @@ namespace Faithlife.Build
 				.DependsOn("clean", "package")
 				.Does(() =>
 				{
-					var packagePaths = FindFilesFrom(Path.GetFullPath(nugetOutputOption.Value), "*.nupkg");
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages found.");
 
