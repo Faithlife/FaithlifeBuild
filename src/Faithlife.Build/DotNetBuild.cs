@@ -35,6 +35,8 @@ namespace Faithlife.Build
 				build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release"));
 			var triggerOption = buildOptions.TriggerOption ?? (buildOptions.TriggerOption =
 				build.AddOption("--trigger <name>", "The git branch or tag that triggered the build"));
+			var buildNumberOption = buildOptions.BuildNumberOption ?? (buildOptions.BuildNumberOption =
+				build.AddOption("--build-number <number>", "The automated build number"));
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
@@ -67,10 +69,12 @@ namespace Faithlife.Build
 				.Describe("Builds the solution")
 				.Does(() =>
 				{
+					var buildNumberArg = buildNumberOption.Value == null ? null : $"-p:BuildNumber={buildNumberOption.Value}";
+
 					if (msbuildSettings == null)
-						RunDotNet("build", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-restore", "--verbosity", "normal");
+						RunDotNet("build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", "normal");
 					else
-						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg());
+						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg);
 				});
 
 			build.Target("test")

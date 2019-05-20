@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 1.4.0
+
+* [minor] Support setting the automated build number.
+
 ### 1.3.0
 
 * [minor] Support setting the working directory when running apps.

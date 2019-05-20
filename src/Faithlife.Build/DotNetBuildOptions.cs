@@ -29,5 +29,10 @@ namespace Faithlife.Build
 		/// The git branch or tag that triggered the build.
 		/// </summary>
 		public BuildOption TriggerOption { get; set; }
+
+		/// <summary>
+		/// The automated build number.
+		/// </summary>
+		public BuildOption BuildNumberOption { get; set; }
 	}
 }
