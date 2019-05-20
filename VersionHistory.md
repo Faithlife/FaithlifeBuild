@@ -8,9 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
-### 1.4.0
+### 2.0.0
 
 * [minor] Support setting the automated build number.
+* [major] Return exit code from app runners.
 
 ### 1.3.0
 

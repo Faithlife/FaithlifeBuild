@@ -29,6 +29,6 @@ namespace Faithlife.Build
 		/// Runs <c>dotnet</c> with the specified settings.
 		/// </summary>
 		/// <param name="settings">The settings to use when running the app.</param>
-		public static void RunDotNet(AppRunnerSettings settings) => RunApp(DotNetExe.FullPath, settings);
+		public static int RunDotNet(AppRunnerSettings settings) => RunApp(DotNetExe.FullPath, settings);
 	}
 }

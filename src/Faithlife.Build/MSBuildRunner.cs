@@ -78,6 +78,6 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="runnerSettings">The settings to use when running the app.</param>
-		public static void RunMSBuild(MSBuildSettings settings, AppRunnerSettings runnerSettings) => RunApp(GetMSBuildPath(settings), runnerSettings);
+		public static int RunMSBuild(MSBuildSettings settings, AppRunnerSettings runnerSettings) => RunApp(GetMSBuildPath(settings), runnerSettings);
 	}
 }
