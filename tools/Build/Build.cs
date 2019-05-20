@@ -8,6 +8,7 @@ internal static class Build
 		build.AddDotNetTargets(
 			new DotNetBuildSettings
 			{
+				NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
 				DocsSettings = new DotNetDocsSettings
 				{
 					GitLogin = new GitLoginInfo("faithlifebuildbot", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD") ?? ""),
