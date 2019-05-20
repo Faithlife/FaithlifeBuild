@@ -11,6 +11,7 @@ public sealed class DotNetBuildOptions
 | name | description |
 | --- | --- |
 | [DotNetBuildOptions](DotNetBuildOptions/DotNetBuildOptions.md)() | The default constructor. |
+| [BuildNumberOption](DotNetBuildOptions/BuildNumberOption.md) { get; set; } | The automated build number. |
 | [ConfigurationOption](DotNetBuildOptions/ConfigurationOption.md) { get; set; } | The configuration to build. |
 | [NuGetOutputOption](DotNetBuildOptions/NuGetOutputOption.md) { get; set; } | Directory for generated package. |
 | [PlatformOption](DotNetBuildOptions/PlatformOption.md) { get; set; } | The platform to build. |

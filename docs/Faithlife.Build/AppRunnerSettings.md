@@ -12,6 +12,8 @@ public sealed class AppRunnerSettings
 | --- | --- |
 | [AppRunnerSettings](AppRunnerSettings/AppRunnerSettings.md)() | The default constructor. |
 | [Arguments](AppRunnerSettings/Arguments.md) { get; set; } | The arguments to pass to the app. |
+| [IsExitCodeSuccess](AppRunnerSettings/IsExitCodeSuccess.md) { get; set; } | Called to determine if the exit code is successful; it if isn't, an exception is thrown. |
+| [NoEcho](AppRunnerSettings/NoEcho.md) { get; set; } | True if the process information should not be written to standard error. |
 | [WorkingDirectory](AppRunnerSettings/WorkingDirectory.md) { get; set; } | The working directory from which to run the app. |
 | [Clone](AppRunnerSettings/Clone.md)() | Clones the settings. |
 

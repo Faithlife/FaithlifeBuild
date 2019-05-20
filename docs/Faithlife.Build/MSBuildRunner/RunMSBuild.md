@@ -3,7 +3,7 @@
 Runs MSBuild with the specified settings.
 
 ```csharp
-public static void RunMSBuild(MSBuildSettings settings, AppRunnerSettings runnerSettings)
+public static int RunMSBuild(MSBuildSettings settings, AppRunnerSettings runnerSettings)
 ```
 
 | parameter | description |

@@ -3,7 +3,7 @@
 Runs `dotnet` with the specified settings.
 
 ```csharp
-public static void RunDotNet(AppRunnerSettings settings)
+public static int RunDotNet(AppRunnerSettings settings)
 ```
 
 | parameter | description |

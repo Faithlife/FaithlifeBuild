@@ -3,7 +3,7 @@
 Runs the specified .NET Framework command-line app.
 
 ```csharp
-public static void RunDotNetFrameworkApp(string path, AppRunnerSettings settings)
+public static int RunDotNetFrameworkApp(string path, AppRunnerSettings settings)
 ```
 
 | parameter | description |

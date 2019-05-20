@@ -3,7 +3,7 @@
 Runs the specified command-line app.
 
 ```csharp
-public static void RunApp(string path, AppRunnerSettings settings)
+public static int RunApp(string path, AppRunnerSettings settings)
 ```
 
 | parameter | description |
