@@ -157,7 +157,7 @@ namespace Faithlife.Build
 								new AppRunnerSettings
 								{
 									Arguments = new[] { "--verifyversion", "--verbose", packagePath },
-									IsExitCodeSuccess = x => x >= 0 && x <= 2,
+									IsExitCodeSuccess = x => x <= 2, // don't fail on crash
 								});
 							hasBadPackageVersion = exitCode == 2;
 						}

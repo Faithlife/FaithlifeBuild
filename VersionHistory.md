@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 2.0.2
+
+* [patch] Don't fail build if packagediff crashes.
+
 ### 2.0.1
 
 * [patch] Don't fail build on bad package version until publishing.
