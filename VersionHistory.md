@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 2.1.1
+
+* [patch] `dotnet restore` needs platform to work correctly.
+
 ### 2.1.0
 
 * [minor] Support `DotNetBuildSettings.MaxCpuCount`.

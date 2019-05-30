@@ -69,7 +69,7 @@ namespace Faithlife.Build
 				.Does(() =>
 				{
 					if (msbuildSettings == null)
-						RunDotNet("restore", solutionName, "--verbosity", "normal", getMaxCpuCountArg());
+						RunDotNet("restore", solutionName, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg());
 					else
 						runMSBuild(solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg());
 				});
