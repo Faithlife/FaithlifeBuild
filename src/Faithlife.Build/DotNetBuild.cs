@@ -319,7 +319,7 @@ namespace Faithlife.Build
 								throw new ApplicationException("NuGetApiKey required to publish.");
 
 							foreach (var packagePath in packagePaths)
-								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey, getMaxCpuCountArg());
+								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
 						}
 
 						if (shouldPushDocs)

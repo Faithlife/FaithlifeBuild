@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 2.1.2
+
+* [patch] `dotnet push` doesn't support `-maxcpucount`.
+
 ### 2.1.1
 
 * [patch] `dotnet restore` needs platform to work correctly.
