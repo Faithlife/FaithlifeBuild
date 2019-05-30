@@ -55,13 +55,13 @@ namespace Faithlife.Build
 				.Describe("Deletes all build output")
 				.Does(() =>
 				{
+					foreach (var directory in FindDirectories("{src,tests}/**/{bin,obj}", "tools/bin", "release"))
+						Directory.Delete(directory, recursive: true);
+
 					if (msbuildSettings == null)
 						RunDotNet("clean", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg());
 					else
 						runMSBuild(solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg());
-
-					foreach (var directory in FindDirectories("{src,tests}/**/{bin,obj}", "tools/bin", "release"))
-						Directory.Delete(directory, recursive: true);
 				});
 
 			build.Target("restore")

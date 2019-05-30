@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 2.1.4
+
+* [patch] Delete files before running `dotnet clean`.
+
 ### 2.1.3
 
 * [patch] Don't use the "pager" for help.
