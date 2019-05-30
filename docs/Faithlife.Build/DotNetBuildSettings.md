@@ -14,6 +14,7 @@ public sealed class DotNetBuildSettings
 | [BuildOptions](DotNetBuildSettings/BuildOptions.md) { get; set; } | The options and flags used by [`DotNetBuild`](DotNetBuild.md). |
 | [DocsSettings](DotNetBuildSettings/DocsSettings.md) { get; set; } | Used to generate Markdown documentation from XML comments. |
 | [DotNetTools](DotNetBuildSettings/DotNetTools.md) { get; set; } | Used to install .NET Core Global tools. |
+| [MaxCpuCount](DotNetBuildSettings/MaxCpuCount.md) { get; set; } | The maximum number of CPUs to use when building. |
 | [MSBuildSettings](DotNetBuildSettings/MSBuildSettings.md) { get; set; } | Set to use `MSBuild` instead of `dotnet` to build the solution. |
 | [NuGetApiKey](DotNetBuildSettings/NuGetApiKey.md) { get; set; } | The NuGet API key with which to push packages. |
 | [NuGetSource](DotNetBuildSettings/NuGetSource.md) { get; set; } | The NuGet source to which to push packages. The standard public NuGet source if omitted. |
