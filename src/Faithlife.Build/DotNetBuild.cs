@@ -55,6 +55,11 @@ namespace Faithlife.Build
 				.Describe("Deletes all build output")
 				.Does(() =>
 				{
+					if (msbuildSettings == null)
+						RunDotNet("clean", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg());
+					else
+						runMSBuild(solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg());
+
 					foreach (var directory in FindDirectories("{src,tests}/**/{bin,obj}", "tools/bin", "release"))
 						Directory.Delete(directory, recursive: true);
 				});
@@ -64,9 +69,9 @@ namespace Faithlife.Build
 				.Does(() =>
 				{
 					if (msbuildSettings == null)
-						RunDotNet("restore", solutionName, "--verbosity", "normal");
+						RunDotNet("restore", solutionName, "--verbosity", "normal", getMaxCpuCountArg());
 					else
-						runMSBuild(solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg());
+						runMSBuild(solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg());
 				});
 
 			build.Target("build")
@@ -77,9 +82,9 @@ namespace Faithlife.Build
 					var buildNumberArg = buildNumberOption.Value == null ? null : $"-p:BuildNumber={buildNumberOption.Value}";
 
 					if (msbuildSettings == null)
-						RunDotNet("build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", "normal");
+						RunDotNet("build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", "normal", getMaxCpuCountArg());
 					else
-						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg);
+						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg, "-v:normal", getMaxCpuCountArg());
 				});
 
 			build.Target("test")
@@ -95,7 +100,7 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						RunDotNet("test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build");
+						RunDotNet("test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg());
 					}
 				});
 
@@ -123,7 +128,8 @@ namespace Faithlife.Build
 							getPlatformArg(),
 							"--no-build",
 							"--output", tempOutputPath,
-							versionSuffix != null ? "--version-suffix" : null, versionSuffix);
+							versionSuffix != null ? "--version-suffix" : null, versionSuffix,
+							getMaxCpuCountArg());
 					}
 					else
 					{
@@ -132,7 +138,9 @@ namespace Faithlife.Build
 							getPlatformArg(),
 							"-p:NoBuild=true",
 							$"-p:PackageOutputPath={tempOutputPath}",
-							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null);
+							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
+							"-v:normal",
+							getMaxCpuCountArg());
 					}
 
 					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
@@ -311,7 +319,7 @@ namespace Faithlife.Build
 								throw new ApplicationException("NuGetApiKey required to publish.");
 
 							foreach (var packagePath in packagePaths)
-								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
+								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey, getMaxCpuCountArg());
 						}
 
 						if (shouldPushDocs)
@@ -347,8 +355,17 @@ namespace Faithlife.Build
 				return platformValue == null ? null : $"-p:Platform={platformValue}";
 			}
 
-			void runMSBuild(params string[] arguments) =>
-				RunMSBuild(msbuildSettings, arguments.Append("-v:normal").Append("-maxcpucount").ToArray());
+			string getMaxCpuCountArg()
+			{
+				if (settings.MaxCpuCount != null)
+					return $"-maxcpucount:{settings.MaxCpuCount}";
+				else if (msbuildSettings != null)
+					return "-maxcpucount";
+				else
+					return null;
+			}
+
+			void runMSBuild(params string[] arguments) => RunMSBuild(msbuildSettings, arguments);
 		}
 
 		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)

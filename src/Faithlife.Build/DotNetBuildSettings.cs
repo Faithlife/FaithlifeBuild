@@ -84,6 +84,12 @@ namespace Faithlife.Build
 		public string PackageDiffToolVersion { get; set; }
 
 		/// <summary>
+		/// The maximum number of CPUs to use when building.
+		/// </summary>
+		/// <remarks>Use <c>1</c> to enforce sequential builds.</remarks>
+		public int? MaxCpuCount { get; set; }
+
+		/// <summary>
 		/// Clones the settings.
 		/// </summary>
 		public DotNetBuildSettings Clone()

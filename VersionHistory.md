@@ -8,6 +8,11 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 2.1.0
+
+* [minor] Support `DotNetBuildSettings.MaxCpuCount`.
+* [patch] Run `dotnet clean` or equivalent when cleaning solution.
+
 ### 2.0.3
 
 * [patch] Upgrade `sourcelink`.
