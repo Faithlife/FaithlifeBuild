@@ -57,7 +57,7 @@ namespace Faithlife.Build
 
 				if (helpFlag.Value || targets.Count == 0)
 				{
-					commandLineApp.ShowHelp();
+					commandLineApp.ShowHelp(usePager: false);
 					ShowTargets(buildApp.Targets);
 				}
 				else
