@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 2.2.0
+
+* [minor] Add `DotNetBuildProperties.ExtraProperties`.
+
 ### 2.1.4
 
 * [patch] Delete files before running `dotnet clean`.

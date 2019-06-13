@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Faithlife.Build
 {
@@ -88,6 +89,13 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <remarks>Use <c>1</c> to enforce sequential builds.</remarks>
 		public int? MaxCpuCount { get; set; }
+
+		/// <summary>
+		/// A function that returns any extra properties for the specified build target.
+		/// </summary>
+		/// <remarks>Supported build targets include <c>clean</c>, <c>restore</c>, <c>build</c>, <c>test</c>,
+		/// and <c>package</c>.</remarks>
+		public Func<string, IEnumerable<(string Key, string Value)>> ExtraProperties { get; set; }
 
 		/// <summary>
 		/// Clones the settings.

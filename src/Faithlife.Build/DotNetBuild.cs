@@ -58,20 +58,22 @@ namespace Faithlife.Build
 					foreach (var directory in FindDirectories("{src,tests}/**/{bin,obj}", "tools/bin", "release"))
 						Directory.Delete(directory, recursive: true);
 
+					var extraProperties = getExtraProperties("clean");
 					if (msbuildSettings == null)
-						RunDotNet("clean", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg());
+						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg());
+						runMSBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("restore")
 				.Describe("Restores NuGet packages")
 				.Does(() =>
 				{
+					var extraProperties = getExtraProperties("restore");
 					if (msbuildSettings == null)
-						RunDotNet("restore", solutionName, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg());
+						RunDotNet(new[] { "restore", solutionName, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg());
+						runMSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("build")
@@ -81,10 +83,11 @@ namespace Faithlife.Build
 				{
 					var buildNumberArg = buildNumberOption.Value == null ? null : $"-p:BuildNumber={buildNumberOption.Value}";
 
+					var extraProperties = getExtraProperties("build");
 					if (msbuildSettings == null)
-						RunDotNet("build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", "normal", getMaxCpuCountArg());
+						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", "normal", getMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg, "-v:normal", getMaxCpuCountArg());
+						runMSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg, "-v:normal", getMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -92,15 +95,16 @@ namespace Faithlife.Build
 				.Describe("Runs the unit tests")
 				.Does(() =>
 				{
+					var extraProperties = getExtraProperties("test");
 					var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
 					if (findTestAssemblies != null)
 					{
 						foreach (var testAssembly in findTestAssemblies())
-							RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }, WorkingDirectory = Path.GetDirectoryName(testAssembly) });
+							RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
 					}
 					else
 					{
-						RunDotNet("test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg());
+						RunDotNet(new[] { "test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
 					}
 				});
 
@@ -121,26 +125,33 @@ namespace Faithlife.Build
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
 					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
 
+					var extraProperties = getExtraProperties("package");
 					if (msbuildSettings == null)
 					{
-						RunDotNet("pack", solutionName,
+						RunDotNet(new[]
+						{
+							"pack", solutionName,
 							"-c", configurationOption.Value,
 							getPlatformArg(),
 							"--no-build",
 							"--output", tempOutputPath,
 							versionSuffix != null ? "--version-suffix" : null, versionSuffix,
-							getMaxCpuCountArg());
+							getMaxCpuCountArg()
+						}.Concat(extraProperties));
 					}
 					else
 					{
-						runMSBuild(solutionName, "-t:Pack",
+						runMSBuild(new[]
+						{
+							solutionName, "-t:Pack",
 							$"-p:Configuration={configurationOption.Value}",
 							getPlatformArg(),
 							"-p:NoBuild=true",
 							$"-p:PackageOutputPath={tempOutputPath}",
 							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
 							"-v:normal",
-							getMaxCpuCountArg());
+							getMaxCpuCountArg()
+						}.Concat(extraProperties));
 					}
 
 					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
@@ -365,7 +376,17 @@ namespace Faithlife.Build
 					return null;
 			}
 
-			void runMSBuild(params string[] arguments) => RunMSBuild(msbuildSettings, arguments);
+			IEnumerable<string> getExtraProperties(string target)
+			{
+				var pairs = settings.ExtraProperties?.Invoke(target);
+				if (pairs != null)
+				{
+					foreach (var pair in pairs)
+						yield return $"-p:{pair.Key}={pair.Value}";
+				}
+			}
+
+			void runMSBuild(IEnumerable<string> arguments) => RunMSBuild(msbuildSettings, arguments);
 		}
 
 		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)
