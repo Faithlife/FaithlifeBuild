@@ -11,6 +11,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 ### 2.2.0
 
 * [minor] Add `DotNetBuildProperties.ExtraProperties`.
+* [patch] Delete package if it already exists.
 
 ### 2.1.4
 

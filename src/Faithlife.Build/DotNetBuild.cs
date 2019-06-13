@@ -158,6 +158,8 @@ namespace Faithlife.Build
 					foreach (var tempPackagePath in tempPackagePaths)
 					{
 						var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath));
+						if (File.Exists(packagePath))
+							File.Delete(packagePath);
 						File.Move(tempPackagePath, packagePath);
 						packagePaths.Add(packagePath);
 					}
