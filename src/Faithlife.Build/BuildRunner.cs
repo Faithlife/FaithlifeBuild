@@ -67,9 +67,7 @@ namespace Faithlife.Build
 
 					try
 					{
-#pragma warning disable 618
-						Bullseye.Targets.RunTargets(targets);
-#pragma warning restore 618
+						Bullseye.Targets.RunTargetsWithoutExiting(targets);
 					}
 					catch (Exception exception) when (exception.GetType().FullName == "Bullseye.Internal.TargetFailedException")
 					{
