@@ -8,6 +8,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 * [major] Drop support for `packagediff` for now. (Too buggy.)
 * [patch] `package` target depends on `clean` for simpler package detection.
+* [major] Support SourceLink authentication, moving settings into `SourceLinkSettings`. Now disabled by default.
 
 ## Released
 
