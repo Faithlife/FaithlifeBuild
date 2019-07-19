@@ -47,8 +47,6 @@ namespace Faithlife.Build
 			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.1.1";
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.1";
 
-			var packagePaths = new List<string>();
-
 			build.Target("clean")
 				.Describe("Deletes all build output")
 				.Does(() =>
@@ -107,7 +105,7 @@ namespace Faithlife.Build
 				});
 
 			build.Target("package")
-				.DependsOn("test")
+				.DependsOn("clean", "test")
 				.Describe("Builds NuGet packages")
 				.Does(() =>
 				{
@@ -121,7 +119,6 @@ namespace Faithlife.Build
 					}
 
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
-					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
 
 					var extraProperties = getExtraProperties("package");
 					if (msbuildSettings == null)
@@ -132,7 +129,7 @@ namespace Faithlife.Build
 							"-c", configurationOption.Value,
 							getPlatformArg(),
 							"--no-build",
-							"--output", tempOutputPath,
+							"--output", nugetOutputPath,
 							versionSuffix != null ? "--version-suffix" : null, versionSuffix,
 							getMaxCpuCountArg()
 						}.Concat(extraProperties));
@@ -145,33 +142,24 @@ namespace Faithlife.Build
 							$"-p:Configuration={configurationOption.Value}",
 							getPlatformArg(),
 							"-p:NoBuild=true",
-							$"-p:PackageOutputPath={tempOutputPath}",
+							$"-p:PackageOutputPath={nugetOutputPath}",
 							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
 							"-v:normal",
 							getMaxCpuCountArg()
 						}.Concat(extraProperties));
 					}
 
-					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
-					foreach (var tempPackagePath in tempPackagePaths)
-					{
-						var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath));
-						if (File.Exists(packagePath))
-							File.Delete(packagePath);
-						File.Move(tempPackagePath, packagePath);
-						packagePaths.Add(packagePath);
-					}
-					Directory.Delete(tempOutputPath);
-
+					var packagePaths = FindFilesFrom(nugetOutputPath, "*.nupkg");
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages created.");
 				});
 
 			build.Target("publish")
 				.Describe("Publishes NuGet packages and documentation")
-				.DependsOn("clean", "package")
+				.DependsOn("package")
 				.Does(() =>
 				{
+					var packagePaths = FindFilesFrom(nugetOutputOption.Value, "*.nupkg");
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages found.");
 
