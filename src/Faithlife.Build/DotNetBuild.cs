@@ -46,10 +46,8 @@ namespace Faithlife.Build
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.1.1";
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.1";
-			var packageDiffVersion = settings.PackageDiffToolVersion ?? "0.2.1";
 
 			var packagePaths = new List<string>();
-			bool hasBadPackageVersion = false;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -167,22 +165,6 @@ namespace Faithlife.Build
 
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages created.");
-
-					var projectUsesSemVer = settings.ProjectUsesSemVer;
-					foreach (var packagePath in packagePaths)
-					{
-						var packageInfo = GetPackageInfo(packagePath);
-						if (projectUsesSemVer == null || projectUsesSemVer(packageInfo.Name))
-						{
-							int exitCode = RunApp(dotNetTools.GetToolPath($"Faithlife.PackageDiffTool.Tool/{packageDiffVersion}", "packagediff"),
-								new AppRunnerSettings
-								{
-									Arguments = new[] { "--verifyversion", "--verbose", packagePath },
-									IsExitCodeSuccess = x => x <= 2, // don't fail on crash
-								});
-							hasBadPackageVersion = exitCode == 2;
-						}
-					}
 				});
 
 			build.Target("publish")
@@ -226,9 +208,6 @@ namespace Faithlife.Build
 						shouldPublishPackages = true;
 						shouldPublishDocs = !triggerMatch.Groups["suffix"].Success;
 					}
-
-					if (shouldPublishPackages && hasBadPackageVersion)
-						throw new ApplicationException("Use suggested package version to publish.");
 
 					if (shouldPublishPackages || shouldPublishDocs)
 					{

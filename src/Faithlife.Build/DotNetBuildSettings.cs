@@ -71,20 +71,6 @@ namespace Faithlife.Build
 		public string SolutionPlatform { get; set; }
 
 		/// <summary>
-		/// A function that returns true if the named project uses semantic versioning.
-		/// </summary>
-		/// <remarks>If not specified, all projects are assumed to use semantic versioning. This property
-		/// determines whether the <c>packagediff</c> tool is used to test each package.</remarks>
-		public Func<string, bool> ProjectUsesSemVer { get; set; }
-
-		/// <summary>
-		/// The version of the <c>packagediff</c> tool to use when testing packages.
-		/// </summary>
-		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
-		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
-		public string PackageDiffToolVersion { get; set; }
-
-		/// <summary>
 		/// The maximum number of CPUs to use when building.
 		/// </summary>
 		/// <remarks>Use <c>1</c> to enforce sequential builds.</remarks>
