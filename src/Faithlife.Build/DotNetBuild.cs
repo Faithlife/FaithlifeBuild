@@ -42,14 +42,11 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
+			var sourceLinkSettings = settings.SourceLinkSettings;
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
-			var sourceLinkVersion = settings.SourceLinkToolVersion ?? "3.1.1";
+			var sourceLinkVersion = sourceLinkSettings?.ToolVersion ?? "3.1.1";
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.1";
-			var packageDiffVersion = settings.PackageDiffToolVersion ?? "0.2.1";
-
-			var packagePaths = new List<string>();
-			bool hasBadPackageVersion = false;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -109,7 +106,7 @@ namespace Faithlife.Build
 				});
 
 			build.Target("package")
-				.DependsOn("test")
+				.DependsOn("clean", "test")
 				.Describe("Builds NuGet packages")
 				.Does(() =>
 				{
@@ -123,7 +120,6 @@ namespace Faithlife.Build
 					}
 
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
-					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
 
 					var extraProperties = getExtraProperties("package");
 					if (msbuildSettings == null)
@@ -134,7 +130,7 @@ namespace Faithlife.Build
 							"-c", configurationOption.Value,
 							getPlatformArg(),
 							"--no-build",
-							"--output", tempOutputPath,
+							"--output", nugetOutputPath,
 							versionSuffix != null ? "--version-suffix" : null, versionSuffix,
 							getMaxCpuCountArg()
 						}.Concat(extraProperties));
@@ -147,49 +143,24 @@ namespace Faithlife.Build
 							$"-p:Configuration={configurationOption.Value}",
 							getPlatformArg(),
 							"-p:NoBuild=true",
-							$"-p:PackageOutputPath={tempOutputPath}",
+							$"-p:PackageOutputPath={nugetOutputPath}",
 							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
 							"-v:normal",
 							getMaxCpuCountArg()
 						}.Concat(extraProperties));
 					}
 
-					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
-					foreach (var tempPackagePath in tempPackagePaths)
-					{
-						var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath));
-						if (File.Exists(packagePath))
-							File.Delete(packagePath);
-						File.Move(tempPackagePath, packagePath);
-						packagePaths.Add(packagePath);
-					}
-					Directory.Delete(tempOutputPath);
-
+					var packagePaths = FindFilesFrom(nugetOutputPath, "*.nupkg");
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages created.");
-
-					var projectUsesSemVer = settings.ProjectUsesSemVer;
-					foreach (var packagePath in packagePaths)
-					{
-						var packageInfo = GetPackageInfo(packagePath);
-						if (projectUsesSemVer == null || projectUsesSemVer(packageInfo.Name))
-						{
-							int exitCode = RunApp(dotNetTools.GetToolPath($"Faithlife.PackageDiffTool.Tool/{packageDiffVersion}", "packagediff"),
-								new AppRunnerSettings
-								{
-									Arguments = new[] { "--verifyversion", "--verbose", packagePath },
-									IsExitCodeSuccess = x => x <= 2, // don't fail on crash
-								});
-							hasBadPackageVersion = exitCode == 2;
-						}
-					}
 				});
 
 			build.Target("publish")
 				.Describe("Publishes NuGet packages and documentation")
-				.DependsOn("clean", "package")
+				.DependsOn("package")
 				.Does(() =>
 				{
+					var packagePaths = FindFilesFrom(nugetOutputOption.Value, "*.nupkg");
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages found.");
 
@@ -226,9 +197,6 @@ namespace Faithlife.Build
 						shouldPublishPackages = true;
 						shouldPublishDocs = !triggerMatch.Groups["suffix"].Success;
 					}
-
-					if (shouldPublishPackages && hasBadPackageVersion)
-						throw new ApplicationException("Use suggested package version to publish.");
 
 					if (shouldPublishPackages || shouldPublishDocs)
 					{
@@ -320,11 +288,26 @@ namespace Faithlife.Build
 
 						if (shouldPublishPackages)
 						{
-							var projectUsesSourceLink = settings.ProjectUsesSourceLink;
-							foreach (var packagePath in packagePaths)
+							if (sourceLinkSettings != null)
 							{
-								if (projectUsesSourceLink == null || projectUsesSourceLink(GetPackageInfo(packagePath).Name))
-									RunApp(dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}"), "test", packagePath);
+								var shouldTestPackage = sourceLinkSettings.ShouldTestPackage;
+								var sourceLinkPath = dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}");
+
+								var sourceLinkArgs = new string[0];
+								if (sourceLinkSettings.Username != null || sourceLinkSettings.Password != null)
+								{
+									if (string.IsNullOrWhiteSpace(sourceLinkSettings.Username))
+										throw new ApplicationException("SourceLink username must not be blank.");
+									if (string.IsNullOrWhiteSpace(sourceLinkSettings.Password))
+										throw new ApplicationException("SourceLink password must not be blank.");
+									sourceLinkArgs = new[] { "-a", "Basic", "-u", sourceLinkSettings.Username, "-p", sourceLinkSettings.Password };
+								}
+
+								foreach (var packagePath in packagePaths)
+								{
+									if (shouldTestPackage == null || shouldTestPackage(GetPackageInfo(packagePath).Name))
+										RunApp(sourceLinkPath, new [] { "test", packagePath }.Concat(sourceLinkArgs));
+								}
 							}
 
 							var nugetApiKey = settings.NuGetApiKey;
