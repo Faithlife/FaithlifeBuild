@@ -11,6 +11,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 ### 3.0.1
 
 * [patch] Use SimpleExec again.
+* [patch] Don't clean `release` and `tools/bin`.
 
 ### 3.0.0
 
