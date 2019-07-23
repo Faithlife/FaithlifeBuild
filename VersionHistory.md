@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.0.1
+
+* [patch] Use SimpleExec again.
+
 ### 3.0.0
 
 * [major] Drop support for `packagediff` for now. (Too buggy.)

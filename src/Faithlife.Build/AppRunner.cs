@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using McMaster.Extensions.CommandLineUtils;
+using SimpleExec;
 
 namespace Faithlife.Build
 {
@@ -37,48 +35,23 @@ namespace Faithlife.Build
 		/// <param name="settings">The settings to use when running the app.</param>
 		public static int RunApp(string path, AppRunnerSettings settings)
 		{
-			// adapted from https://github.com/adamralph/simple-exec; allows non-exceptional non-zero edit code
 			string args = ArgumentEscaper.EscapeAndConcatenate((settings.Arguments ?? Enumerable.Empty<string>()).Where(x => x != null));
 
-			var startInfo = new ProcessStartInfo
+			int exitCode = 0;
+			try
 			{
-				WorkingDirectory = settings.WorkingDirectory,
-				UseShellExecute = false,
-				RedirectStandardError = false,
-				RedirectStandardOutput = false,
-			};
-
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			{
-				startInfo.FileName = "cmd.exe";
-				startInfo.Arguments = $"/c \"\"{path}\" {args}\"";
+				Command.Run(name: path, args: args, workingDirectory: settings.WorkingDirectory, noEcho: settings.NoEcho);
 			}
-			else
+			catch (NonZeroExitCodeException exception)
 			{
-				startInfo.FileName = path;
-				startInfo.Arguments = args;
+				exitCode = exception.ExitCode;
 			}
 
-			if (!settings.NoEcho)
-			{
-				if (startInfo.WorkingDirectory.Length != 0)
-					Console.Error.WriteLine($"Working directory: {startInfo.WorkingDirectory}");
-				Console.Error.WriteLine($"{startInfo.FileName} {startInfo.Arguments}");
-			}
+			var isExitCodeSuccess = settings.IsExitCodeSuccess ?? (x => x == 0);
+			if (!isExitCodeSuccess(exitCode))
+				throw new ApplicationException($"The process failed with exit code {exitCode}.");
 
-			using (var process = new Process { StartInfo = startInfo })
-			{
-				process.Start();
-				process.WaitForExit();
-
-				int exitCode = process.ExitCode;
-
-				var isExitCodeSuccess = settings.IsExitCodeSuccess ?? (x => x == 0);
-				if (!isExitCodeSuccess(exitCode))
-					throw new ApplicationException($"The process failed with exit code {exitCode}.");
-
-				return exitCode;
-			}
+			return exitCode;
 		}
 
 		/// <summary>
