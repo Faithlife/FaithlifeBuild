@@ -34,5 +34,10 @@ namespace Faithlife.Build
 		/// The automated build number.
 		/// </summary>
 		public BuildOption BuildNumberOption { get; set; }
+
+		/// <summary>
+		/// The "no test" flag.
+		/// </summary>
+		public BuildFlag NoTestFlag { get; set; }
 	}
 }

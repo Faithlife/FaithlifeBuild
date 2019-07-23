@@ -38,6 +38,8 @@ namespace Faithlife.Build
 				build.AddOption("--trigger <name>", "The git branch or tag that triggered the build"));
 			var buildNumberOption = buildOptions.BuildNumberOption ?? (buildOptions.BuildNumberOption =
 				build.AddOption("--build-number <number>", "The automated build number"));
+			var noTestFlag = buildOptions.NoTestFlag ?? (buildOptions.NoTestFlag =
+				build.AddFlag("--no-test", "Skip the unit tests"));
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
@@ -94,16 +96,23 @@ namespace Faithlife.Build
 				.Describe("Runs the unit tests")
 				.Does(() =>
 				{
-					var extraProperties = getExtraProperties("test");
-					var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
-					if (findTestAssemblies != null)
+					if (noTestFlag.Value)
 					{
-						foreach (var testAssembly in findTestAssemblies())
-							RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
+						Console.WriteLine("Skipping unit tests due to --no-test.");
 					}
 					else
 					{
-						RunDotNet(new[] { "test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
+						var extraProperties = getExtraProperties("test");
+						var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
+						if (findTestAssemblies != null)
+						{
+							foreach (var testAssembly in findTestAssemblies())
+								RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
+						}
+						else
+						{
+							RunDotNet(new[] { "test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
+						}
 					}
 				});
 

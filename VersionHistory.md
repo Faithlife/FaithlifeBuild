@@ -8,10 +8,11 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
-### 3.0.1
+### 3.1.0
 
 * [patch] Use SimpleExec again.
 * [patch] Don't clean `release` and `tools/bin`.
+* [minor] Add `--no-test` flag for skipping unit tests.
 
 ### 3.0.0
 
