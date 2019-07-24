@@ -13,6 +13,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 * [patch] Use SimpleExec again.
 * [patch] Don't clean `release` and `tools/bin`.
 * [minor] Add `--no-test` flag for skipping unit tests.
+* [patch] Support `--trigger=detect` for build systems that can't trigger builds on new tags.
 
 ### 3.0.0
 

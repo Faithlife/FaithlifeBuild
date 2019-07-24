@@ -51,6 +51,7 @@ namespace Faithlife.Build
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.1";
 
 			var packagePaths = new List<string>();
+			string trigger = null;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -121,10 +122,25 @@ namespace Faithlife.Build
 				.Describe("Builds NuGet packages")
 				.Does(() =>
 				{
+					trigger = triggerOption.Value;
+
+					if (trigger == "detect")
+					{
+						using (var repository = new Repository("."))
+						{
+							string headSha = repository.Head.Tip.Sha;
+							var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName));
+							if (autoTrigger != null)
+							{
+								trigger = autoTrigger;
+								Console.WriteLine($"Detected trigger: {trigger}");
+							}
+						}
+					}
+
 					string versionSuffix = versionSuffixOption.Value;
-					string trigger = triggerOption.Value;
 					if (versionSuffix == null && trigger != null)
-						versionSuffix = GetVersionFromTrigger(trigger)?.Split(new[] { '-' }, 2).ElementAtOrDefault(1);
+						versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
 
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
 					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
@@ -181,7 +197,6 @@ namespace Faithlife.Build
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages found.");
 
-					var trigger = triggerOption.Value;
 					if (trigger == null)
 						throw new ApplicationException("--trigger option required.");
 
@@ -381,7 +396,32 @@ namespace Faithlife.Build
 			return (match.Groups["name"].Value, match.Groups["version"].Value, match.Groups["suffix"].Value);
 		}
 
-		private static string GetVersionFromTrigger(string trigger) =>
-			Regex.Match(trigger, @"^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-.+)?)$").Groups["version"].Value;
+		private static string GetVersionFromTrigger(string trigger)
+		{
+			string version = Regex.Match(trigger, @"^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-.+)?)$").Groups["version"].Value;
+			return version.Length != 0 ? version : null;
+		}
+
+		private static (int Major, int Minor, int Patch, string Suffix) SplitVersion(string version)
+		{
+			var hyphenParts = version.Split(new[] { '-' }, 2);
+			var dotParts = hyphenParts[0].Split(new [] { '.' }, 3);
+			return (int.Parse(dotParts[0]), int.Parse(dotParts[1]), int.Parse(dotParts[2]), hyphenParts.ElementAtOrDefault(1));
+		}
+
+		private static string GetBestTriggerFromTags(IEnumerable<string> tags)
+		{
+			return tags
+				.Select(x => (Tag: x, Version: GetVersionFromTrigger(x)))
+				.Where(x => x.Version != null)
+				.Select(x => (x.Tag, Version: SplitVersion(x.Version)))
+				.OrderByDescending(x => x.Version.Major)
+				.ThenByDescending(x => x.Version.Minor)
+				.ThenByDescending(x => x.Version.Patch)
+				.ThenByDescending(x => x.Version.Suffix == null)
+				.ThenByDescending(x => x.Version.Suffix, StringComparer.Ordinal)
+				.Select(x => x.Tag)
+				.FirstOrDefault();
+		}
 	}
 }
