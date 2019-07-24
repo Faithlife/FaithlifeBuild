@@ -124,11 +124,7 @@ namespace Faithlife.Build
 					string versionSuffix = versionSuffixOption.Value;
 					string trigger = triggerOption.Value;
 					if (versionSuffix == null && trigger != null)
-					{
-						var group = s_triggerRegex.Match(trigger).Groups["suffix"];
-						if (group.Success)
-							versionSuffix = group.ToString();
-					}
+						versionSuffix = GetVersionFromTrigger(trigger)?.Split(new[] { '-' }, 2).ElementAtOrDefault(1);
 
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
 					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
@@ -192,17 +188,15 @@ namespace Faithlife.Build
 					bool shouldPublishPackages = trigger == "publish-package" || trigger == "publish-packages" || trigger == "publish-all";
 					bool shouldPublishDocs = trigger == "publish-docs" || trigger == "publish-all";
 
-					var triggerMatch = s_triggerRegex.Match(trigger);
-					if (triggerMatch.Success)
+					var triggerVersion = GetVersionFromTrigger(trigger);
+					if (triggerVersion != null)
 					{
-						var triggerVersion = triggerMatch.Groups["version"].Value;
-
 						var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
 						if (mismatches.Count != 0)
 							throw new ApplicationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
 
 						shouldPublishPackages = true;
-						shouldPublishDocs = !triggerMatch.Groups["suffix"].Success;
+						shouldPublishDocs = triggerVersion.IndexOf('-') == -1;
 					}
 
 					if (shouldPublishPackages || shouldPublishDocs)
@@ -387,6 +381,7 @@ namespace Faithlife.Build
 			return (match.Groups["name"].Value, match.Groups["version"].Value, match.Groups["suffix"].Value);
 		}
 
-		private static readonly Regex s_triggerRegex = new Regex(@"^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-(?<suffix>.+))?)$", RegexOptions.ExplicitCapture);
+		private static string GetVersionFromTrigger(string trigger) =>
+			Regex.Match(trigger, @"^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-.+)?)$").Groups["version"].Value;
 	}
 }
