@@ -195,25 +195,11 @@ namespace Faithlife.Build
 					var triggerMatch = s_triggerRegex.Match(trigger);
 					if (triggerMatch.Success)
 					{
-						var triggerName = triggerMatch.Groups["name"].Value;
 						var triggerVersion = triggerMatch.Groups["version"].Value;
-						if (triggerName.Length == 0)
-						{
-							var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
-							if (mismatches.Count != 0)
-								throw new ApplicationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
-						}
-						else
-						{
-							var matches = packagePaths.Where(x => $".{GetPackageInfo(x).Name}".EndsWith($".{triggerName}", StringComparison.OrdinalIgnoreCase)).ToList();
-							if (matches.Count == 0)
-								throw new ApplicationException($"Trigger '{trigger}' does not match any packages: {string.Join(", ", packagePaths.Select(Path.GetFileName))}");
-							if (matches.Count > 1)
-								throw new ApplicationException($"Trigger '{trigger}' matches multiple package(s): {string.Join(", ", matches.Select(Path.GetFileName))}");
-							if (GetPackageInfo(matches[0]).Version != triggerVersion)
-								throw new ApplicationException($"Trigger '{trigger}' doesn't match package version: {Path.GetFileName(matches[0])}");
-							packagePaths = matches;
-						}
+
+						var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
+						if (mismatches.Count != 0)
+							throw new ApplicationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
 
 						shouldPublishPackages = true;
 						shouldPublishDocs = !triggerMatch.Groups["suffix"].Success;
@@ -362,7 +348,7 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						Console.WriteLine("To publish to NuGet, push a matching git tag for the release.");
+						Console.WriteLine("To publish to NuGet, use this trigger: v" + GetPackageInfo(packagePaths[0]).Version);
 					}
 				});
 
@@ -401,6 +387,6 @@ namespace Faithlife.Build
 			return (match.Groups["name"].Value, match.Groups["version"].Value, match.Groups["suffix"].Value);
 		}
 
-		private static readonly Regex s_triggerRegex = new Regex(@"^((?<name>[^/\\]+)-)?v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-(?<suffix>.+))?)$", RegexOptions.ExplicitCapture);
+		private static readonly Regex s_triggerRegex = new Regex(@"^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-(?<suffix>.+))?)$", RegexOptions.ExplicitCapture);
 	}
 }
