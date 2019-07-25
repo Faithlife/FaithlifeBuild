@@ -11,6 +11,7 @@ public sealed class DotNetDocsSettings
 | name | description |
 | --- | --- |
 | [DotNetDocsSettings](DotNetDocsSettings/DotNetDocsSettings.md)() | The default constructor. |
+| [FindAssemblies](DotNetDocsSettings/FindAssemblies.md) { get; set; } | Called to find multiple assemblies for the specified project. |
 | [FindAssembly](DotNetDocsSettings/FindAssembly.md) { get; set; } | Called to find the assembly for the specified project. |
 | [GitAuthor](DotNetDocsSettings/GitAuthor.md) { get; set; } | Commit author used to push to git. |
 | [GitBranchName](DotNetDocsSettings/GitBranchName.md) { get; set; } | The name of the git branch where documentation is generated. |
