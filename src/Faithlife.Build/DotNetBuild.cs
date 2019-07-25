@@ -129,7 +129,7 @@ namespace Faithlife.Build
 						using (var repository = new Repository("."))
 						{
 							string headSha = repository.Head.Tip.Sha;
-							var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName));
+							var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
 							if (autoTrigger != null)
 							{
 								trigger = autoTrigger;
@@ -409,7 +409,7 @@ namespace Faithlife.Build
 			return (int.Parse(dotParts[0]), int.Parse(dotParts[1]), int.Parse(dotParts[2]), hyphenParts.ElementAtOrDefault(1));
 		}
 
-		private static string GetBestTriggerFromTags(IEnumerable<string> tags)
+		private static string GetBestTriggerFromTags(IReadOnlyList<string> tags)
 		{
 			return tags
 				.Select(x => (Tag: x, Version: GetVersionFromTrigger(x)))
@@ -421,6 +421,7 @@ namespace Faithlife.Build
 				.ThenByDescending(x => x.Version.Suffix == null)
 				.ThenByDescending(x => x.Version.Suffix, StringComparer.Ordinal)
 				.Select(x => x.Tag)
+				.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
 				.FirstOrDefault();
 		}
 	}
