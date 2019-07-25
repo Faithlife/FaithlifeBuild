@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Faithlife.Build
 {
@@ -41,6 +42,11 @@ namespace Faithlife.Build
 		/// Called to find the assembly for the specified project.
 		/// </summary>
 		public Func<string, string> FindAssembly { get; set; }
+
+		/// <summary>
+		/// Called to find multiple assemblies for the specified project.
+		/// </summary>
+		public Func<string, IReadOnlyList<string>> FindAssemblies { get; set; }
 
 		/// <summary>
 		/// The version of the <c>xmldocmd</c> tool to use when generating documentation.

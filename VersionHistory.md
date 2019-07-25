@@ -8,6 +8,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 * [patch] Trigger detection should support `publish-` tags.
 * [patch] Update `xmldocmd`.
+* [minor] Support `DotNetDocsSettings.FindAssemblies`.
 
 ## Released
 

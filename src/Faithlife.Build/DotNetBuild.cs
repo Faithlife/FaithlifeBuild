@@ -285,12 +285,26 @@ namespace Faithlife.Build
 										FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
 										FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
 
-									var assemblyPath = (docsSettings.FindAssembly ?? findAssembly)(projectName);
-									if (assemblyPath != null)
+									var assemblyPaths = new List<string>();
+									if (docsSettings.FindAssemblies != null)
 									{
-										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
-											Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
-											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+										assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
+									}
+									else
+									{
+										var assemblyPath = (docsSettings.FindAssembly ?? findAssembly)(projectName);
+										if (assemblyPath != null)
+											assemblyPaths.Add(assemblyPath);
+									}
+
+									if (assemblyPaths.Count != 0)
+									{
+										foreach (var assemblyPath in assemblyPaths)
+										{
+											RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
+												Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
+												"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+										}
 									}
 									else
 									{
