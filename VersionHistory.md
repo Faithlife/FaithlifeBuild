@@ -6,11 +6,13 @@ Describe changes here when they're committed to the `master` branch. Move them t
 
 Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in accordance with [Semantic Versioning](https://semver.org/).
 
+## Released
+
+### 3.2.0
+
 * [patch] Trigger detection should support `publish-` tags.
 * [patch] Update `xmldocmd`.
 * [minor] Support `DotNetDocsSettings.FindAssemblies`.
-
-## Released
 
 ### 3.1.0
 
