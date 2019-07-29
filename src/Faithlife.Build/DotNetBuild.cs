@@ -103,7 +103,7 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						var extraProperties = getExtraProperties("test");
+						var extraProperties = getExtraProperties("test").ToList();
 						var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
 						if (findTestAssemblies != null)
 						{
@@ -112,7 +112,16 @@ namespace Faithlife.Build
 						}
 						else
 						{
-							RunDotNet(new[] { "test", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
+							var testProjects = new List<string>();
+
+							var findTestProjects = settings.TestSettings?.FindProjects;
+							if (findTestProjects != null)
+								testProjects.AddRange(findTestProjects());
+							else
+								testProjects.Add(solutionName);
+
+							foreach (var testProject in testProjects)
+								RunDotNet(new[] { "test", testProject, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
 						}
 					}
 				});
@@ -145,33 +154,44 @@ namespace Faithlife.Build
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
 					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
 
-					var extraProperties = getExtraProperties("package");
-					if (msbuildSettings == null)
-					{
-						RunDotNet(new[]
-						{
-							"pack", solutionName,
-							"-c", configurationOption.Value,
-							getPlatformArg(),
-							"--no-build",
-							"--output", tempOutputPath,
-							versionSuffix != null ? "--version-suffix" : null, versionSuffix,
-							getMaxCpuCountArg()
-						}.Concat(extraProperties));
-					}
+					var packageProjects = new List<string>();
+
+					var findPackageProjects = settings.PackageSettings?.FindProjects;
+					if (findPackageProjects != null)
+						packageProjects.AddRange(findPackageProjects());
 					else
+						packageProjects.Add(solutionName);
+
+					var extraProperties = getExtraProperties("package").ToList();
+					foreach (var packageProject in packageProjects)
 					{
-						runMSBuild(new[]
+						if (msbuildSettings == null)
 						{
-							solutionName, "-t:Pack",
-							$"-p:Configuration={configurationOption.Value}",
-							getPlatformArg(),
-							"-p:NoBuild=true",
-							$"-p:PackageOutputPath={tempOutputPath}",
-							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
-							"-v:normal",
-							getMaxCpuCountArg()
-						}.Concat(extraProperties));
+							RunDotNet(new[]
+							{
+								"pack", packageProject,
+								"-c", configurationOption.Value,
+								getPlatformArg(),
+								"--no-build",
+								"--output", tempOutputPath,
+								versionSuffix != null ? "--version-suffix" : null, versionSuffix,
+								getMaxCpuCountArg()
+							}.Concat(extraProperties));
+						}
+						else
+						{
+							runMSBuild(new[]
+							{
+								packageProject, "-t:Pack",
+								$"-p:Configuration={configurationOption.Value}",
+								getPlatformArg(),
+								"-p:NoBuild=true",
+								$"-p:PackageOutputPath={tempOutputPath}",
+								versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
+								"-v:normal",
+								getMaxCpuCountArg()
+							}.Concat(extraProperties));
+						}
 					}
 
 					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
@@ -183,7 +203,8 @@ namespace Faithlife.Build
 						File.Move(tempPackagePath, packagePath);
 						packagePaths.Add(packagePath);
 					}
-					Directory.Delete(tempOutputPath);
+					if (Directory.Exists(tempOutputPath))
+						Directory.Delete(tempOutputPath);
 
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages created.");

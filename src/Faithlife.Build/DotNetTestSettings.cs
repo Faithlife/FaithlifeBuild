@@ -9,6 +9,11 @@ namespace Faithlife.Build
 	public sealed class DotNetTestSettings
 	{
 		/// <summary>
+		/// Called to find the projects to test.
+		/// </summary>
+		public Func<IReadOnlyList<string>> FindProjects { get; set; }
+
+		/// <summary>
 		/// Called to find the test assemblies.
 		/// </summary>
 		public Func<IReadOnlyList<string>> FindTestAssemblies { get; set; }

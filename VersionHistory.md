@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.3.0
+
+* [minor] Support finding projects to test and/or package.
+
 ### 3.2.0
 
 * [patch] Trigger detection should support `publish-` tags.

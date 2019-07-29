@@ -52,6 +52,11 @@ namespace Faithlife.Build
 		public DotNetTestSettings TestSettings { get; set; }
 
 		/// <summary>
+		/// Settings for creating NuGet packages.
+		/// </summary>
+		public DotNetPackageSettings PackageSettings { get; set; }
+
+		/// <summary>
 		/// The default solution platform to build (optional).
 		/// </summary>
 		public string SolutionPlatform { get; set; }
