@@ -19,6 +19,7 @@ public sealed class DotNetBuildSettings
 | [MSBuildSettings](DotNetBuildSettings/MSBuildSettings.md) { get; set; } | Set to use `MSBuild` instead of `dotnet` to build the solution. |
 | [NuGetApiKey](DotNetBuildSettings/NuGetApiKey.md) { get; set; } | The NuGet API key with which to push packages. |
 | [NuGetSource](DotNetBuildSettings/NuGetSource.md) { get; set; } | The NuGet source to which to push packages. The standard public NuGet source if omitted. |
+| [PackageSettings](DotNetBuildSettings/PackageSettings.md) { get; set; } | Settings for creating NuGet packages. |
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
 | [SolutionPlatform](DotNetBuildSettings/SolutionPlatform.md) { get; set; } | The default solution platform to build (optional). |
 | [SourceLinkSettings](DotNetBuildSettings/SourceLinkSettings.md) { get; set; } | The SourceLink settings. Must be set to test SourceLink URLs. |
