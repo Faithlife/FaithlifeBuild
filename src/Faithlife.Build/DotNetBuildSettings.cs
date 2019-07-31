@@ -57,6 +57,11 @@ namespace Faithlife.Build
 		public DotNetPackageSettings PackageSettings { get; set; }
 
 		/// <summary>
+		/// Settings for cleaning projects.
+		/// </summary>
+		public DotNetCleanSettings CleanSettings { get; set; }
+
+		/// <summary>
 		/// The default solution platform to build (optional).
 		/// </summary>
 		public string SolutionPlatform { get; set; }
@@ -88,6 +93,8 @@ namespace Faithlife.Build
 			clone.DocsSettings = clone.DocsSettings?.Clone();
 			clone.MSBuildSettings = clone.MSBuildSettings?.Clone();
 			clone.TestSettings = clone.TestSettings?.Clone();
+			clone.PackageSettings = clone.PackageSettings?.Clone();
+			clone.CleanSettings = clone.CleanSettings?.Clone();
 			clone.SourceLinkSettings = clone.SourceLinkSettings?.Clone();
 			return clone;
 		}

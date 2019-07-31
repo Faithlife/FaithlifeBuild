@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.4.0
+
+* [minor] Support customizing directories to delete when cleaning.
+
 ### 3.3.0
 
 * [minor] Support finding projects to test and/or package.
