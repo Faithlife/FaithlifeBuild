@@ -1,9 +1,9 @@
-# DotNetTools.GetToolPath method
+# DotNetTools.GetClassicToolPath method
 
-Gets the path to the specified .NET Core Global Tool, installing it if necessary.
+Gets the path to the specified classic NuGet package tool, installing it if necessary.
 
 ```csharp
-public string GetToolPath(string package, string name = null)
+public string GetClassicToolPath(string package, string name = null)
 ```
 
 | parameter | description |

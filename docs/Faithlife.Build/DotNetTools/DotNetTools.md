@@ -1,6 +1,6 @@
 # DotNetTools constructor
 
-Prepares to install .NET Core Global Tools within the specified directory.
+Prepares to install tools within the specified directory.
 
 ```csharp
 public DotNetTools(string directory)
