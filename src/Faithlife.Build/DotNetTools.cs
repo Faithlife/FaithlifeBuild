@@ -1,27 +1,31 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.DotNetRunner;
 
 namespace Faithlife.Build
 {
 	/// <summary>
-	/// Manages .NET Core Global Tools, installed within a local directory.
+	/// Manages .NET Core Global Tools and classic NuGet packaged tools installed within a local directory.
 	/// </summary>
 	public sealed class DotNetTools
 	{
 		/// <summary>
-		/// Prepares to install .NET Core Global Tools within the specified directory.
+		/// Prepares to install tools within the specified directory.
 		/// </summary>
 		/// <param name="directory">The directory path.</param>
 		public DotNetTools(string directory)
 		{
 			m_directory = Path.GetFullPath(directory);
 			m_sources = new List<string>();
+			m_nugetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages", "nuget.commandline", "5.1.0", "tools", "NuGet.exe");
 		}
 
 		/// <summary>
-		/// Gets the path to the specified tool, installing it if necessary.
+		/// Gets the path to the specified .NET Core Global Tool, installing it if necessary.
 		/// </summary>
 		/// <param name="package">The package name. To install a particular version,
 		/// indicate it after the name, separated by a slash.</param>
@@ -77,6 +81,57 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
+		/// Gets the path to the specified classic NuGet package tool, installing it if necessary.
+		/// </summary>
+		/// <param name="package">The package name. To install a particular version,
+		/// indicate it after the name, separated by a slash.</param>
+		/// <param name="name">The tool name, if it differs from the package name.</param>
+		/// <returns>The path to the installed tool.</returns>
+		public string GetClassicToolPath(string package, string name = null)
+		{
+			string version = null;
+			int slashIndex = package.IndexOf('/');
+			if (slashIndex != -1)
+			{
+				version = package.Substring(slashIndex + 1);
+				package = package.Substring(0, slashIndex);
+			}
+
+			var args = new List<string>
+			{
+				"install",
+				package,
+				"-Prerelease",
+				"-OutputDirectory",
+				m_directory,
+			};
+
+			if (version != null)
+			{
+				args.Add("-Version");
+				args.Add(version);
+			}
+
+			foreach (var source in m_sources)
+			{
+				args.Add("-Source");
+				args.Add(source);
+			}
+
+			RunDotNetFrameworkApp(m_nugetPath, args);
+
+			if (version == null)
+			{
+				version = Directory.GetDirectories(m_directory, $"{package}.*")
+					.Select(x => Path.GetFileName(x).Substring(package.Length + 1))
+					.OrderByDescending(x => x, new NuGetVersionComparer())
+					.First();
+			}
+
+			return Path.Combine(m_directory, $"{package}.{version}", "tools", name ?? package);
+		}
+
+		/// <summary>
 		/// Adds the specified NuGet package source.
 		/// </summary>
 		/// <param name="source">The path or URL of the NuGet package source.</param>
@@ -87,7 +142,42 @@ namespace Faithlife.Build
 			return this;
 		}
 
+		private class NuGetVersionComparer : IComparer<string>
+		{
+			public int Compare(string left, string right)
+			{
+				if (left == null)
+					return right == null ? 0 : -1;
+				if (right == null)
+					return 1;
+
+				var leftHyphenParts = left.Split(new[] { '-' }, 2);
+				var rightHyphenParts = right.Split(new[] { '-' }, 2);
+
+				var leftDotParts = leftHyphenParts[0].Split('.');
+				var rightDotParts = rightHyphenParts[0].Split('.');
+
+				for (int index = 0; index < Math.Min(leftDotParts.Length, rightDotParts.Length); index++)
+				{
+					if (leftDotParts[index] != rightDotParts[index])
+						return int.Parse(leftDotParts[index]).CompareTo(int.Parse(rightDotParts[index]));
+				}
+
+				if (leftDotParts.Length != rightDotParts.Length)
+					return leftDotParts.Length.CompareTo(rightDotParts.Length);
+
+				var leftSuffix = leftHyphenParts.ElementAtOrDefault(1);
+				var rightSuffix = rightHyphenParts.ElementAtOrDefault(1);
+				if (leftSuffix == null)
+					return rightSuffix == null ? 0 : 1;
+				if (rightSuffix == null)
+					return -1;
+				return string.CompareOrdinal(leftSuffix, rightSuffix);
+			}
+		}
+
 		private readonly string m_directory;
 		private readonly List<string> m_sources;
+		private readonly string m_nugetPath;
 	}
 }

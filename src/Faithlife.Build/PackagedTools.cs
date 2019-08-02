@@ -9,6 +9,7 @@ namespace Faithlife.Build
 	/// <remarks>The referenced NuGet packages must already be downloaded.
 	/// Use a <c>PackageReference</c> in your build project to ensure that the desired
 	/// NuGet package is downloaded.</remarks>
+	[Obsolete("Use DotNetTools.GetClassicToolPath.")]
 	public sealed class PackagedTools
 	{
 		/// <summary>

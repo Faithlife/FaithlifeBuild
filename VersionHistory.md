@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.5.0
+
+* [minor] Use new `DotNetTools.GetClassicToolPath` instead of now-obsolete `PackagedTools`. 
+
 ### 3.4.0
 
 * [minor] Support customizing directories to delete when cleaning.
