@@ -102,6 +102,7 @@ namespace Faithlife.Build
 				"install",
 				package,
 				"-Prerelease",
+				"-NonInteractive",
 				"-OutputDirectory",
 				m_directory,
 			};
