@@ -109,7 +109,12 @@ namespace Faithlife.Build
 						if (findTestAssemblies != null)
 						{
 							foreach (var testAssembly in findTestAssemblies())
-								RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
+							{
+								if (settings.TestSettings?.RunTests != null)
+									settings.TestSettings.RunTests(testAssembly);
+								else
+									RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
+							}
 						}
 						else
 						{
@@ -122,7 +127,12 @@ namespace Faithlife.Build
 								testProjects.Add(solutionName);
 
 							foreach (var testProject in testProjects)
-								RunDotNet(new[] { "test", testProject, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
+							{
+								if (settings.TestSettings?.RunTests != null)
+									settings.TestSettings.RunTests(testProject);
+								else
+									RunDotNet(new[] { "test", testProject, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
+							}
 						}
 					}
 				});

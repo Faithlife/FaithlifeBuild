@@ -19,6 +19,11 @@ namespace Faithlife.Build
 		public Func<IReadOnlyList<string>> FindTestAssemblies { get; set; }
 
 		/// <summary>
+		/// Called to run tests on the specified solution, project, or assembly.
+		/// </summary>
+		public Action<string> RunTests { get; set; }
+
+		/// <summary>
 		/// Clones the settings.
 		/// </summary>
 		public DotNetTestSettings Clone() => (DotNetTestSettings) MemberwiseClone();
