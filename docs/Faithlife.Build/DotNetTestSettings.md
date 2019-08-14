@@ -13,6 +13,7 @@ public sealed class DotNetTestSettings
 | [DotNetTestSettings](DotNetTestSettings/DotNetTestSettings.md)() | The default constructor. |
 | [FindProjects](DotNetTestSettings/FindProjects.md) { get; set; } | Called to find the projects to test. |
 | [FindTestAssemblies](DotNetTestSettings/FindTestAssemblies.md) { get; set; } | Called to find the test assemblies. |
+| [RunTests](DotNetTestSettings/RunTests.md) { get; set; } | Called to run tests on the specified solution, project, or assembly. |
 | [Clone](DotNetTestSettings/Clone.md)() | Clones the settings. |
 
 ## See Also
