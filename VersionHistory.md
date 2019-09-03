@@ -8,7 +8,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
-### 3.6.1
+### 3.6.1–3.6.2
 
 * [patch] Update `xmldocmd`.
 
