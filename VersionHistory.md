@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.6.1
+
+* [patch] Update `xmldocmd`.
+
 ### 3.6.0
 
 * [patch] Run nuget.exe in non-interactive mode.

@@ -48,7 +48,7 @@ namespace Faithlife.Build
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var sourceLinkVersion = sourceLinkSettings?.ToolVersion ?? "3.1.1";
-			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.2";
+			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "1.5.3";
 
 			var packagePaths = new List<string>();
 			string trigger = null;
