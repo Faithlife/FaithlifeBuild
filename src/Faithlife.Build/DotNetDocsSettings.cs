@@ -39,6 +39,11 @@ namespace Faithlife.Build
 		public string GitBranchName { get; set; }
 
 		/// <summary>
+		/// A function that returns true if documentation should be generated for the project.
+		/// </summary>
+		public Func<string, bool> ProjectHasDocs { get; set; }
+
+		/// <summary>
 		/// Called to find the assembly for the specified project.
 		/// </summary>
 		public Func<string, string> FindAssembly { get; set; }

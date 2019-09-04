@@ -311,7 +311,8 @@ namespace Faithlife.Build
 									gitBranchName = branch.FriendlyName;
 								}
 
-								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name))
+								var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
+								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
 								{
 									string findAssembly(string name) =>
 										FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
