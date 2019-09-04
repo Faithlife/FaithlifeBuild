@@ -17,6 +17,7 @@ public sealed class DotNetDocsSettings
 | [GitBranchName](DotNetDocsSettings/GitBranchName.md) { get; set; } | The name of the git branch where documentation is generated. |
 | [GitLogin](DotNetDocsSettings/GitLogin.md) { get; set; } | Credentials used to push to git. |
 | [GitRepositoryUrl](DotNetDocsSettings/GitRepositoryUrl.md) { get; set; } | The URL of the git repository where documentation is generated. |
+| [ProjectHasDocs](DotNetDocsSettings/ProjectHasDocs.md) { get; set; } | A function that returns true if documentation should be generated for the project. |
 | [SourceCodeUrl](DotNetDocsSettings/SourceCodeUrl.md) { get; set; } | The GitHub URL of the directory containing the source code. |
 | [TargetDirectory](DotNetDocsSettings/TargetDirectory.md) { get; set; } | The target directory for generated documentation, relative to the root of the repository; defaults to `"docs"`. |
 | [ToolVersion](DotNetDocsSettings/ToolVersion.md) { get; set; } | The version of the `xmldocmd` tool to use when generating documentation. |
