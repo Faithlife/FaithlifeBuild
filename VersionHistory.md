@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.7.1
+
+* [patch] Ensure directory exists before deleting it, in case its ancestor directory was already deleted.
+
 ### 3.7.0
 
 * [minor] Support `DotNetDocsSettings.ProjectHasDocs`.

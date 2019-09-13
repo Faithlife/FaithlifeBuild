@@ -59,7 +59,10 @@ namespace Faithlife.Build
 				{
 					var findDirectoriesToDelete = settings.CleanSettings?.FindDirectoriesToDelete ?? (() => FindDirectories("{src,tests}/**/{bin,obj}"));
 					foreach (var directoryToDelete in findDirectoriesToDelete())
-						Directory.Delete(directoryToDelete, recursive: true);
+					{
+						if (Directory.Exists(directoryToDelete))
+							Directory.Delete(directoryToDelete, recursive: true);
+					}
 
 					var extraProperties = getExtraProperties("clean");
 					if (msbuildSettings == null)
