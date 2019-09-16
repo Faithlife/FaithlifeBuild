@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using LibGit2Sharp;
+using Polly;
 using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
@@ -59,10 +60,7 @@ namespace Faithlife.Build
 				{
 					var findDirectoriesToDelete = settings.CleanSettings?.FindDirectoriesToDelete ?? (() => FindDirectories("{src,tests}/**/{bin,obj}"));
 					foreach (var directoryToDelete in findDirectoriesToDelete())
-					{
-						if (Directory.Exists(directoryToDelete))
-							Directory.Delete(directoryToDelete, recursive: true);
-					}
+						deleteDirectory(directoryToDelete);
 
 					var extraProperties = getExtraProperties("clean");
 					if (msbuildSettings == null)
@@ -217,8 +215,7 @@ namespace Faithlife.Build
 						File.Move(tempPackagePath, packagePath);
 						packagePaths.Add(packagePath);
 					}
-					if (Directory.Exists(tempOutputPath))
-						Directory.Delete(tempOutputPath);
+					deleteDirectory(tempOutputPath);
 
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages created.");
@@ -402,7 +399,7 @@ namespace Faithlife.Build
 							// delete the cloned directory
 							foreach (var fileInfo in FindFiles(cloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
 								fileInfo.IsReadOnly = false;
-							Directory.Delete(cloneDirectory, recursive: true);
+							deleteDirectory(cloneDirectory);
 						}
 					}
 					else
@@ -438,6 +435,22 @@ namespace Faithlife.Build
 			}
 
 			void runMSBuild(IEnumerable<string> arguments) => RunMSBuild(msbuildSettings, arguments);
+
+			void deleteDirectory(string path)
+			{
+				Policy.Handle<IOException>()
+					.WaitAndRetry(new[] { TimeSpan.FromMilliseconds(50) })
+					.Execute(() =>
+					{
+						try
+						{
+							Directory.Delete(path, recursive: true);
+						}
+						catch (DirectoryNotFoundException)
+						{
+						}
+					});
+			}
 		}
 
 		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)
