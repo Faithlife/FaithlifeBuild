@@ -404,7 +404,7 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						Console.WriteLine("To publish to NuGet, use this trigger: v" + GetPackageInfo(packagePaths[0]).Version);
+						Console.WriteLine("To publish to NuGet, push this tag: v" + GetPackageInfo(packagePaths[0]).Version);
 					}
 				});
 

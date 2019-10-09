@@ -11,6 +11,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 ### 3.7.3
 
 * [patch] Update `xmldocmd`.
+* [patch] Improve clarity of publish instruction.
 
 ### 3.7.2
 
