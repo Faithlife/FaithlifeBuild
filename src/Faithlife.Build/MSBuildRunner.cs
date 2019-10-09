@@ -41,7 +41,7 @@ namespace Faithlife.Build
 					if (version == MSBuildVersion.VS2017)
 						return ("2017", "15.0");
 					else if (version == MSBuildVersion.VS2019)
-						return ("2019", "16.0");
+						return ("2019", "Current");
 					else
 						throw new ArgumentException("Invalid version.", nameof(version));
 				}

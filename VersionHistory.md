@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.7.4
+
+* [patch] Fix Visual Studio 2019 path.
+
 ### 3.7.3
 
 * [patch] Update `xmldocmd`.
