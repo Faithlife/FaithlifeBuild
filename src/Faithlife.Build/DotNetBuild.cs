@@ -49,7 +49,7 @@ namespace Faithlife.Build
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var sourceLinkVersion = sourceLinkSettings?.ToolVersion ?? "3.1.1";
-			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.0";
+			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
 
 			var packagePaths = new List<string>();
 			string trigger = null;
@@ -369,7 +369,7 @@ namespace Faithlife.Build
 								foreach (var packagePath in packagePaths)
 								{
 									if (shouldTestPackage == null || shouldTestPackage(GetPackageInfo(packagePath).Name))
-										RunApp(sourceLinkPath, new [] { "test", packagePath }.Concat(sourceLinkArgs));
+										RunApp(sourceLinkPath, new[] { "test", packagePath }.Concat(sourceLinkArgs));
 								}
 							}
 
@@ -468,7 +468,7 @@ namespace Faithlife.Build
 		private static (int Major, int Minor, int Patch, string Suffix) SplitVersion(string version)
 		{
 			var hyphenParts = version.Split(new[] { '-' }, 2);
-			var dotParts = hyphenParts[0].Split(new [] { '.' }, 3);
+			var dotParts = hyphenParts[0].Split(new[] { '.' }, 3);
 			return (int.Parse(dotParts[0]), int.Parse(dotParts[1]), int.Parse(dotParts[2]), hyphenParts.ElementAtOrDefault(1));
 		}
 
