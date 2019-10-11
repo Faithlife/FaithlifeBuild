@@ -17,6 +17,8 @@ This library allows developers to use C# to write build scripts. It is similar t
 * define [standard targets for .NET builds](#create-net-targets) that build, test, package, and generate documentation for your libraries
 * `--help` displays supported command-line options and targets with descriptions
 
+Most importantly, since the build script is a full-fledged .NET Core app with access to any compatible NuGet package, you can do just about anything, in a language and framework you already know well.
+
 ## Usage
 
 To use this library for your automated build, create a .NET Core Console App project in `tools/build` that references the latest `Faithlife.Build` [NuGet package](https://www.nuget.org/packages/Faithlife.Build). Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project; there are project properties in that file that you may need for everything to work as expected.
