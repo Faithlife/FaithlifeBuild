@@ -14,7 +14,7 @@ This library allows developers to use C# to write build scripts. It is similar t
 * [find files and directories](Faithlife.Build/BuildUtility.md) using [globs](https://github.com/kthompson/glob/)
 * [copy files](Faithlife.Build/BuildUtility/CopyFiles.md) from one directory to another
 * get information about the [build environment](Faithlife.Build/BuildEnvironment.md)
-* define [standard targets for .NET builds](#net-targets) that build, test, package, and generate documentation for your libraries
+* define [standard targets for .NET builds](#create-net-targets) that build, test, package, and generate documentation for your libraries
 * `--help` displays supported command-line options and targets with descriptions
 
 ## Usage
