@@ -13,10 +13,7 @@ namespace Faithlife.Build
 		/// <remarks>This properly must only be accessed while running a target.</remarks>
 		public bool Value => m_option.HasValue();
 
-		internal BuildFlag(CommandOption option)
-		{
-			m_option = option;
-		}
+		internal BuildFlag(CommandOption option) => m_option = option;
 
 		private readonly CommandOption m_option;
 	}

@@ -22,7 +22,7 @@ namespace Faithlife.Build
 		/// <returns>The exit code for the build.</returns>
 		/// <remarks>If <paramref name="workingDirectory"/> is omitted, the parent of the parent of the
 		/// directory containing the source code of the caller is used.</remarks>
-		public static int Execute(string[] args, Action<BuildApp> initialize, string workingDirectory = null, [CallerFilePath] string callerFilePath = null)
+		public static int Execute(string[] args, Action<BuildApp> initialize, string? workingDirectory = null, [CallerFilePath] string? callerFilePath = null)
 		{
 			if (args == null)
 				throw new ArgumentNullException(nameof(args));
@@ -31,7 +31,7 @@ namespace Faithlife.Build
 
 			if (workingDirectory == null)
 			{
-				string callerFileDirectory = Path.GetDirectoryName(callerFilePath) ?? throw new ArgumentException("Invalid caller file path.", nameof(callerFilePath));
+				var callerFileDirectory = Path.GetDirectoryName(callerFilePath) ?? throw new ArgumentException("Invalid caller file path.", nameof(callerFilePath));
 				workingDirectory = Path.GetFullPath(Path.Combine(callerFileDirectory, "..", ".."));
 			}
 			Directory.SetCurrentDirectory(workingDirectory);
@@ -94,7 +94,7 @@ namespace Faithlife.Build
 			if (targetsToShow.Count != 0)
 			{
 				Console.WriteLine("Targets:");
-				int maxTargetLength = targetsToShow.Select(x => x.Name.Length).Max();
+				var maxTargetLength = targetsToShow.Select(x => x.Name.Length).Max();
 				foreach (var target in targetsToShow)
 					Console.WriteLine("  {0}  {1}", target.Name.PadRight(maxTargetLength), target.Description);
 			}

@@ -11,7 +11,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Called to find the projects to package.
 		/// </summary>
-		public Func<IReadOnlyList<string>> FindProjects { get; set; }
+		public Func<IReadOnlyList<string>>? FindProjects { get; set; }
 
 		/// <summary>
 		/// Clones the settings.

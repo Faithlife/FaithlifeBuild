@@ -30,7 +30,7 @@ namespace Faithlife.Build
 		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 		public BuildTarget Describe(string description)
 		{
-			Description = description;
+			Description = description ?? throw new ArgumentNullException(nameof(description));
 			return this;
 		}
 
@@ -41,7 +41,7 @@ namespace Faithlife.Build
 		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 		public BuildTarget DependsOn(params string[] targets)
 		{
-			m_dependencies.AddRange(targets);
+			m_dependencies.AddRange(targets ?? throw new ArgumentNullException(nameof(targets)));
 			return this;
 		}
 
@@ -52,7 +52,7 @@ namespace Faithlife.Build
 		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 		public BuildTarget Does(Action action)
 		{
-			m_action += action;
+			m_action += action ?? throw new ArgumentNullException(nameof(action));
 			return this;
 		}
 
@@ -69,6 +69,6 @@ namespace Faithlife.Build
 		}
 
 		private readonly List<string> m_dependencies;
-		private Action m_action;
+		private Action? m_action;
 	}
 }

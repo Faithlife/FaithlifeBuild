@@ -11,7 +11,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Called to find the directories to delete.
 		/// </summary>
-		public Func<IReadOnlyList<string>> FindDirectoriesToDelete { get; set; }
+		public Func<IReadOnlyList<string>>? FindDirectoriesToDelete { get; set; }
 
 		/// <summary>
 		/// Clones the settings.

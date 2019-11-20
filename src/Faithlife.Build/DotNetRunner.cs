@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
@@ -17,13 +18,19 @@ namespace Faithlife.Build
 		/// Runs <c>dotnet</c> with the specified arguments.
 		/// </summary>
 		/// <param name="args">The command-line arguments.</param>
-		public static void RunDotNet(params string[] args) => RunDotNet(args.AsEnumerable());
+		public static void RunDotNet(params string?[] args)
+		{
+			if (args == null)
+				throw new ArgumentNullException(nameof(args));
+
+			RunDotNet(args.AsEnumerable());
+		}
 
 		/// <summary>
 		/// Runs <c>dotnet</c> with the specified arguments.
 		/// </summary>
 		/// <param name="args">The command-line arguments.</param>
-		public static void RunDotNet(IEnumerable<string> args) => RunApp(DotNetExe.FullPath, args);
+		public static void RunDotNet(IEnumerable<string?> args) => RunApp(DotNetExe.FullPath, args);
 
 		/// <summary>
 		/// Runs <c>dotnet</c> with the specified settings.

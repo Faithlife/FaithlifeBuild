@@ -19,14 +19,26 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
-		public static void RunApp(string path, params string[] args) => RunApp(path, args.AsEnumerable());
+		public static void RunApp(string path, params string?[] args)
+		{
+			if (args == null)
+				throw new ArgumentNullException(nameof(args));
+
+			RunApp(path, args.AsEnumerable());
+		}
 
 		/// <summary>
 		/// Runs the specified command-line app.
 		/// </summary>
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
-		public static void RunApp(string path, IEnumerable<string> args) => RunApp(path, new AppRunnerSettings { Arguments = args });
+		public static void RunApp(string path, IEnumerable<string?> args)
+		{
+			if (args == null)
+				throw new ArgumentNullException(nameof(args));
+
+			RunApp(path, new AppRunnerSettings { Arguments = args });
+		}
 
 		/// <summary>
 		/// Runs the specified command-line app.
@@ -35,9 +47,14 @@ namespace Faithlife.Build
 		/// <param name="settings">The settings to use when running the app.</param>
 		public static int RunApp(string path, AppRunnerSettings settings)
 		{
-			string args = ArgumentEscaper.EscapeAndConcatenate((settings.Arguments ?? Enumerable.Empty<string>()).Where(x => x != null));
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
+			if (settings == null)
+				throw new ArgumentNullException(nameof(settings));
 
-			int exitCode = 0;
+			var args = ArgumentEscaper.EscapeAndConcatenate((settings.Arguments ?? Enumerable.Empty<string>()).Where(x => x != null));
+
+			var exitCode = 0;
 			try
 			{
 				Command.Run(name: path, args: args, workingDirectory: settings.WorkingDirectory, noEcho: settings.NoEcho);
@@ -60,7 +77,13 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
-		public static void RunDotNetFrameworkApp(string path, params string[] args) => RunDotNetFrameworkApp(path, args.AsEnumerable());
+		public static void RunDotNetFrameworkApp(string path, params string[] args)
+		{
+			if (args == null)
+				throw new ArgumentNullException(nameof(args));
+
+			RunDotNetFrameworkApp(path, args.AsEnumerable());
+		}
 
 		/// <summary>
 		/// Runs the specified .NET Framework command-line app.
@@ -68,7 +91,13 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
-		public static void RunDotNetFrameworkApp(string path, IEnumerable<string> args) => RunDotNetFrameworkApp(path, new AppRunnerSettings { Arguments = args });
+		public static void RunDotNetFrameworkApp(string path, IEnumerable<string> args)
+		{
+			if (args == null)
+				throw new ArgumentNullException(nameof(args));
+
+			RunDotNetFrameworkApp(path, new AppRunnerSettings { Arguments = args });
+		}
 
 		/// <summary>
 		/// Runs the specified .NET Framework command-line app.
@@ -78,6 +107,11 @@ namespace Faithlife.Build
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
 		public static int RunDotNetFrameworkApp(string path, AppRunnerSettings settings)
 		{
+			if (path == null)
+				throw new ArgumentNullException(nameof(path));
+			if (settings == null)
+				throw new ArgumentNullException(nameof(settings));
+
 			if (BuildEnvironment.IsUnix())
 			{
 				settings = settings.Clone();

@@ -17,7 +17,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Gets the path of MSBuild for the specified version.
 		/// </summary>
-		public static string GetMSBuildPath(MSBuildSettings settings)
+		public static string GetMSBuildPath(MSBuildSettings? settings)
 		{
 			if (BuildEnvironment.IsMacOS())
 			{
@@ -47,9 +47,9 @@ namespace Faithlife.Build
 				}
 
 				var parts = getPathParts();
-				foreach (string edition in new[] { "Enterprise", "Professional", "Community", "BuildTools", "Preview" })
+				foreach (var edition in new[] { "Enterprise", "Professional", "Community", "BuildTools", "Preview" })
 				{
-					string msbuildPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+					var msbuildPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
 						"Microsoft Visual Studio", parts.Year, edition, "MSBuild", parts.Version, "Bin", platform == MSBuildPlatform.X64 ? "amd64" : "", "MSBuild.exe");
 					if (File.Exists(msbuildPath))
 						return msbuildPath;
@@ -64,14 +64,20 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="args">The arguments, if any.</param>
-		public static void RunMSBuild(MSBuildSettings settings, params string[] args) => RunMSBuild(settings, args.AsEnumerable());
+		public static void RunMSBuild(MSBuildSettings settings, params string?[] args)
+		{
+			if (args == null)
+				throw new ArgumentNullException(nameof(args));
+
+			RunMSBuild(settings, args.AsEnumerable());
+		}
 
 		/// <summary>
 		/// Runs MSBuild with the specified arguments.
 		/// </summary>
 		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="args">The arguments, if any.</param>
-		public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args) => RunApp(GetMSBuildPath(settings), args);
+		public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string?> args) => RunApp(GetMSBuildPath(settings), args);
 
 		/// <summary>
 		/// Runs MSBuild with the specified settings.

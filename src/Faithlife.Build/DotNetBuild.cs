@@ -22,9 +22,9 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="build">The build to which to add targets.</param>
 		/// <param name="settings">The build settings.</param>
-		public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings settings = null)
+		public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings? settings = null)
 		{
-			settings = settings ?? new DotNetBuildSettings();
+			settings ??= new DotNetBuildSettings();
 
 			var buildOptions = settings.BuildOptions ?? (settings.BuildOptions = new DotNetBuildOptions());
 			var configurationOption = buildOptions.ConfigurationOption ?? (buildOptions.ConfigurationOption =
@@ -52,7 +52,7 @@ namespace Faithlife.Build
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
 
 			var packagePaths = new List<string>();
-			string trigger = null;
+			string? trigger = null;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -119,7 +119,7 @@ namespace Faithlife.Build
 						}
 						else
 						{
-							var testProjects = new List<string>();
+							var testProjects = new List<string?>();
 
 							var findTestProjects = settings.TestSettings?.FindProjects;
 							if (findTestProjects != null)
@@ -147,26 +147,24 @@ namespace Faithlife.Build
 
 					if (trigger == "detect")
 					{
-						using (var repository = new Repository("."))
+						using var repository = new Repository(".");
+						var headSha = repository.Head.Tip.Sha;
+						var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
+						if (autoTrigger != null)
 						{
-							string headSha = repository.Head.Tip.Sha;
-							var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
-							if (autoTrigger != null)
-							{
-								trigger = autoTrigger;
-								Console.WriteLine($"Detected trigger: {trigger}");
-							}
+							trigger = autoTrigger;
+							Console.WriteLine($"Detected trigger: {trigger}");
 						}
 					}
 
-					string versionSuffix = versionSuffixOption.Value;
+					var versionSuffix = versionSuffixOption.Value;
 					if (versionSuffix == null && trigger != null)
 						versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
 
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
 					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
 
-					var packageProjects = new List<string>();
+					var packageProjects = new List<string?>();
 
 					var findPackageProjects = settings.PackageSettings?.FindProjects;
 					if (findPackageProjects != null)
@@ -209,7 +207,7 @@ namespace Faithlife.Build
 					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
 					foreach (var tempPackagePath in tempPackagePaths)
 					{
-						var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath));
+						var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath) ?? throw new InvalidOperationException());
 						if (File.Exists(packagePath))
 							File.Delete(packagePath);
 						File.Move(tempPackagePath, packagePath);
@@ -232,8 +230,8 @@ namespace Faithlife.Build
 					if (trigger == null)
 						throw new ApplicationException("--trigger option required.");
 
-					bool shouldPublishPackages = trigger == "publish-package" || trigger == "publish-packages" || trigger == "publish-all";
-					bool shouldPublishDocs = trigger == "publish-docs" || trigger == "publish-all";
+					var shouldPublishPackages = trigger == "publish-package" || trigger == "publish-packages" || trigger == "publish-all";
+					var shouldPublishDocs = trigger == "publish-docs" || trigger == "publish-all";
 
 					var triggerVersion = GetVersionFromTrigger(trigger);
 					if (triggerVersion != null)
@@ -249,16 +247,16 @@ namespace Faithlife.Build
 					if (shouldPublishPackages || shouldPublishDocs)
 					{
 						var docsSettings = settings.DocsSettings;
-						bool shouldPushDocs = false;
-						string cloneDirectory = null;
-						string repoDirectory = null;
-						string gitBranchName = null;
+						var shouldPushDocs = false;
+						string? cloneDirectory = null;
+						string? repoDirectory = null;
+						string? gitBranchName = null;
 
 						Credentials provideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 							new UsernamePasswordCredentials
 							{
-								Username = docsSettings.GitLogin.Username ?? throw new ApplicationException("GitLogin has a null Username."),
-								Password = docsSettings.GitLogin.Password ?? throw new ApplicationException("GitLogin has a null Password."),
+								Username = docsSettings.GitLogin?.Username ?? throw new ApplicationException("GitLogin has a null Username."),
+								Password = docsSettings.GitLogin?.Password ?? throw new ApplicationException("GitLogin has a null Password."),
 							};
 
 						if (shouldPublishDocs && docsSettings != null)
@@ -281,72 +279,70 @@ namespace Faithlife.Build
 								repoDirectory = ".";
 							}
 
-							using (var repository = new Repository(repoDirectory))
+							using var repository = new Repository(repoDirectory);
+							if (gitRepositoryUrl != null)
 							{
-								if (gitRepositoryUrl != null)
+								if (gitBranchName == null)
+									gitBranchName = repository.Head.FriendlyName;
+							}
+							else if (gitBranchName != null)
+							{
+								if (gitBranchName != repository.Head.FriendlyName)
 								{
-									if (gitBranchName == null)
-										gitBranchName = repository.Head.FriendlyName;
+									var branch = repository.Branches[gitBranchName] ?? repository.CreateBranch(gitBranchName);
+									Commands.Checkout(repository, branch);
 								}
-								else if (gitBranchName != null)
+							}
+							else
+							{
+								var branch = repository.Branches.FirstOrDefault(x => x.IsCurrentRepositoryHead);
+								if (branch == null)
 								{
-									if (gitBranchName != repository.Head.FriendlyName)
+									var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
+									if (autoBranchName == null)
+										throw new ArgumentException("Could not determine repository branch.");
+
+									branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
+									Commands.Checkout(repository, branch);
+								}
+								gitBranchName = branch.FriendlyName;
+							}
+
+							var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
+							foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
+							{
+								string findAssembly(string name) =>
+									FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
+									FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+
+								var assemblyPaths = new List<string>();
+								if (docsSettings.FindAssemblies != null)
+								{
+									assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
+								}
+								else
+								{
+									var assemblyPath = (docsSettings.FindAssembly ?? findAssembly)(projectName);
+									if (assemblyPath != null)
+										assemblyPaths.Add(assemblyPath);
+								}
+
+								if (assemblyPaths.Count != 0)
+								{
+									foreach (var assemblyPath in assemblyPaths)
 									{
-										var branch = repository.Branches[gitBranchName] ?? repository.CreateBranch(gitBranchName);
-										Commands.Checkout(repository, branch);
+										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
+											Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
+											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 									}
 								}
 								else
 								{
-									var branch = repository.Branches.FirstOrDefault(x => x.IsCurrentRepositoryHead);
-									if (branch == null)
-									{
-										var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
-										if (autoBranchName == null)
-											throw new ArgumentException("Could not determine repository branch.");
-
-										branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
-										Commands.Checkout(repository, branch);
-									}
-									gitBranchName = branch.FriendlyName;
+									Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
 								}
-
-								var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
-								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
-								{
-									string findAssembly(string name) =>
-										FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
-										FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
-
-									var assemblyPaths = new List<string>();
-									if (docsSettings.FindAssemblies != null)
-									{
-										assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
-									}
-									else
-									{
-										var assemblyPath = (docsSettings.FindAssembly ?? findAssembly)(projectName);
-										if (assemblyPath != null)
-											assemblyPaths.Add(assemblyPath);
-									}
-
-									if (assemblyPaths.Count != 0)
-									{
-										foreach (var assemblyPath in assemblyPaths)
-										{
-											RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
-												Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
-												"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
-										}
-									}
-									else
-									{
-										Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
-									}
-								}
-
-								shouldPushDocs = repository.RetrieveStatus().IsDirty;
 							}
+
+							shouldPushDocs = repository.RetrieveStatus().IsDirty;
 						}
 
 						if (shouldPublishPackages)
@@ -363,7 +359,7 @@ namespace Faithlife.Build
 										throw new ApplicationException("SourceLink username must not be blank.");
 									if (string.IsNullOrWhiteSpace(sourceLinkSettings.Password))
 										throw new ApplicationException("SourceLink password must not be blank.");
-									sourceLinkArgs = new[] { "-a", "Basic", "-u", sourceLinkSettings.Username, "-p", sourceLinkSettings.Password };
+									sourceLinkArgs = new[] { "-a", "Basic", "-u", sourceLinkSettings.Username!, "-p", sourceLinkSettings.Password! };
 								}
 
 								foreach (var packagePath in packagePaths)
@@ -383,15 +379,13 @@ namespace Faithlife.Build
 
 						if (shouldPushDocs)
 						{
-							using (var repository = new Repository(repoDirectory))
-							{
-								Console.WriteLine("Publishing documentation changes.");
-								Commands.Stage(repository, "*");
-								var author = new Signature(docsSettings.GitAuthor.Name, docsSettings.GitAuthor.Email, DateTimeOffset.Now);
-								repository.Commit("Documentation updated.", author, author, new CommitOptions());
-								repository.Network.Push(repository.Network.Remotes["origin"],
-									$"refs/heads/{gitBranchName}", new PushOptions { CredentialsProvider = provideCredentials });
-							}
+							using var repository = new Repository(repoDirectory);
+							Console.WriteLine("Publishing documentation changes.");
+							Commands.Stage(repository, "*");
+							var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings!.GitAuthor!.Email, DateTimeOffset.Now);
+							repository.Commit("Documentation updated.", author, author, new CommitOptions());
+							repository.Network.Push(repository.Network.Remotes["origin"],
+								$"refs/heads/{gitBranchName}", new PushOptions { CredentialsProvider = provideCredentials });
 						}
 
 						if (cloneDirectory != null)
@@ -408,15 +402,15 @@ namespace Faithlife.Build
 					}
 				});
 
-			string getPlatformArg()
+			string? getPlatformArg()
 			{
-				string platformValue = platformOption.Value ?? settings?.SolutionPlatform;
+				var platformValue = platformOption.Value ?? settings?.SolutionPlatform;
 				return platformValue == null ? null : $"-p:Platform={platformValue}";
 			}
 
-			string getMaxCpuCountArg()
+			string? getMaxCpuCountArg()
 			{
-				if (settings.MaxCpuCount != null)
+				if (settings!.MaxCpuCount != null)
 					return $"-maxcpucount:{settings.MaxCpuCount}";
 				else if (msbuildSettings != null)
 					return "-maxcpucount";
@@ -426,7 +420,7 @@ namespace Faithlife.Build
 
 			IEnumerable<string> getExtraProperties(string target)
 			{
-				var pairs = settings.ExtraProperties?.Invoke(target);
+				var pairs = settings!.ExtraProperties?.Invoke(target);
 				if (pairs != null)
 				{
 					foreach (var pair in pairs)
@@ -434,7 +428,7 @@ namespace Faithlife.Build
 				}
 			}
 
-			void runMSBuild(IEnumerable<string> arguments) => RunMSBuild(msbuildSettings, arguments);
+			void runMSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments);
 
 			void deleteDirectory(string path)
 			{
@@ -459,9 +453,9 @@ namespace Faithlife.Build
 			return (match.Groups["name"].Value, match.Groups["version"].Value, match.Groups["suffix"].Value);
 		}
 
-		private static string GetVersionFromTrigger(string trigger)
+		private static string? GetVersionFromTrigger(string trigger)
 		{
-			string version = Regex.Match(trigger, @"^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-.+)?)$").Groups["version"].Value;
+			var version = Regex.Match(trigger, @"^v(?<version>[0-9]+\.[0-9]+\.[0-9]+(-.+)?)$").Groups["version"].Value;
 			return version.Length != 0 ? version : null;
 		}
 
@@ -472,12 +466,11 @@ namespace Faithlife.Build
 			return (int.Parse(dotParts[0]), int.Parse(dotParts[1]), int.Parse(dotParts[2]), hyphenParts.ElementAtOrDefault(1));
 		}
 
-		private static string GetBestTriggerFromTags(IReadOnlyList<string> tags)
-		{
-			return tags
+		private static string GetBestTriggerFromTags(IReadOnlyList<string> tags) =>
+			tags
 				.Select(x => (Tag: x, Version: GetVersionFromTrigger(x)))
 				.Where(x => x.Version != null)
-				.Select(x => (x.Tag, Version: SplitVersion(x.Version)))
+				.Select(x => (x.Tag, Version: SplitVersion(x.Version!)))
 				.OrderByDescending(x => x.Version.Major)
 				.ThenByDescending(x => x.Version.Minor)
 				.ThenByDescending(x => x.Version.Patch)
@@ -486,6 +479,5 @@ namespace Faithlife.Build
 				.Select(x => x.Tag)
 				.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
 				.FirstOrDefault();
-		}
 	}
 }

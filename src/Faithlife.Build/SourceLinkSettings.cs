@@ -12,23 +12,23 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
 		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
-		public string ToolVersion { get; set; }
+		public string? ToolVersion { get; set; }
 
 		/// <summary>
 		/// A function that returns true if SourceLink URLs should be tested for the package with the specified name.
 		/// </summary>
 		/// <remarks>If not specified, all packages will be tested.</remarks>
-		public Func<string, bool> ShouldTestPackage { get; set; }
+		public Func<string, bool>? ShouldTestPackage { get; set; }
 
 		/// <summary>
 		/// The username used with Basic authentication when testing SourceLink URLs (optional).
 		/// </summary>
-		public string Username { get; set; }
+		public string? Username { get; set; }
 
 		/// <summary>
 		/// The password used with Basic authentication when testing SourceLink URLs (optional).
 		/// </summary>
-		public string Password { get; set; }
+		public string? Password { get; set; }
 
 		/// <summary>
 		/// Returns the default settings.

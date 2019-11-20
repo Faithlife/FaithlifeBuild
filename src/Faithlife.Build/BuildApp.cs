@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
@@ -32,7 +33,7 @@ namespace Faithlife.Build
 		/// <param name="defaultValue">The default value for the option; <c>null</c> if omitted.</param>
 		/// <returns>The added <see cref="BuildOption"/>, which can be used from within a running target
 		/// to determine whether the option was set, and to what value.</returns>
-		public BuildOption AddOption(string template, string description, string defaultValue = null) =>
+		public BuildOption AddOption(string template, string description, string? defaultValue = null) =>
 			new BuildOption(m_app.Option(template, description, CommandOptionType.SingleValue), defaultValue);
 
 		/// <summary>
@@ -42,6 +43,9 @@ namespace Faithlife.Build
 		/// <returns>The specified build target. If a target with the specified name already exists, it is returned.</returns>
 		public BuildTarget Target(string name)
 		{
+			if (name == null)
+				throw new ArgumentNullException(nameof(name));
+
 			var target = m_targets.SingleOrDefault(x => x.Name == name);
 			if (target == null)
 				m_targets.Add(target = new BuildTarget(name));

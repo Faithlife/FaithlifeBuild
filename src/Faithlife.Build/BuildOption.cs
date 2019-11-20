@@ -11,15 +11,15 @@ namespace Faithlife.Build
 		/// The option value, or <c>null</c> if the option was not specified.
 		/// </summary>
 		/// <remarks>This properly must only be accessed while running a target.</remarks>
-		public string Value => m_option.HasValue() ? m_option.Value() : m_defaultValue;
+		public string? Value => m_option.HasValue() ? m_option.Value() : m_defaultValue;
 
-		internal BuildOption(CommandOption option, string defaultValue)
+		internal BuildOption(CommandOption option, string? defaultValue)
 		{
 			m_option = option;
 			m_defaultValue = defaultValue;
 		}
 
 		private readonly CommandOption m_option;
-		private readonly string m_defaultValue;
+		private readonly string? m_defaultValue;
 	}
 }

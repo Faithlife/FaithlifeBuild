@@ -31,10 +31,10 @@ namespace Faithlife.Build
 		/// indicate it after the name, separated by a slash.</param>
 		/// <param name="name">The tool name, if it differs from the package name.</param>
 		/// <returns>The path to the installed tool.</returns>
-		public string GetToolPath(string package, string name = null)
+		public string GetToolPath(string package, string? name = null)
 		{
-			string version = null;
-			int slashIndex = package.IndexOf('/');
+			string? version = null;
+			var slashIndex = package.IndexOf('/');
 			if (slashIndex != -1)
 			{
 				version = package.Substring(slashIndex + 1);
@@ -42,7 +42,7 @@ namespace Faithlife.Build
 			}
 
 			var args = new List<string>();
-			string directory = Path.Combine(m_directory, package, version ?? "latest");
+			var directory = Path.Combine(m_directory, package, version ?? "latest");
 
 			if (!Directory.Exists(directory))
 			{
@@ -87,10 +87,10 @@ namespace Faithlife.Build
 		/// indicate it after the name, separated by a slash.</param>
 		/// <param name="name">The tool name, if it differs from the package name.</param>
 		/// <returns>The path to the installed tool.</returns>
-		public string GetClassicToolPath(string package, string name = null)
+		public string GetClassicToolPath(string package, string? name = null)
 		{
-			string version = null;
-			int slashIndex = package.IndexOf('/');
+			string? version = null;
+			var slashIndex = package.IndexOf('/');
 			if (slashIndex != -1)
 			{
 				version = package.Substring(slashIndex + 1);
@@ -124,7 +124,7 @@ namespace Faithlife.Build
 			if (version == null)
 			{
 				version = Directory.GetDirectories(m_directory, $"{package}.*")
-					.Select(x => Path.GetFileName(x).Substring(package.Length + 1))
+					.Select(x => (Path.GetFileName(x) ?? throw new InvalidOperationException()).Substring(package.Length + 1))
 					.OrderByDescending(x => x, new NuGetVersionComparer())
 					.First();
 			}
@@ -139,6 +139,9 @@ namespace Faithlife.Build
 		/// <returns>The <c>DotNetTools</c> instance, for use by the "fluent" builder pattern.</returns>
 		public DotNetTools AddSource(string source)
 		{
+			if (source == null)
+				throw new ArgumentNullException(nameof(source));
+
 			m_sources.Add(Regex.IsMatch(source, @"^\w+:") ? source : Path.GetFullPath(source));
 			return this;
 		}
@@ -158,7 +161,7 @@ namespace Faithlife.Build
 				var leftDotParts = leftHyphenParts[0].Split('.');
 				var rightDotParts = rightHyphenParts[0].Split('.');
 
-				for (int index = 0; index < Math.Min(leftDotParts.Length, rightDotParts.Length); index++)
+				for (var index = 0; index < Math.Min(leftDotParts.Length, rightDotParts.Length); index++)
 				{
 					if (leftDotParts[index] != rightDotParts[index])
 						return int.Parse(leftDotParts[index]).CompareTo(int.Parse(rightDotParts[index]));

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,8 +35,15 @@ namespace Faithlife.Build
 		/// <param name="directory">The starting directory.</param>
 		/// <param name="globs">The globs to match.</param>
 		/// <returns>The paths of the matching files.</returns>
-		public static IReadOnlyList<string> FindFilesFrom(string directory, params string[] globs) =>
-			globs.SelectMany(glob => Glob.Files(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
+		public static IReadOnlyList<string> FindFilesFrom(string directory, params string[] globs)
+		{
+			if (directory == null)
+				throw new ArgumentNullException(nameof(directory));
+			if (globs == null)
+				throw new ArgumentNullException(nameof(globs));
+
+			return globs.SelectMany(glob => Glob.Files(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
+		}
 
 		/// <summary>
 		/// Finds the directories matching the specified globs.
@@ -43,8 +51,15 @@ namespace Faithlife.Build
 		/// <param name="directory">The starting directory.</param>
 		/// <param name="globs">The globs to match.</param>
 		/// <returns>The paths of the matching directories.</returns>
-		public static IReadOnlyList<string> FindDirectoriesFrom(string directory, params string[] globs) =>
-			globs.SelectMany(glob => Glob.Directories(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
+		public static IReadOnlyList<string> FindDirectoriesFrom(string directory, params string[] globs)
+		{
+			if (directory == null)
+				throw new ArgumentNullException(nameof(directory));
+			if (globs == null)
+				throw new ArgumentNullException(nameof(globs));
+
+			return globs.SelectMany(glob => Glob.Directories(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
+		}
 
 		/// <summary>
 		/// Copies the files matching the specified globs from one directory to another, creating subdirectories as needed.
@@ -54,6 +69,13 @@ namespace Faithlife.Build
 		/// <param name="globs">The globs to match. Use <c>"**"</c> to copy all files and directories.</param>
 		public static void CopyFiles(string fromDirectory, string toDirectory, params string[] globs)
 		{
+			if (fromDirectory == null)
+				throw new ArgumentNullException(nameof(fromDirectory));
+			if (toDirectory == null)
+				throw new ArgumentNullException(nameof(toDirectory));
+			if (globs == null)
+				throw new ArgumentNullException(nameof(globs));
+
 			foreach (var filePath in globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct())
 			{
 				if (Path.GetDirectoryName(filePath) is string directoryName)
