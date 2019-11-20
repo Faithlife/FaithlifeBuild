@@ -5,6 +5,9 @@ using static Faithlife.Build.DotNetRunner;
 
 namespace Faithlife.Build
 {
+	/// <summary>
+	/// Provides access to a .NET Core Tool, installed locally.
+	/// </summary>
 	public sealed class DotNetLocalTool
 	{
 		/// <summary>

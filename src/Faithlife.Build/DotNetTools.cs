@@ -9,7 +9,7 @@ using static Faithlife.Build.DotNetRunner;
 namespace Faithlife.Build
 {
 	/// <summary>
-	/// Manages .NET Core Global Tools and classic NuGet packaged tools installed within a local directory.
+	/// Manages .NET Core Tools (local and global) and classic NuGet packaged tools, installed within a local directory.
 	/// </summary>
 	public sealed class DotNetTools
 	{
@@ -25,7 +25,7 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
-		/// Provides access to the specified .NET Core Local Tool, installing it if necessary.
+		/// Provides access to the specified local .NET Core Tool, installing it if necessary.
 		/// </summary>
 		/// <param name="package">The package name. To install a particular version,
 		/// indicate it after the name, separated by a slash.</param>
@@ -75,7 +75,7 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
-		/// Gets the path to the specified .NET Core Global Tool, installing it if necessary.
+		/// Gets the path to the specified global .NET Core Tool, installing it if necessary.
 		/// </summary>
 		/// <param name="package">The package name. To install a particular version,
 		/// indicate it after the name, separated by a slash.</param>

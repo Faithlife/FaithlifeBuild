@@ -5,7 +5,6 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);1591;1998</NoWarn>
     <DebugType>portable</DebugType>
     <DebugSymbols>True</DebugSymbols>
     <RepositoryName>FaithlifeBuild</RepositoryName>
