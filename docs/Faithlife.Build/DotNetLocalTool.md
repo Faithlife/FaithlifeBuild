@@ -1,5 +1,7 @@
 # DotNetLocalTool class
 
+Provides access to a .NET Core Tool, installed locally.
+
 ```csharp
 public sealed class DotNetLocalTool
 ```

@@ -18,11 +18,11 @@
 | class [DotNetBuildSettings](Faithlife.Build/DotNetBuildSettings.md) | Settings for a .NET build; see [`DotNetBuild`](Faithlife.Build/DotNetBuild.md). |
 | class [DotNetCleanSettings](Faithlife.Build/DotNetCleanSettings.md) | Settings for cleaning projects. |
 | class [DotNetDocsSettings](Faithlife.Build/DotNetDocsSettings.md) | Used to generate Markdown documentation from XML comments. |
-| class [DotNetLocalTool](Faithlife.Build/DotNetLocalTool.md) |  |
+| class [DotNetLocalTool](Faithlife.Build/DotNetLocalTool.md) | Provides access to a .NET Core Tool, installed locally. |
 | class [DotNetPackageSettings](Faithlife.Build/DotNetPackageSettings.md) | Settings for creating NuGet packages. |
 | static class [DotNetRunner](Faithlife.Build/DotNetRunner.md) | Runs `dotnet` commands. |
 | class [DotNetTestSettings](Faithlife.Build/DotNetTestSettings.md) | Settings for running .NET tests. |
-| class [DotNetTools](Faithlife.Build/DotNetTools.md) | Manages .NET Core Global Tools and classic NuGet packaged tools installed within a local directory. |
+| class [DotNetTools](Faithlife.Build/DotNetTools.md) | Manages .NET Core Tools (local and global) and classic NuGet packaged tools, installed within a local directory. |
 | class [GitAuthorInfo](Faithlife.Build/GitAuthorInfo.md) | Information about a git commit author. |
 | class [GitLoginInfo](Faithlife.Build/GitLoginInfo.md) | Information used to login to git. |
 | enum [MSBuildPlatform](Faithlife.Build/MSBuildPlatform.md) | The platform of MSBuild to run. |

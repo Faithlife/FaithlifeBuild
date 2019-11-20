@@ -1,6 +1,6 @@
 # DotNetTools.GetLocalTool method
 
-Provides access to the specified .NET Core Local Tool, installing it if necessary.
+Provides access to the specified local .NET Core Tool, installing it if necessary.
 
 ```csharp
 public DotNetLocalTool GetLocalTool(string package, string name = null)

@@ -1,6 +1,6 @@
 # DotNetTools class
 
-Manages .NET Core Global Tools and classic NuGet packaged tools installed within a local directory.
+Manages .NET Core Tools (local and global) and classic NuGet packaged tools, installed within a local directory.
 
 ```csharp
 public sealed class DotNetTools
@@ -13,8 +13,8 @@ public sealed class DotNetTools
 | [DotNetTools](DotNetTools/DotNetTools.md)(…) | Prepares to install tools within the specified directory. |
 | [AddSource](DotNetTools/AddSource.md)(…) | Adds the specified NuGet package source. |
 | [GetClassicToolPath](DotNetTools/GetClassicToolPath.md)(…) | Gets the path to the specified classic NuGet package tool, installing it if necessary. |
-| [GetLocalTool](DotNetTools/GetLocalTool.md)(…) | Provides access to the specified .NET Core Local Tool, installing it if necessary. |
-| [GetToolPath](DotNetTools/GetToolPath.md)(…) | Gets the path to the specified .NET Core Global Tool, installing it if necessary. |
+| [GetLocalTool](DotNetTools/GetLocalTool.md)(…) | Provides access to the specified local .NET Core Tool, installing it if necessary. |
+| [GetToolPath](DotNetTools/GetToolPath.md)(…) | Gets the path to the specified global .NET Core Tool, installing it if necessary. |
 
 ## See Also
 

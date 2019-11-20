@@ -1,6 +1,6 @@
 # DotNetTools.GetToolPath method
 
-Gets the path to the specified .NET Core Global Tool, installing it if necessary.
+Gets the path to the specified global .NET Core Tool, installing it if necessary.
 
 ```csharp
 public string GetToolPath(string package, string name = null)
