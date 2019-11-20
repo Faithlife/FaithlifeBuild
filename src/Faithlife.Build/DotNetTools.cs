@@ -25,6 +25,56 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
+		/// Provides access to the specified .NET Core Local Tool, installing it if necessary.
+		/// </summary>
+		/// <param name="package">The package name. To install a particular version,
+		/// indicate it after the name, separated by a slash.</param>
+		/// <param name="name">The tool name, if it differs from the package name.</param>
+		/// <returns>The <see cref="DotNetLocalTool" /> used to run the tool.</returns>
+		public DotNetLocalTool GetLocalTool(string package, string? name = null)
+		{
+			var version = ExtractPackageVersion(ref package);
+
+			var args = new List<string>();
+			var directory = Path.Combine(m_directory, package, version ?? "latest");
+
+			if (!Directory.Exists(directory) || !File.Exists(Path.Combine(directory, ".config", "dotnet-tools.json")))
+			{
+				Directory.CreateDirectory(directory);
+				RunDotNet(new AppRunnerSettings { Arguments = new[] { "new", "tool-manifest" }, WorkingDirectory = directory });
+
+				args.Add("tool");
+				args.Add("install");
+				args.Add(package);
+
+				if (version != null)
+				{
+					args.Add("--version");
+					args.Add(version);
+				}
+			}
+			else if (version == null)
+			{
+				args.Add("tool");
+				args.Add("update");
+				args.Add(package);
+			}
+
+			if (args.Count != 0)
+			{
+				foreach (var source in m_sources)
+				{
+					args.Add("--add-source");
+					args.Add(source);
+				}
+
+				RunDotNet(new AppRunnerSettings { Arguments = args, WorkingDirectory = directory });
+			}
+
+			return new DotNetLocalTool(directory, name ?? package);
+		}
+
+		/// <summary>
 		/// Gets the path to the specified .NET Core Global Tool, installing it if necessary.
 		/// </summary>
 		/// <param name="package">The package name. To install a particular version,
@@ -33,13 +83,7 @@ namespace Faithlife.Build
 		/// <returns>The path to the installed tool.</returns>
 		public string GetToolPath(string package, string? name = null)
 		{
-			string? version = null;
-			var slashIndex = package.IndexOf('/');
-			if (slashIndex != -1)
-			{
-				version = package.Substring(slashIndex + 1);
-				package = package.Substring(0, slashIndex);
-			}
+			var version = ExtractPackageVersion(ref package);
 
 			var args = new List<string>();
 			var directory = Path.Combine(m_directory, package, version ?? "latest");
@@ -89,13 +133,7 @@ namespace Faithlife.Build
 		/// <returns>The path to the installed tool.</returns>
 		public string GetClassicToolPath(string package, string? name = null)
 		{
-			string? version = null;
-			var slashIndex = package.IndexOf('/');
-			if (slashIndex != -1)
-			{
-				version = package.Substring(slashIndex + 1);
-				package = package.Substring(0, slashIndex);
-			}
+			var version = ExtractPackageVersion(ref package);
 
 			var args = new List<string>
 			{
@@ -144,6 +182,19 @@ namespace Faithlife.Build
 
 			m_sources.Add(Regex.IsMatch(source, @"^\w+:") ? source : Path.GetFullPath(source));
 			return this;
+		}
+
+		private string? ExtractPackageVersion(ref string package)
+		{
+			string? version = null;
+			var slashIndex = package.IndexOf('/');
+			if (slashIndex != -1)
+			{
+				version = package.Substring(slashIndex + 1);
+				package = package.Substring(0, slashIndex);
+			}
+
+			return version;
 		}
 
 		private class NuGetVersionComparer : IComparer<string>
