@@ -23,7 +23,6 @@ public sealed class DotNetBuildSettings
 | [PackageSettings](DotNetBuildSettings/PackageSettings.md) { get; set; } | Settings for creating NuGet packages. |
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
 | [SolutionPlatform](DotNetBuildSettings/SolutionPlatform.md) { get; set; } | The default solution platform to build (optional). |
-| [SourceLinkSettings](DotNetBuildSettings/SourceLinkSettings.md) { get; set; } | The SourceLink settings. Must be set to test SourceLink URLs. |
 | [TestSettings](DotNetBuildSettings/TestSettings.md) { get; set; } | Settings for running unit tests. |
 | [Clone](DotNetBuildSettings/Clone.md)() | Clones the settings. |
 
