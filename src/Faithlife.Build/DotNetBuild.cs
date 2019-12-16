@@ -53,10 +53,8 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
-			var sourceLinkSettings = settings.SourceLinkSettings;
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
-			var sourceLinkVersion = sourceLinkSettings?.ToolVersion ?? "3.1.1";
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
 
 			var packagePaths = new List<string>();
@@ -357,28 +355,6 @@ namespace Faithlife.Build
 
 						if (shouldPublishPackages)
 						{
-							if (sourceLinkSettings != null)
-							{
-								var shouldTestPackage = sourceLinkSettings.ShouldTestPackage;
-								var sourceLinkPath = dotNetTools.GetToolPath($"sourcelink/{sourceLinkVersion}");
-
-								var sourceLinkArgs = new string[0];
-								if (sourceLinkSettings.Username != null || sourceLinkSettings.Password != null)
-								{
-									if (string.IsNullOrWhiteSpace(sourceLinkSettings.Username))
-										throw new ApplicationException("SourceLink username must not be blank.");
-									if (string.IsNullOrWhiteSpace(sourceLinkSettings.Password))
-										throw new ApplicationException("SourceLink password must not be blank.");
-									sourceLinkArgs = new[] { "-a", "Basic", "-u", sourceLinkSettings.Username!, "-p", sourceLinkSettings.Password! };
-								}
-
-								foreach (var packagePath in packagePaths)
-								{
-									if (shouldTestPackage == null || shouldTestPackage(GetPackageInfo(packagePath).Name))
-										RunApp(sourceLinkPath, new[] { "test", packagePath }.Concat(sourceLinkArgs));
-								}
-							}
-
 							var nugetApiKey = settings.NuGetApiKey;
 							if (string.IsNullOrEmpty(nugetApiKey))
 								throw new ApplicationException("NuGetApiKey required to publish.");

@@ -82,6 +82,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// The SourceLink settings. Must be set to test SourceLink URLs.
 		/// </summary>
+		[Obsolete("Support for sourcelink test was removed.")]
 		public SourceLinkSettings? SourceLinkSettings { get; set; }
 
 		/// <summary>
@@ -95,7 +96,9 @@ namespace Faithlife.Build
 			clone.TestSettings = clone.TestSettings?.Clone();
 			clone.PackageSettings = clone.PackageSettings?.Clone();
 			clone.CleanSettings = clone.CleanSettings?.Clone();
+#pragma warning disable 618
 			clone.SourceLinkSettings = clone.SourceLinkSettings?.Clone();
+#pragma warning restore 618
 			return clone;
 		}
 	}

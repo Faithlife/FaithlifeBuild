@@ -5,6 +5,7 @@ namespace Faithlife.Build
 	/// <summary>
 	/// The settings to use when using SourceLink.
 	/// </summary>
+	[Obsolete("Support for sourcelink test was removed.")]
 	public sealed class SourceLinkSettings
 	{
 		/// <summary>

@@ -11,6 +11,7 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 ### 3.9.0
 
 * [minor] Don't push packages already pushed when detecting triggers via tags.
+* [minor] Drop support for `sourcelink test`. Too many bugs and not actively developed.
 
 ### 3.8.0
 
