@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using LibGit2Sharp;
+using NuGet.Common;
+using NuGet.Configuration;
+using NuGet.Frameworks;
+using NuGet.Packaging.Core;
+using NuGet.Protocol.Core.Types;
+using NuGet.Versioning;
 using Polly;
 using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
 using static Faithlife.Build.MSBuildRunner;
+using Repository = LibGit2Sharp.Repository;
 
 namespace Faithlife.Build
 {
@@ -53,6 +61,7 @@ namespace Faithlife.Build
 
 			var packagePaths = new List<string>();
 			string? trigger = null;
+			var ignoreIfAlreadyPushed = false;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -153,6 +162,7 @@ namespace Faithlife.Build
 						if (autoTrigger != null)
 						{
 							trigger = autoTrigger;
+							ignoreIfAlreadyPushed = true;
 							Console.WriteLine($"Detected trigger: {trigger}");
 						}
 					}
@@ -372,6 +382,35 @@ namespace Faithlife.Build
 							var nugetApiKey = settings.NuGetApiKey;
 							if (string.IsNullOrEmpty(nugetApiKey))
 								throw new ApplicationException("NuGetApiKey required to publish.");
+
+							if (ignoreIfAlreadyPushed)
+							{
+								var nugetSettings = NuGet.Configuration.Settings.LoadDefaultSettings(root: null);
+								var packageSourceProvider = new PackageSourceProvider(nugetSettings);
+								var sourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, NuGet.Protocol.Core.Types.Repository.Provider.GetCoreV3());
+								using var sourceCacheContext = new SourceCacheContext();
+								var nugetRepositories = sourceRepositoryProvider.GetRepositories()
+									.Select(x => x.GetResourceAsync<DependencyInfoResource>().GetAwaiter().GetResult())
+									.ToList();
+
+								foreach (var packagePath in packagePaths.ToList())
+								{
+									var packageInfo = GetPackageInfo(packagePath);
+									var package = new PackageIdentity(packageInfo.Name, NuGetVersion.Parse(packageInfo.Version));
+
+									foreach (var nugetRepository in nugetRepositories)
+									{
+										var dependencyInfo = nugetRepository.ResolvePackage(package, NuGetFramework.AnyFramework,
+											sourceCacheContext, NullLogger.Instance, CancellationToken.None).GetAwaiter().GetResult();
+										if (dependencyInfo != null)
+										{
+											Console.WriteLine($"Package already pushed: {packageInfo.Name} {packageInfo.Version}");
+											packagePaths.Remove(packagePath);
+											break;
+										}
+									}
+								}
+							}
 
 							foreach (var packagePath in packagePaths)
 								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);

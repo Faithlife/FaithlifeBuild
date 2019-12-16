@@ -8,6 +8,10 @@ Prefix the description of the change with `[major]`, `[minor]`, or `[patch]` in 
 
 ## Released
 
+### 3.9.0
+
+* [minor] Don't push packages already pushed when detecting triggers via tags.
+
 ### 3.8.0
 
 * [minor] Support C# 8 nullable references.
