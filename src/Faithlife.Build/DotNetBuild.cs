@@ -238,8 +238,10 @@ namespace Faithlife.Build
 					if (trigger == null)
 						throw new ApplicationException("--trigger option required.");
 
-					var shouldPublishPackages = trigger == "publish-package" || trigger == "publish-packages" || trigger == "publish-all";
-					var shouldPublishDocs = trigger == "publish-docs" || trigger == "publish-all";
+					var triggerParts = trigger.Split('-');
+					var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
+					var shouldPublishPackages = publishTrigger == "package" || publishTrigger == "packages" || publishTrigger == "all";
+					var shouldPublishDocs = publishTrigger == "docs" || publishTrigger == "all";
 
 					var triggerVersion = GetVersionFromTrigger(trigger);
 					if (triggerVersion != null)
