@@ -309,12 +309,15 @@ namespace Faithlife.Build
 								if (branch == null)
 								{
 									var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
-									if (autoBranchName == null)
-										throw new ArgumentException("Could not determine repository branch.");
-
-									branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
-									Commands.Checkout(repository, branch);
+									if (autoBranchName != null)
+										branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
+									else
+										branch = repository.Branches.FirstOrDefault(x => x.Tip.Sha == repository.Head.Tip.Sha);
+									if (branch != null)
+										Commands.Checkout(repository, branch);
 								}
+								if (branch == null)
+									throw new ArgumentException("Could not determine repository branch for publishing docs.");
 								gitBranchName = branch.FriendlyName;
 							}
 

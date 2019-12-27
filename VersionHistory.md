@@ -2,6 +2,10 @@
 
 ## Released
 
+### 3.10.1
+
+* Try to determine branch for publishing documentation.
+
 ### 3.10.0
 
 * Allow extra information after publish triggers.
