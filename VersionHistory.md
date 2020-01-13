@@ -2,6 +2,10 @@
 
 ## Released
 
+### 3.10.2
+
+* Clean `XmlDocTarget`.
+
 ### 3.10.1
 
 * Try to determine branch for publishing documentation.
