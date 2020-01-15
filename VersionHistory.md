@@ -2,6 +2,10 @@
 
 ## Released
 
+### 3.11.0
+
+* Allow clearing actions on a BuildTarget.
+
 ### 3.10.2
 
 * Clean `XmlDocTarget`.
