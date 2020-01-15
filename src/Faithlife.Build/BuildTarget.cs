@@ -57,6 +57,16 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
+		/// Clears the actions on the target.
+		/// </summary>
+		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
+		public BuildTarget ClearActions()
+		{
+			m_action = null;
+			return this;
+		}
+
+		/// <summary>
 		/// Runs the target action, if any.
 		/// </summary>
 		public void Run() => m_action?.Invoke();
