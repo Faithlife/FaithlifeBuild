@@ -1,7 +1,5 @@
 # Version History
 
-## Released
-
 ### 3.11.0
 
 * Allow clearing actions on a BuildTarget.
