@@ -13,6 +13,7 @@ public sealed class BuildTarget
 | [Dependencies](BuildTarget/Dependencies.md) { get; } | The names of targets upon which this target depends, if any. |
 | [Description](BuildTarget/Description.md) { get; } | The target description, if any. |
 | [Name](BuildTarget/Name.md) { get; } | The target name. |
+| [ClearActions](BuildTarget/ClearActions.md)() | Clears the actions on the target. |
 | [DependsOn](BuildTarget/DependsOn.md)(…) | Adds a target dependency by name. |
 | [Describe](BuildTarget/Describe.md)(…) | Sets the target [`Description`](BuildTarget/Description.md). |
 | [Does](BuildTarget/Does.md)(…) | Adds an action to the target. |
