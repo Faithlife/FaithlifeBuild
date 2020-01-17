@@ -13,8 +13,14 @@ namespace Faithlife.Build
 		/// <remarks>This properly must only be accessed while running a target.</remarks>
 		public string? Value => m_option.HasValue() ? m_option.Value() : m_defaultValue;
 
-		internal BuildOption(CommandOption option, string? defaultValue)
+		/// <summary>
+		/// The option template.
+		/// </summary>
+		public string Template { get; }
+
+		internal BuildOption(string template, CommandOption option, string? defaultValue)
 		{
+			Template = template;
 			m_option = option;
 			m_defaultValue = defaultValue;
 		}

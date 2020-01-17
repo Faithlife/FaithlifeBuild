@@ -1,5 +1,9 @@
 # Version History
 
+### 3.12.0
+
+* Support finding existing flags and options.
+
 ### 3.11.0
 
 * Allow clearing actions on a BuildTarget.

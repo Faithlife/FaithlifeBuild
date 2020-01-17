@@ -13,7 +13,16 @@ namespace Faithlife.Build
 		/// <remarks>This properly must only be accessed while running a target.</remarks>
 		public bool Value => m_option.HasValue();
 
-		internal BuildFlag(CommandOption option) => m_option = option;
+		/// <summary>
+		/// The flag template.
+		/// </summary>
+		public string Template { get; }
+
+		internal BuildFlag(string template, CommandOption option)
+		{
+			Template = template;
+			m_option = option;
+		}
 
 		private readonly CommandOption m_option;
 	}
