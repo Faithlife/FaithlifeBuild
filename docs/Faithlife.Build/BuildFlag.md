@@ -10,6 +10,7 @@ public sealed class BuildFlag
 
 | name | description |
 | --- | --- |
+| [Template](BuildFlag/Template.md) { get; } | The flag template. |
 | [Value](BuildFlag/Value.md) { get; } | True if the flag was specified. |
 
 ## See Also

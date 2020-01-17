@@ -10,6 +10,8 @@ public sealed class BuildApp
 
 | name | description |
 | --- | --- |
+| [Flags](BuildApp/Flags.md) { get; } | The flags previously added to the build via [`AddFlag`](BuildApp/AddFlag.md). |
+| [Options](BuildApp/Options.md) { get; } | The options previously added to the build via [`AddOption`](BuildApp/AddOption.md). |
 | [Targets](BuildApp/Targets.md) { get; } | The targets previously added to the build via [`Target`](BuildApp/Target.md). |
 | [AddFlag](BuildApp/AddFlag.md)(…) | Adds support for a no-value command-line flag. |
 | [AddOption](BuildApp/AddOption.md)(…) | Adds support for a single-value command-line option. |

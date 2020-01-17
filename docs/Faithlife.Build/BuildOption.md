@@ -10,6 +10,7 @@ public sealed class BuildOption
 
 | name | description |
 | --- | --- |
+| [Template](BuildOption/Template.md) { get; } | The option template. |
 | [Value](BuildOption/Value.md) { get; } | The option value, or `null` if the option was not specified. |
 
 ## See Also
