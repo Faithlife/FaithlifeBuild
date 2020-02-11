@@ -3,24 +3,17 @@
 Executes an automated build. Called from `Main`.
 
 ```csharp
-public static int Execute(string[] args, Action<BuildApp> initialize, 
-    string workingDirectory = null, [CallerFilePath] string callerFilePath = null)
+public static int Execute(string[] args, Action<BuildApp> initialize)
 ```
 
 | parameter | description |
 | --- | --- |
 | args | The command-line arguments from `Main`. |
 | initialize | Called to initialize the build. |
-| workingDirectory | The working directory for the build. (Optional.) |
-| callerFilePath | The compiler-generated path to the source code of the caller. |
 
 ## Return Value
 
 The exit code for the build.
-
-## Remarks
-
-If *workingDirectory* is omitted, the parent of the parent of the directory containing the source code of the caller is used.
 
 ## See Also
 
