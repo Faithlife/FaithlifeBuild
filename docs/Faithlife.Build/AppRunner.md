@@ -11,6 +11,7 @@ public static class AppRunner
 | name | description |
 | --- | --- |
 | static [RunApp](AppRunner/RunApp.md)(…) | Runs the specified command-line app. (3 methods) |
+| static [RunCmd](AppRunner/RunCmd.md)(…) | Runs the specified command-line app, via `cmd /c` on Windows. (3 methods) |
 | static [RunDotNetFrameworkApp](AppRunner/RunDotNetFrameworkApp.md)(…) | Runs the specified .NET Framework command-line app. (3 methods) |
 
 ## Remarks
