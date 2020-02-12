@@ -1,5 +1,9 @@
 # Version History
 
+### 4.1.0
+
+* `AppRunner.RunCmd` uses `cmd /c` on Windows.
+
 ### 4.0.0
 
 * Stop setting the working directory to the grandparent of the script directory. The working directory is now left as-is. Bootstrapper scripts should set the current directory if desired. (Removing this feature makes build scripts more flexible. It also prevents the build from running in the wrong directory if the script is moved with its compiled output.)
