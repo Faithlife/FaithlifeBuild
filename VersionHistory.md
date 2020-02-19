@@ -1,5 +1,9 @@
 # Version History
 
+### 4.2.0
+
+* Support `--skip-dependencies` (`-s`).
+
 ### 4.1.0
 
 * `AppRunner.RunCmd` uses `cmd /c` on Windows.

@@ -31,6 +31,7 @@ namespace Faithlife.Build
 			initialize(buildApp);
 
 			var noColorFlag = buildApp.AddFlag("--no-color", "Disable color output");
+			var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run target dependencies");
 			var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
 			var targetsArgument = commandLineApp.Argument("targets", "The targets to build", multipleValues: true);
 
@@ -53,6 +54,8 @@ namespace Faithlife.Build
 				{
 					if (noColorFlag.Value)
 						targets.Add("--no-color");
+					if (skipDependenciesFlag.Value)
+						targets.Add("--skip-dependencies");
 
 					try
 					{
