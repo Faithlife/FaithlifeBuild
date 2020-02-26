@@ -76,7 +76,30 @@ namespace Faithlife.Build
 			if (globs == null)
 				throw new ArgumentNullException(nameof(globs));
 
-			foreach (var filePath in globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct())
+			CopyFilesCore(fromDirectory, toDirectory, globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct());
+		}
+
+		/// <summary>
+		/// Copies all files except those matching the specified globs from one directory to another, creating subdirectories as needed.
+		/// </summary>
+		/// <param name="fromDirectory">The source directory.</param>
+		/// <param name="toDirectory">The target directory.</param>
+		/// <param name="globs">The globs to exclude from copying.</param>
+		public static void CopyFilesExcept(string fromDirectory, string toDirectory, params string[] globs)
+		{
+			if (fromDirectory == null)
+				throw new ArgumentNullException(nameof(fromDirectory));
+			if (toDirectory == null)
+				throw new ArgumentNullException(nameof(toDirectory));
+			if (globs == null)
+				throw new ArgumentNullException(nameof(globs));
+
+			CopyFilesCore(fromDirectory, toDirectory, Glob.Files(fromDirectory, "**").Except(globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct()));
+		}
+
+		private static void CopyFilesCore(string fromDirectory, string toDirectory, IEnumerable<string> filePaths)
+		{
+			foreach (var filePath in filePaths)
 			{
 				if (Path.GetDirectoryName(filePath) is string directoryName)
 					Directory.CreateDirectory(Path.Combine(toDirectory, directoryName));
