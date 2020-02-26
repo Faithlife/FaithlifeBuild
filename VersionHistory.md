@@ -1,5 +1,9 @@
 # Version History
 
+### 4.3.0
+
+* Add method for copying all files that don't match the provided globbing patterns.
+
 ### 4.2.0
 
 * Support `--skip-dependencies` (`-s`).
