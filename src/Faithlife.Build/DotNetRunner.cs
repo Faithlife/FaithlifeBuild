@@ -30,12 +30,14 @@ namespace Faithlife.Build
 		/// Runs <c>dotnet</c> with the specified arguments.
 		/// </summary>
 		/// <param name="args">The command-line arguments.</param>
-		public static void RunDotNet(IEnumerable<string?> args) => RunApp(DotNetExe.FullPath, args);
+		public static void RunDotNet(IEnumerable<string?> args) => RunApp(GetDotNetFullPath(), args);
 
 		/// <summary>
 		/// Runs <c>dotnet</c> with the specified settings.
 		/// </summary>
 		/// <param name="settings">The settings to use when running the app.</param>
-		public static int RunDotNet(AppRunnerSettings settings) => RunApp(DotNetExe.FullPath, settings);
+		public static int RunDotNet(AppRunnerSettings settings) => RunApp(GetDotNetFullPath(), settings);
+
+		private static string GetDotNetFullPath() => DotNetExe.FullPath ?? throw new InvalidOperationException(".NET Core CLI was not found.");
 	}
 }

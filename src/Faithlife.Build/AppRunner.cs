@@ -110,7 +110,7 @@ namespace Faithlife.Build
 			if (settings == null)
 				throw new ArgumentNullException(nameof(settings));
 
-			var arguments = (settings.Arguments ?? Enumerable.Empty<string>()).Where(x => x != null);
+			var arguments = settings.Arguments?.WhereNotNull() ?? Enumerable.Empty<string>();
 			string argsString;
 			if (useCmdOnWindows && BuildEnvironment.IsWindows())
 			{

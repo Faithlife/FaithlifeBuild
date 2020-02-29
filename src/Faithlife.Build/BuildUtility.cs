@@ -107,5 +107,7 @@ namespace Faithlife.Build
 				File.Copy(Path.Combine(fromDirectory, filePath), Path.Combine(toDirectory, filePath));
 			}
 		}
+
+		internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> items) where T : class => items.Where(x => x != null)!;
 	}
 }
