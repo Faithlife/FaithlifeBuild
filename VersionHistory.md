@@ -1,5 +1,10 @@
 # Version History
 
+### 4.4.0
+
+* Show build target summary.
+* Upgrade Bullseye and other dependencies.
+
 ### 4.3.0
 
 * Add method for copying all files that don't match the provided globbing patterns.
