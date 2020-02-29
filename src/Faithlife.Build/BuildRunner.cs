@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using Bullseye;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Faithlife.Build
@@ -35,17 +34,18 @@ namespace Faithlife.Build
 			var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
 			var targetsArgument = commandLineApp.Argument("targets", "The targets to build", multipleValues: true);
 
+			var bullseyeTargets = new Targets();
 			foreach (var target in buildApp.Targets)
-				Bullseye.Targets.Target(target.Name, target.Dependencies, target.Run);
+				bullseyeTargets.Add(target.Name, target.Dependencies, target.Run);
 
 			commandLineApp.OnExecute(() =>
 			{
-				var targets = targetsArgument.Values.ToList();
+				var bullseyeArgs = targetsArgument.Values.ToList();
 
-				if (targets.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
-					targets.Add(c_defaultTarget);
+				if (bullseyeArgs.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
+					bullseyeArgs.Add(c_defaultTarget);
 
-				if (helpFlag.Value || targets.Count == 0)
+				if (helpFlag.Value || bullseyeArgs.Count == 0)
 				{
 					commandLineApp.ShowHelp(usePager: false);
 					ShowTargets(buildApp.Targets);
@@ -53,21 +53,20 @@ namespace Faithlife.Build
 				else
 				{
 					if (noColorFlag.Value)
-						targets.Add("--no-color");
+						bullseyeArgs.Add("--no-color");
 					if (skipDependenciesFlag.Value)
-						targets.Add("--skip-dependencies");
+						bullseyeArgs.Add("--skip-dependencies");
+					bullseyeArgs.Add("--no-extended-chars");
 
 					try
 					{
-#pragma warning disable 618
-						Bullseye.Targets.RunTargets(targets);
-#pragma warning restore 618
+						bullseyeTargets.RunWithoutExiting(bullseyeArgs);
 					}
-					catch (Exception exception) when (exception.GetType().FullName == "Bullseye.Internal.TargetFailedException")
+					catch (TargetFailedException)
 					{
 						return 1;
 					}
-					catch (Exception exception) when (exception is ApplicationException || exception is CommandParsingException || exception.GetType().FullName == "Bullseye.Internal.InvalidUsageException")
+					catch (Exception exception) when (exception is ApplicationException || exception is CommandParsingException || exception is InvalidUsageException)
 					{
 						Console.Error.WriteLine(exception.Message);
 						return 2;
