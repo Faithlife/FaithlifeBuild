@@ -5,8 +5,7 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
     <RepositoryName>FaithlifeBuild</RepositoryName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Faithlife/$(RepositoryName)</PackageProjectUrl>

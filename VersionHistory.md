@@ -3,6 +3,7 @@
 ### 4.4.1
 
 * Catch command-line exception at the proper location.
+* Use embedded debugging symbols.
 
 ### 4.4.0
 
