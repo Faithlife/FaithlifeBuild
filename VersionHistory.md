@@ -1,5 +1,9 @@
 # Version History
 
+### 4.4.1
+
+* Catch command-line exception at the proper location.
+
 ### 4.4.0
 
 * Show build target summary.

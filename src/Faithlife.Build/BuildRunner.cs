@@ -66,7 +66,7 @@ namespace Faithlife.Build
 					{
 						return 1;
 					}
-					catch (Exception exception) when (exception is ApplicationException || exception is CommandParsingException || exception is InvalidUsageException)
+					catch (Exception exception) when (exception is ApplicationException || exception is InvalidUsageException)
 					{
 						Console.Error.WriteLine(exception.Message);
 						return 2;
@@ -76,7 +76,15 @@ namespace Faithlife.Build
 				return 0;
 			});
 
-			return commandLineApp.Execute(args);
+			try
+			{
+				return commandLineApp.Execute(args);
+			}
+			catch (Exception exception) when (exception is ApplicationException || exception is CommandParsingException)
+			{
+				Console.Error.WriteLine(exception.Message);
+				return 2;
+			}
 		}
 
 		private static void ShowTargets(IReadOnlyList<BuildTarget> targets)
