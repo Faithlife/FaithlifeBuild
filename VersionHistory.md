@@ -1,5 +1,9 @@
 # Version History
 
+### 4.5.0
+
+* Add `MSBuildSettings.MSBuildPath`.
+
 ### 4.4.1
 
 * Catch command-line exception at the proper location.

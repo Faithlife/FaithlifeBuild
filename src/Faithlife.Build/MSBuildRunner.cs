@@ -19,6 +19,9 @@ namespace Faithlife.Build
 		/// </summary>
 		public static string GetMSBuildPath(MSBuildSettings? settings)
 		{
+			if (settings?.MSBuildPath is string settingsPath)
+				return settingsPath;
+
 			if (BuildEnvironment.IsMacOS())
 			{
 				const string msbuildPath = "/Library/Frameworks/Mono.framework/Versions/Current/Commands/msbuild";
