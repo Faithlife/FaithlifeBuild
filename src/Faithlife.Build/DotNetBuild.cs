@@ -424,7 +424,7 @@ namespace Faithlife.Build
 
 			string? getPlatformArg()
 			{
-				var platformValue = platformOption.Value ?? settings?.SolutionPlatform;
+				var platformValue = platformOption?.Value ?? settings?.SolutionPlatform;
 				return platformValue == null ? null : $"-p:Platform={platformValue}";
 			}
 
