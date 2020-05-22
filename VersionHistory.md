@@ -1,5 +1,8 @@
 # Version History
 
+### 4.5.1
+* Fix NuGet.CommandLine version path.
+
 ### 4.5.0
 
 * Add `MSBuildSettings.MSBuildPath`.
