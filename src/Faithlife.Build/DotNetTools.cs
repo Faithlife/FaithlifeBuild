@@ -21,7 +21,7 @@ namespace Faithlife.Build
 		{
 			m_directory = Path.GetFullPath(directory);
 			m_sources = new List<string>();
-			m_nugetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages", "nuget.commandline", "5.1.0", "tools", "NuGet.exe");
+			m_nugetPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages", "nuget.commandline", "5.4.0", "tools", "NuGet.exe");
 		}
 
 		/// <summary>
