@@ -1,6 +1,11 @@
 # Version History
 
+### 4.6.0
+
+* Support `--dry-run` and `--show-tree`.
+
 ### 4.5.1
+
 * Fix NuGet.CommandLine version path.
 
 ### 4.5.0

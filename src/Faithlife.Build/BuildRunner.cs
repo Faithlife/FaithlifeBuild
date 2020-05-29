@@ -29,8 +29,10 @@ namespace Faithlife.Build
 			var buildApp = new BuildApp(commandLineApp);
 			initialize(buildApp);
 
-			var noColorFlag = buildApp.AddFlag("--no-color", "Disable color output");
+			var dryRunFlag = buildApp.AddFlag("-n|--dry-run", "Don't execute target actions");
 			var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run target dependencies");
+			var noColorFlag = buildApp.AddFlag("--no-color", "Disable color output");
+			var showTreeFlag = buildApp.AddFlag("--show-tree", "Show the dependency tree");
 			var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
 			var targetsArgument = commandLineApp.Argument("targets", "The targets to build", multipleValues: true);
 
@@ -45,7 +47,7 @@ namespace Faithlife.Build
 				if (bullseyeArgs.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
 					bullseyeArgs.Add(c_defaultTarget);
 
-				if (helpFlag.Value || bullseyeArgs.Count == 0)
+				if (helpFlag.Value || (bullseyeArgs.Count == 0 && !showTreeFlag.Value))
 				{
 					commandLineApp.ShowHelp(usePager: false);
 					ShowTargets(buildApp.Targets);
@@ -56,6 +58,10 @@ namespace Faithlife.Build
 						bullseyeArgs.Add("--no-color");
 					if (skipDependenciesFlag.Value)
 						bullseyeArgs.Add("--skip-dependencies");
+					if (showTreeFlag.Value)
+						bullseyeArgs.Add("--list-tree");
+					if (dryRunFlag.Value)
+						bullseyeArgs.Add("--dry-run");
 					bullseyeArgs.Add("--no-extended-chars");
 
 					try
