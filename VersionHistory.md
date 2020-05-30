@@ -1,5 +1,9 @@
 # Version History
 
+### 4.7.0
+
+* Add `DotNetBuildSettings.Verbosity`.
+
 ### 4.6.1
 
 * Skip duplicate NuGet packages when using `--trigger publish-all`.

@@ -80,6 +80,13 @@ namespace Faithlife.Build
 		public Func<string, IEnumerable<(string Key, string Value)>>? ExtraProperties { get; set; }
 
 		/// <summary>
+		/// The build output verbosity.
+		/// </summary>
+		/// <remarks><c>quiet</c>, <c>minimal</c>, <c>normal</c>, <c>detailed</c>, or <c>diagnostic</c>.
+		/// Default <c>normal</c>.</remarks>
+		public string? Verbosity { get; set; }
+
+		/// <summary>
 		/// The SourceLink settings. Must be set to test SourceLink URLs.
 		/// </summary>
 		[Obsolete("Support for sourcelink test was removed.")]

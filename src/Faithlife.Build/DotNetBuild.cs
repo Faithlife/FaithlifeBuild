@@ -53,6 +53,7 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
+			var verbosity = settings.Verbosity ?? "normal";
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
@@ -71,9 +72,9 @@ namespace Faithlife.Build
 
 					var extraProperties = getExtraProperties("clean");
 					if (msbuildSettings == null)
-						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--verbosity", verbosity, getMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg() }.Concat(extraProperties));
+						runMSBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), $"-v:{verbosity}", getMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("restore")
@@ -82,9 +83,9 @@ namespace Faithlife.Build
 				{
 					var extraProperties = getExtraProperties("restore");
 					if (msbuildSettings == null)
-						RunDotNet(new[] { "restore", solutionName, getPlatformArg(), "--verbosity", "normal", getMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "restore", solutionName, getPlatformArg(), "--verbosity", verbosity, getMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), "-v:normal", getMaxCpuCountArg() }.Concat(extraProperties));
+						runMSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), $"-v:{verbosity}", getMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("build")
@@ -96,9 +97,9 @@ namespace Faithlife.Build
 
 					var extraProperties = getExtraProperties("build");
 					if (msbuildSettings == null)
-						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", "normal", getMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, getMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg, "-v:normal", getMaxCpuCountArg() }.Concat(extraProperties));
+						runMSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg, $"-v:{verbosity}", getMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -206,7 +207,7 @@ namespace Faithlife.Build
 								"-p:NoBuild=true",
 								$"-p:PackageOutputPath={tempOutputPath}",
 								versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
-								"-v:normal",
+								$"-v:{verbosity}",
 								getMaxCpuCountArg()
 							}.Concat(extraProperties));
 						}
