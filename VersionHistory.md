@@ -1,5 +1,9 @@
 # Version History
 
+### 4.6.1
+
+* Skip duplicate NuGet packages when using `--trigger publish-all`.
+
 ### 4.6.0
 
 * Support `--dry-run` and `--show-tree`.

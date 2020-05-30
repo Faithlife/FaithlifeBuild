@@ -242,6 +242,7 @@ namespace Faithlife.Build
 					var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
 					var shouldPublishPackages = publishTrigger == "package" || publishTrigger == "packages" || publishTrigger == "all";
 					var shouldPublishDocs = publishTrigger == "docs" || publishTrigger == "all";
+					var shouldSkipDuplicates = publishTrigger == "all";
 
 					var triggerVersion = GetVersionFromTrigger(trigger);
 					if (triggerVersion != null)
@@ -394,7 +395,12 @@ namespace Faithlife.Build
 							}
 
 							foreach (var packagePath in packagePaths)
-								RunDotNet("nuget", "push", packagePath, "--source", nugetSource, "--api-key", nugetApiKey);
+							{
+								RunDotNet("nuget", "push", packagePath,
+									"--source", nugetSource,
+									"--api-key", nugetApiKey,
+									shouldSkipDuplicates ? "--skip-duplicate" : null);
+							}
 						}
 
 						if (shouldPushDocs)
