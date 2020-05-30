@@ -8,6 +8,14 @@ environment:
   BUILD_BOT_PASSWORD:
     secure: wJ9JVS5hSAp9ItYlHKxTPg==
 build_script:
-- cmd: .\build.cmd publish "--trigger=%APPVEYOR_REPO_TAG_NAME%" "--build-number=%APPVEYOR_BUILD_NUMBER%"
+- cmd: .\build.cmd package
 - sh: ./build.sh package
 test: off
+for:
+  -
+    branches:
+      only:
+        - master
+    build_script:
+    - cmd: .\build.cmd publish --trigger=publish-all "--build-number=%APPVEYOR_BUILD_NUMBER%"
+    - sh: ./build.sh package
