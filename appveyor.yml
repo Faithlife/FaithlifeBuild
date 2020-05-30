@@ -8,14 +8,8 @@ environment:
   BUILD_BOT_PASSWORD:
     secure: wJ9JVS5hSAp9ItYlHKxTPg==
 build_script:
-- cmd: .\build.cmd package
+- cmd: if %APPVEYOR_REPO_BRANCH% neq master .\build.cmd package
+- cmd: if %APPVEYOR_REPO_BRANCH% equ master if defined APPVEYOR_PULL_REQUEST_NUMBER .\build.cmd package
+- cmd: if %APPVEYOR_REPO_BRANCH% equ master if not defined APPVEYOR_PULL_REQUEST_NUMBER .\build.cmd publish --trigger=publish-all --build-number=%APPVEYOR_BUILD_NUMBER%
 - sh: ./build.sh package
 test: off
-deploy:
-  - provider: Environment
-    name: production
-    on:
-      branch: master
-deploy_script:
-- cmd: .\build.cmd publish --no-test --trigger=publish-all "--build-number=%APPVEYOR_BUILD_NUMBER%"
-- sh: echo Deployed from Windows build.
