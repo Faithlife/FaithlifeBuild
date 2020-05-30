@@ -11,11 +11,11 @@ build_script:
 - cmd: .\build.cmd package
 - sh: ./build.sh package
 test: off
-for:
-  -
-    branches:
-      only:
-        - master
-    build_script:
-    - cmd: .\build.cmd publish --trigger=publish-all "--build-number=%APPVEYOR_BUILD_NUMBER%"
-    - sh: ./build.sh package
+deploy:
+  - provider: Environment
+    name: production
+    on:
+      branch: master
+deploy_script:
+- cmd: .\build.cmd publish --no-test --trigger=publish-all "--build-number=%APPVEYOR_BUILD_NUMBER%"
+- sh: echo Deployed from Windows build.
