@@ -24,6 +24,7 @@ public sealed class DotNetBuildSettings
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
 | [SolutionPlatform](DotNetBuildSettings/SolutionPlatform.md) { get; set; } | The default solution platform to build (optional). |
 | [TestSettings](DotNetBuildSettings/TestSettings.md) { get; set; } | Settings for running unit tests. |
+| [Verbosity](DotNetBuildSettings/Verbosity.md) { get; set; } | The build output verbosity. |
 | [Clone](DotNetBuildSettings/Clone.md)() | Clones the settings. |
 
 ## See Also
