@@ -3,15 +3,16 @@
 The build output verbosity.
 
 ```csharp
-public string Verbosity { get; set; }
+public DotNetBuildVerbosity? Verbosity { get; set; }
 ```
 
 ## Remarks
 
-`quiet`, `minimal`, `normal`, `detailed`, or `diagnostic`. Default `normal`.
+Defaults to Normal.
 
 ## See Also
 
+* enum [DotNetBuildVerbosity](../DotNetBuildVerbosity.md)
 * class [DotNetBuildSettings](../DotNetBuildSettings.md)
 * namespace [Faithlife.Build](../../Faithlife.Build.md)
 
