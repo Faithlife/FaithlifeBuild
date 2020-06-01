@@ -82,9 +82,8 @@ namespace Faithlife.Build
 		/// <summary>
 		/// The build output verbosity.
 		/// </summary>
-		/// <remarks><c>quiet</c>, <c>minimal</c>, <c>normal</c>, <c>detailed</c>, or <c>diagnostic</c>.
-		/// Default <c>normal</c>.</remarks>
-		public string? Verbosity { get; set; }
+		/// <remarks>Defaults to <see cref="DotNetBuildVerbosity.Normal"/>.</remarks>
+		public DotNetBuildVerbosity? Verbosity { get; set; }
 
 		/// <summary>
 		/// The SourceLink settings. Must be set to test SourceLink URLs.

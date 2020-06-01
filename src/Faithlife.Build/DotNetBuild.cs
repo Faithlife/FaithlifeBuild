@@ -53,7 +53,7 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
-			var verbosity = settings.Verbosity ?? "normal";
+			var verbosity = GetVerbosity(settings.Verbosity);
 
 			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
@@ -506,5 +506,15 @@ namespace Faithlife.Build
 				.Select(x => x.Tag)
 				.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
 				.FirstOrDefault();
+
+		private static string GetVerbosity(DotNetBuildVerbosity? verbosity) =>
+			verbosity switch
+			{
+				DotNetBuildVerbosity.Quiet => "quiet",
+				DotNetBuildVerbosity.Minimal => "minimal",
+				DotNetBuildVerbosity.Detailed => "detailed",
+				DotNetBuildVerbosity.Diagnostic => "diagnostic",
+				_ => "normal",
+			};
 	}
 }

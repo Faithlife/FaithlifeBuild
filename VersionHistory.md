@@ -1,6 +1,6 @@
 # Version History
 
-### 4.7.0
+### 4.7.1
 
 * Add `DotNetBuildSettings.Verbosity`.
 
