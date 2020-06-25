@@ -159,13 +159,10 @@ namespace Faithlife.Build
 
 			RunDotNetFrameworkApp(m_nugetPath, args);
 
-			if (version == null)
-			{
-				version = Directory.GetDirectories(m_directory, $"{package}.*")
-					.Select(x => (Path.GetFileName(x) ?? throw new InvalidOperationException()).Substring(package.Length + 1))
-					.OrderByDescending(x => x, new NuGetVersionComparer())
-					.First();
-			}
+			version ??= Directory.GetDirectories(m_directory, $"{package}.*")
+				.Select(x => (Path.GetFileName(x) ?? throw new InvalidOperationException()).Substring(package.Length + 1))
+				.OrderByDescending(x => x, new NuGetVersionComparer())
+				.First();
 
 			return Path.Combine(m_directory, $"{package}.{version}", "tools", name ?? package);
 		}
@@ -184,7 +181,7 @@ namespace Faithlife.Build
 			return this;
 		}
 
-		private string? ExtractPackageVersion(ref string package)
+		private static string? ExtractPackageVersion(ref string package)
 		{
 			string? version = null;
 			var slashIndex = package.IndexOf('/');

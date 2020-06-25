@@ -68,24 +68,24 @@ namespace Faithlife.Build
 				{
 					var findDirectoriesToDelete = settings.CleanSettings?.FindDirectoriesToDelete ?? (() => FindDirectories("{src,tests}/**/{bin,obj}", "tools/XmlDocTarget/{bin,obj}"));
 					foreach (var directoryToDelete in findDirectoriesToDelete())
-						deleteDirectory(directoryToDelete);
+						DeleteDirectory(directoryToDelete);
 
-					var extraProperties = getExtraProperties("clean");
+					var extraProperties = GetExtraProperties("clean");
 					if (msbuildSettings == null)
-						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, getPlatformArg(), "--verbosity", verbosity, getMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), $"-v:{verbosity}", getMaxCpuCountArg() }.Concat(extraProperties));
+						RunMsBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("restore")
 				.Describe("Restores NuGet packages")
 				.Does(() =>
 				{
-					var extraProperties = getExtraProperties("restore");
+					var extraProperties = GetExtraProperties("restore");
 					if (msbuildSettings == null)
-						RunDotNet(new[] { "restore", solutionName, getPlatformArg(), "--verbosity", verbosity, getMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", getPlatformArg(), $"-v:{verbosity}", getMaxCpuCountArg() }.Concat(extraProperties));
+						RunMsBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("build")
@@ -95,11 +95,11 @@ namespace Faithlife.Build
 				{
 					var buildNumberArg = buildNumberOption.Value == null ? null : $"-p:BuildNumber={buildNumberOption.Value}";
 
-					var extraProperties = getExtraProperties("build");
+					var extraProperties = GetExtraProperties("build");
 					if (msbuildSettings == null)
-						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, getPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, getMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, GetPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						runMSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", getPlatformArg(), buildNumberArg, $"-v:{verbosity}", getMaxCpuCountArg() }.Concat(extraProperties));
+						RunMsBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), buildNumberArg, $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -113,7 +113,7 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						var extraProperties = getExtraProperties("test").ToList();
+						var extraProperties = GetExtraProperties("test").ToList();
 						var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
 						if (findTestAssemblies != null)
 						{
@@ -140,7 +140,7 @@ namespace Faithlife.Build
 								if (settings.TestSettings?.RunTests != null)
 									settings.TestSettings.RunTests(testProject);
 								else
-									RunDotNet(new[] { "test", testProject, "-c", configurationOption.Value, getPlatformArg(), "--no-build", getMaxCpuCountArg() }.Concat(extraProperties));
+									RunDotNet(new[] { "test", testProject, "-c", configurationOption.Value, GetPlatformArg(), "--no-build", GetMaxCpuCountArg() }.Concat(extraProperties));
 							}
 						}
 					}
@@ -181,7 +181,7 @@ namespace Faithlife.Build
 					else
 						packageProjects.Add(solutionName);
 
-					var extraProperties = getExtraProperties("package").ToList();
+					var extraProperties = GetExtraProperties("package").ToList();
 					foreach (var packageProject in packageProjects)
 					{
 						if (msbuildSettings == null)
@@ -190,25 +190,25 @@ namespace Faithlife.Build
 							{
 								"pack", packageProject,
 								"-c", configurationOption.Value,
-								getPlatformArg(),
+								GetPlatformArg(),
 								"--no-build",
 								"--output", tempOutputPath,
 								versionSuffix != null ? "--version-suffix" : null, versionSuffix,
-								getMaxCpuCountArg()
+								GetMaxCpuCountArg(),
 							}.Concat(extraProperties));
 						}
 						else
 						{
-							runMSBuild(new[]
+							RunMsBuild(new[]
 							{
 								packageProject, "-t:Pack",
 								$"-p:Configuration={configurationOption.Value}",
-								getPlatformArg(),
+								GetPlatformArg(),
 								"-p:NoBuild=true",
 								$"-p:PackageOutputPath={tempOutputPath}",
 								versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
 								$"-v:{verbosity}",
-								getMaxCpuCountArg()
+								GetMaxCpuCountArg(),
 							}.Concat(extraProperties));
 						}
 					}
@@ -222,7 +222,7 @@ namespace Faithlife.Build
 						File.Move(tempPackagePath, packagePath);
 						packagePaths.Add(packagePath);
 					}
-					deleteDirectory(tempOutputPath);
+					DeleteDirectory(tempOutputPath);
 
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages created.");
@@ -264,13 +264,6 @@ namespace Faithlife.Build
 						string? repoDirectory = null;
 						string? gitBranchName = null;
 
-						Credentials provideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
-							new UsernamePasswordCredentials
-							{
-								Username = docsSettings?.GitLogin?.Username ?? throw new ApplicationException("GitLogin has a null Username."),
-								Password = docsSettings?.GitLogin?.Password ?? throw new ApplicationException("GitLogin has a null Password."),
-							};
-
 						if (shouldPublishDocs && docsSettings != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
@@ -283,7 +276,7 @@ namespace Faithlife.Build
 							{
 								cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
 								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: cloneDirectory,
-									options: new CloneOptions { BranchName = gitBranchName, CredentialsProvider = provideCredentials });
+									options: new CloneOptions { BranchName = gitBranchName, CredentialsProvider = ProvideCredentials });
 								repoDirectory = cloneDirectory;
 							}
 							else
@@ -294,8 +287,7 @@ namespace Faithlife.Build
 							using var repository = new Repository(repoDirectory);
 							if (gitRepositoryUrl != null)
 							{
-								if (gitBranchName == null)
-									gitBranchName = repository.Head.FriendlyName;
+								gitBranchName ??= repository.Head.FriendlyName;
 							}
 							else if (gitBranchName != null)
 							{
@@ -326,10 +318,6 @@ namespace Faithlife.Build
 							var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
 							foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
 							{
-								string findAssembly(string name) =>
-									FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
-									FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
-
 								var assemblyPaths = new List<string>();
 								if (docsSettings.FindAssemblies != null)
 								{
@@ -337,7 +325,7 @@ namespace Faithlife.Build
 								}
 								else
 								{
-									var assemblyPath = (docsSettings.FindAssembly ?? findAssembly)(projectName);
+									var assemblyPath = (docsSettings.FindAssembly ?? FindAssembly)(projectName);
 									if (assemblyPath != null)
 										assemblyPaths.Add(assemblyPath);
 								}
@@ -355,6 +343,10 @@ namespace Faithlife.Build
 								{
 									Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
 								}
+
+								static string FindAssembly(string name) =>
+									FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
+									FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
 							}
 
 							shouldPushDocs = repository.RetrieveStatus().IsDirty;
@@ -368,7 +360,7 @@ namespace Faithlife.Build
 
 							if (ignoreIfAlreadyPushed)
 							{
-								var nugetSettings = NuGet.Configuration.Settings.LoadDefaultSettings(root: null);
+								var nugetSettings = Settings.LoadDefaultSettings(root: null);
 								var packageSourceProvider = new PackageSourceProvider(nugetSettings);
 								var sourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, NuGet.Protocol.Core.Types.Repository.Provider.GetCoreV3());
 								using var sourceCacheContext = new SourceCacheContext();
@@ -378,8 +370,8 @@ namespace Faithlife.Build
 
 								foreach (var packagePath in packagePaths.ToList())
 								{
-									var packageInfo = GetPackageInfo(packagePath);
-									var package = new PackageIdentity(packageInfo.Name, NuGetVersion.Parse(packageInfo.Version));
+									var (packageName, packageVersion, _) = GetPackageInfo(packagePath);
+									var package = new PackageIdentity(packageName, NuGetVersion.Parse(packageVersion));
 
 									foreach (var nugetRepository in nugetRepositories)
 									{
@@ -387,7 +379,7 @@ namespace Faithlife.Build
 											sourceCacheContext, NullLogger.Instance, CancellationToken.None).GetAwaiter().GetResult();
 										if (dependencyInfo != null)
 										{
-											Console.WriteLine($"Package already pushed: {packageInfo.Name} {packageInfo.Version}");
+											Console.WriteLine($"Package already pushed: {packageName} {packageVersion}");
 											packagePaths.Remove(packagePath);
 											break;
 										}
@@ -412,7 +404,7 @@ namespace Faithlife.Build
 							var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings!.GitAuthor!.Email, DateTimeOffset.Now);
 							repository.Commit("Documentation updated.", author, author, new CommitOptions());
 							repository.Network.Push(repository.Network.Remotes["origin"],
-								$"refs/heads/{gitBranchName}", new PushOptions { CredentialsProvider = provideCredentials });
+								$"refs/heads/{gitBranchName}", new PushOptions { CredentialsProvider = ProvideCredentials });
 						}
 
 						if (cloneDirectory != null)
@@ -420,8 +412,15 @@ namespace Faithlife.Build
 							// delete the cloned directory
 							foreach (var fileInfo in FindFiles(cloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
 								fileInfo.IsReadOnly = false;
-							deleteDirectory(cloneDirectory);
+							DeleteDirectory(cloneDirectory);
 						}
+
+						Credentials ProvideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
+							new UsernamePasswordCredentials
+							{
+								Username = docsSettings?.GitLogin?.Username ?? throw new ApplicationException("GitLogin has a null Username."),
+								Password = docsSettings?.GitLogin?.Password ?? throw new ApplicationException("GitLogin has a null Password."),
+							};
 					}
 					else
 					{
@@ -429,35 +428,29 @@ namespace Faithlife.Build
 					}
 				});
 
-			string? getPlatformArg()
+			string? GetPlatformArg()
 			{
 				var platformValue = platformOption?.Value ?? settings?.SolutionPlatform;
 				return platformValue == null ? null : $"-p:Platform={platformValue}";
 			}
 
-			string? getMaxCpuCountArg()
-			{
-				if (settings!.MaxCpuCount != null)
-					return $"-maxcpucount:{settings.MaxCpuCount}";
-				else if (msbuildSettings != null)
-					return "-maxcpucount";
-				else
-					return null;
-			}
+			string? GetMaxCpuCountArg() =>
+				settings!.MaxCpuCount != null ? $"-maxcpucount:{settings.MaxCpuCount}" :
+				msbuildSettings != null ? "-maxcpucount" : null;
 
-			IEnumerable<string> getExtraProperties(string target)
+			IEnumerable<string> GetExtraProperties(string target)
 			{
 				var pairs = settings!.ExtraProperties?.Invoke(target);
 				if (pairs != null)
 				{
-					foreach (var pair in pairs)
-						yield return $"-p:{pair.Key}={pair.Value}";
+					foreach (var (key, value) in pairs)
+						yield return $"-p:{key}={value}";
 				}
 			}
 
-			void runMSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments);
+			void RunMsBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments);
 
-			void deleteDirectory(string path)
+			void DeleteDirectory(string path)
 			{
 				Policy.Handle<IOException>()
 					.WaitAndRetry(new[] { TimeSpan.FromMilliseconds(50) })
