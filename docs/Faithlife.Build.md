@@ -8,6 +8,7 @@
 | class [AppRunnerSettings](Faithlife.Build/AppRunnerSettings.md) | Settings for running apps. |
 | class [BuildApp](Faithlife.Build/BuildApp.md) | Represents the command-line application for the build. |
 | static class [BuildEnvironment](Faithlife.Build/BuildEnvironment.md) | Information about the build environment. |
+| class [BuildException](Faithlife.Build/BuildException.md) | A build exception. |
 | class [BuildFlag](Faithlife.Build/BuildFlag.md) | A no-value command-line flag for the build. |
 | class [BuildOption](Faithlife.Build/BuildOption.md) | A single-value command-line option for the build. |
 | static class [BuildRunner](Faithlife.Build/BuildRunner.md) | Used to execute an automated build. |
