@@ -66,13 +66,13 @@ namespace Faithlife.Build
 
 					try
 					{
-						bullseyeTargets.RunWithoutExiting(bullseyeArgs);
+						bullseyeTargets.RunWithoutExiting(bullseyeArgs, messageOnly: IsMessageOnlyException);
 					}
 					catch (TargetFailedException)
 					{
 						return 1;
 					}
-					catch (Exception exception) when (exception is ApplicationException || exception is InvalidUsageException)
+					catch (Exception exception) when (IsMessageOnlyException(exception))
 					{
 						Console.Error.WriteLine(exception.Message);
 						return 2;
@@ -86,12 +86,15 @@ namespace Faithlife.Build
 			{
 				return commandLineApp.Execute(args);
 			}
-			catch (Exception exception) when (exception is ApplicationException || exception is CommandParsingException)
+			catch (Exception exception) when (IsMessageOnlyException(exception))
 			{
 				Console.Error.WriteLine(exception.Message);
 				return 2;
 			}
 		}
+
+		private static bool IsMessageOnlyException(Exception exception) =>
+			exception is ApplicationException || exception is BuildException || exception is CommandParsingException;
 
 		private static void ShowTargets(IReadOnlyList<BuildTarget> targets)
 		{

@@ -1,5 +1,9 @@
 # Version History
 
+### Pending Minor
+
+* Don't show call stack for `BuildException`.
+
 ### 4.7.1
 
 * Add `DotNetBuildSettings.Verbosity`.
