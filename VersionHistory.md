@@ -1,6 +1,6 @@
 # Version History
 
-### Pending Minor
+### 4.8.0
 
 * Don't show call stack for `BuildException`.
 
