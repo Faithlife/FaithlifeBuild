@@ -1,4 +1,4 @@
-name: Build Windows
+name: Build
 on:
   push:
     branches-ignore:
@@ -14,7 +14,7 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
 jobs:
-  build:
+  windows:
     runs-on: windows-latest
     steps:
     - name: Check out code
@@ -25,3 +25,14 @@ jobs:
         dotnet-version: 3.1.100
     - name: Build
       run: .\build.cmd package
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v1
+    - name: Set up .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+    - name: Build
+      run: ./build.sh package
