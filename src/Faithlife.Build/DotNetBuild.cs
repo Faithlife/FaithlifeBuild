@@ -93,7 +93,7 @@ namespace Faithlife.Build
 				.Describe("Builds the solution")
 				.Does(() =>
 				{
-					var buildNumberArg = buildNumberOption.Value == null ? null : $"-p:BuildNumber={buildNumberOption.Value}";
+					var buildNumberArg = GetBuildNumberArg();
 
 					var extraProperties = GetExtraProperties("build");
 					if (msbuildSettings == null)
@@ -449,6 +449,14 @@ namespace Faithlife.Build
 			string? GetMaxCpuCountArg() =>
 				settings!.MaxCpuCount != null ? $"-maxcpucount:{settings.MaxCpuCount}" :
 				msbuildSettings != null ? "-maxcpucount" : null;
+
+			string? GetBuildNumberArg()
+			{
+				var buildNumberValue = buildNumberOption!.Value ??
+					Environment.GetEnvironmentVariable("APPVEYOR_BUILD_NUMBER") ??
+					Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
+				return buildNumberValue == null ? null : $"-p:BuildNumber={buildNumberValue}";
+			}
 
 			IEnumerable<string> GetExtraProperties(string target)
 			{

@@ -7,6 +7,7 @@
 * The `restore` target restores local .NET tools via `dotnet tool restore`.
 * Now requires locally installed `xmldocmd` to publish documentation.
 * Detect current git branch from `GITHUB_REF` in addition to `APPVEYOR_REPO_BRANCH`.
+* Get build number from `APPVEYOR_BUILD_NUMBER` or `GITHUB_RUN_NUMBER`.
 
 ### 4.8.0
 
