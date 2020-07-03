@@ -8,7 +8,7 @@ public DotNetBuildVerbosity? Verbosity { get; set; }
 
 ## Remarks
 
-Defaults to Normal.
+Defaults to Minimal.
 
 ## See Also
 
