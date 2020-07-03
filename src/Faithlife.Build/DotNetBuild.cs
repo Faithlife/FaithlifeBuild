@@ -236,8 +236,7 @@ namespace Faithlife.Build
 					if (packagePaths.Count == 0)
 						throw new ApplicationException("No NuGet packages found.");
 
-					if (trigger == null)
-						throw new ApplicationException("--trigger option required.");
+					trigger ??= "publish-all";
 
 					var triggerParts = trigger.Split('-');
 					var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;

@@ -1,8 +1,9 @@
 # Version History
 
-### 5.0.0-beta.1
+### 5.0.0
 
 * Default to minimal verbosity.
+* The `publish` target now publishes packages and documentation if no `--trigger` is specified.
 
 ### 4.8.0
 
