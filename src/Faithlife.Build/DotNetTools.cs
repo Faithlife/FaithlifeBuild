@@ -160,7 +160,7 @@ namespace Faithlife.Build
 			RunDotNetFrameworkApp(m_nugetPath, args);
 
 			version ??= Directory.GetDirectories(m_directory, $"{package}.*")
-				.Select(x => (Path.GetFileName(x) ?? throw new InvalidOperationException()).Substring(package.Length + 1))
+				.Select(x => Path.GetFileName(x)!.Substring(package.Length + 1))
 				.OrderByDescending(x => x, new NuGetVersionComparer())
 				.First();
 

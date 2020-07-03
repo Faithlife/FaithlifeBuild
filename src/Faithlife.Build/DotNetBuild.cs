@@ -225,7 +225,7 @@ namespace Faithlife.Build
 					DeleteDirectory(tempOutputPath);
 
 					if (packagePaths.Count == 0)
-						throw new ApplicationException("No NuGet packages created.");
+						throw new BuildException("No NuGet packages created.");
 				});
 
 			build.Target("publish")
@@ -234,7 +234,7 @@ namespace Faithlife.Build
 				.Does(() =>
 				{
 					if (packagePaths.Count == 0)
-						throw new ApplicationException("No NuGet packages found.");
+						throw new BuildException("No NuGet packages found.");
 
 					trigger ??= "publish-all";
 
@@ -249,7 +249,7 @@ namespace Faithlife.Build
 					{
 						var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
 						if (mismatches.Count != 0)
-							throw new ApplicationException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
+							throw new BuildException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
 
 						shouldPublishPackages = true;
 						shouldPublishDocs = triggerVersion.IndexOf('-') == -1;
@@ -266,7 +266,7 @@ namespace Faithlife.Build
 						if (shouldPublishDocs && docsSettings != null)
 						{
 							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
-								throw new ApplicationException("GitLogin and GitAuthor must be set on DocsSettings.");
+								throw new BuildException("GitLogin and GitAuthor must be set on DocsSettings.");
 
 							var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
 							gitBranchName = docsSettings.GitBranchName;
@@ -320,7 +320,7 @@ namespace Faithlife.Build
 										Commands.Checkout(repository, branch);
 								}
 								if (branch == null)
-									throw new ArgumentException("Could not determine repository branch for publishing docs.");
+									throw new BuildException("Could not determine repository branch for publishing docs.");
 								gitBranchName = branch.FriendlyName;
 							}
 
@@ -368,7 +368,7 @@ namespace Faithlife.Build
 						{
 							var nugetApiKey = settings.NuGetApiKey;
 							if (string.IsNullOrEmpty(nugetApiKey))
-								throw new ApplicationException("NuGetApiKey required to publish.");
+								throw new BuildException("NuGetApiKey required to publish.");
 
 							if (ignoreIfAlreadyPushed)
 							{
@@ -430,8 +430,8 @@ namespace Faithlife.Build
 						Credentials ProvideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 							new UsernamePasswordCredentials
 							{
-								Username = docsSettings?.GitLogin?.Username ?? throw new ApplicationException("GitLogin has a null Username."),
-								Password = docsSettings?.GitLogin?.Password ?? throw new ApplicationException("GitLogin has a null Password."),
+								Username = docsSettings?.GitLogin?.Username ?? throw new BuildException("GitLogin has a null Username."),
+								Password = docsSettings?.GitLogin?.Password ?? throw new BuildException("GitLogin has a null Password."),
 							};
 					}
 					else
@@ -541,7 +541,7 @@ namespace Faithlife.Build
 				DotNetBuildVerbosity.Minimal => "minimal",
 				DotNetBuildVerbosity.Detailed => "detailed",
 				DotNetBuildVerbosity.Diagnostic => "diagnostic",
-				_ => throw new InvalidOperationException($"Unexpected verbosity: {verbosity}"),
+				_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {verbosity}"),
 			};
 	}
 }

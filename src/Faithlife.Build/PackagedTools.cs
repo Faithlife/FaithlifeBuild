@@ -36,7 +36,7 @@ namespace Faithlife.Build
 		{
 			var slashIndex = package.IndexOf('/');
 			if (slashIndex == -1)
-				throw new ArgumentException("The package version must be specified after a slash.");
+				throw new ArgumentException("The package version must be specified after a slash.", nameof(package));
 			var version = package.Substring(slashIndex + 1);
 			package = package.Substring(0, slashIndex);
 

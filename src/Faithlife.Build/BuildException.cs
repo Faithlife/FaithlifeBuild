@@ -13,6 +13,7 @@ namespace Faithlife.Build
 		/// Creates a build exception.
 		/// </summary>
 		public BuildException()
+			: base("An unexpected build error occurred.")
 		{
 		}
 

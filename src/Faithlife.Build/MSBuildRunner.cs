@@ -54,12 +54,12 @@ namespace Faithlife.Build
 					{
 						MSBuildVersion.VS2017 => ("2017", "15.0"),
 						MSBuildVersion.VS2019 => ("2019", "Current"),
-						_ => throw new ArgumentException("Invalid version.", nameof(version)),
+						_ => throw new BuildException($"Unexpected MSBuildVersion: {version}"),
 					};
 				}
 			}
 
-			throw new InvalidOperationException("MSBuild not found.");
+			throw new BuildException("MSBuild not found.");
 		}
 
 		/// <summary>
