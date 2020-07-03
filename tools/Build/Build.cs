@@ -8,6 +8,7 @@ internal static class Build
 		build.AddDotNetTargets(
 			new DotNetBuildSettings
 			{
+				Verbosity = DotNetBuildVerbosity.Minimal,
 				NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
 				DocsSettings = new DotNetDocsSettings
 				{
