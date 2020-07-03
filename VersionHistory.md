@@ -5,6 +5,7 @@
 * Default to minimal verbosity.
 * The `publish` target publishes packages and documentation if no `--trigger` is specified.
 * The `restore` target restores local .NET tools via `dotnet tool restore`.
+* Now requires locally installed `xmldocmd` to publish documentation.
 
 ### 4.8.0
 

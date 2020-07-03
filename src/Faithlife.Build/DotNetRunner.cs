@@ -38,6 +38,38 @@ namespace Faithlife.Build
 		/// <param name="settings">The settings to use when running the app.</param>
 		public static int RunDotNet(AppRunnerSettings settings) => RunApp(GetDotNetFullPath(), settings);
 
+		/// <summary>
+		/// Runs the specified .NET tool with the specified arguments.
+		/// </summary>
+		/// <param name="name">The name (or path) of the tool.</param>
+		/// <param name="args">The command-line arguments.</param>
+		public static void RunDotNetTool(string name, params string?[] args)
+		{
+			if (args == null)
+				throw new ArgumentNullException(nameof(args));
+
+			RunDotNetTool(name, args.AsEnumerable());
+		}
+
+		/// <summary>
+		/// Runs the specified .NET tool with the specified arguments.
+		/// </summary>
+		/// <param name="name">The name (or path) of the tool.</param>
+		/// <param name="args">The command-line arguments.</param>
+		public static void RunDotNetTool(string name, IEnumerable<string?> args) => RunDotNetTool(name, new AppRunnerSettings { Arguments = args });
+
+		/// <summary>
+		/// Runs the specified .NET tool with the specified settings.
+		/// </summary>
+		/// <param name="name">The name (or path) of the tool.</param>
+		/// <param name="settings">The settings to use when running the app.</param>
+		public static int RunDotNetTool(string name, AppRunnerSettings settings)
+		{
+			settings = settings.Clone();
+			settings.Arguments = new[] { "tool", "run", name, "--" }.Concat(settings.Arguments ?? Enumerable.Empty<string>());
+			return RunDotNet(settings);
+		}
+
 		private static string GetDotNetFullPath() => DotNetExe.FullPath ?? throw new InvalidOperationException(".NET Core CLI was not found.");
 	}
 }

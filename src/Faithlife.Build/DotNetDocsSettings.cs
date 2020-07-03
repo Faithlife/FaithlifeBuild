@@ -58,6 +58,7 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
 		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
+		[Obsolete("Ignored; now uses locally installed xmldocmd tool.")]
 		public string? ToolVersion { get; set; }
 
 		/// <summary>

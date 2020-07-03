@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using LibGit2Sharp;
@@ -12,7 +13,6 @@ using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using Polly;
-using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
 using static Faithlife.Build.MSBuildRunner;
@@ -55,9 +55,6 @@ namespace Faithlife.Build
 			var msbuildSettings = settings.MSBuildSettings;
 			var verbosity = GetVerbosity(settings.Verbosity);
 
-			var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
-			var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
-
 			var packagePaths = new List<string>();
 			string? trigger = null;
 			var ignoreIfAlreadyPushed = false;
@@ -87,7 +84,7 @@ namespace Faithlife.Build
 					else
 						RunMsBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 
-					if (File.Exists("dotnet-tools.json") || File.Exists(Path.Combine(".config", "dotnet-tools.json")))
+					if (GetLocalDotNetToolVersions().Count != 0)
 						RunDotNet("tool", "restore");
 				});
 
@@ -334,9 +331,12 @@ namespace Faithlife.Build
 
 								if (assemblyPaths.Count != 0)
 								{
+									if (!GetLocalDotNetToolVersions().ContainsKey("xmldocmd"))
+										throw new BuildException("xmldocmd must be installed locally: dotnet tool install --local xmldocmd");
+
 									foreach (var assemblyPath in assemblyPaths)
 									{
-										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
+										RunDotNetTool("xmldocmd", assemblyPath,
 											Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
 											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 									}
@@ -466,6 +466,20 @@ namespace Faithlife.Build
 						{
 						}
 					});
+			}
+
+			IReadOnlyDictionary<string, string> GetLocalDotNetToolVersions()
+			{
+				var manifestPaths = new[] { "dotnet-tools.json", Path.Combine(".config", "dotnet-tools.json") }.Where(File.Exists).ToList();
+				if (manifestPaths.Count > 1)
+					throw new BuildException($"Multiple .NET local tool manifests: {string.Join(", ", manifestPaths)}");
+				if (manifestPaths.Count == 0)
+					return new Dictionary<string, string>();
+
+				return JsonDocument.Parse(File.ReadAllText(manifestPaths[0])).RootElement
+					.GetProperty("tools")
+					.EnumerateObject()
+					.ToDictionary(x => x.Name, x => x.Value.GetProperty("version").GetString());
 			}
 		}
 
