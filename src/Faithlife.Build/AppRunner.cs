@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
 using SimpleExec;
@@ -111,21 +112,23 @@ namespace Faithlife.Build
 				throw new ArgumentNullException(nameof(settings));
 
 			var arguments = settings.Arguments?.WhereNotNull() ?? Enumerable.Empty<string>();
+			string commandPath;
 			string argsString;
 			if (useCmdOnWindows && BuildEnvironment.IsWindows())
 			{
+				commandPath = "cmd.exe";
 				argsString = "/S /C \"" + ArgumentEscaper.EscapeAndConcatenate(arguments.Prepend(path)) + "\"";
-				path = "cmd.exe";
 			}
 			else
 			{
+				commandPath = path;
 				argsString = ArgumentEscaper.EscapeAndConcatenate(arguments);
 			}
 
 			var exitCode = 0;
 			try
 			{
-				Command.Run(name: path, args: argsString, workingDirectory: settings.WorkingDirectory, noEcho: settings.NoEcho);
+				Command.Run(name: commandPath, args: argsString, workingDirectory: settings.WorkingDirectory, noEcho: settings.NoEcho);
 			}
 			catch (NonZeroExitCodeException exception)
 			{
@@ -134,7 +137,7 @@ namespace Faithlife.Build
 
 			var isExitCodeSuccess = settings.IsExitCodeSuccess ?? (x => x == 0);
 			if (!isExitCodeSuccess(exitCode))
-				throw new ApplicationException($"The process failed with exit code {exitCode}.");
+				throw new BuildException($"{Path.GetFileName(path)} failed with exit code {exitCode}.");
 
 			return exitCode;
 		}
