@@ -13,6 +13,7 @@ using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using Polly;
+using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
 using static Faithlife.Build.MSBuildRunner;
@@ -342,14 +343,26 @@ namespace Faithlife.Build
 
 								if (assemblyPaths.Count != 0)
 								{
-									if (!GetLocalDotNetToolVersions().ContainsKey("xmldocmd"))
-										throw new BuildException("xmldocmd must be installed locally: dotnet tool install --local xmldocmd");
-
-									foreach (var assemblyPath in assemblyPaths)
+									if (GetLocalDotNetToolVersions().ContainsKey("xmldocmd"))
 									{
-										RunDotNetTool("xmldocmd", assemblyPath,
-											Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
-											"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+										foreach (var assemblyPath in assemblyPaths)
+										{
+											RunDotNetTool("xmldocmd", assemblyPath,
+												Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
+												"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+										}
+									}
+									else
+									{
+										var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
+										var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
+
+										foreach (var assemblyPath in assemblyPaths)
+										{
+											RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
+												Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
+												"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+										}
 									}
 								}
 								else

@@ -57,8 +57,8 @@ namespace Faithlife.Build
 		/// The version of the <c>xmldocmd</c> tool to use when generating documentation.
 		/// </summary>
 		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
-		/// but will not change unless <b>Faithlife.Build</b> is updated.</remarks>
-		[Obsolete("Ignored; now uses locally installed xmldocmd tool.")]
+		/// but will not change unless <b>Faithlife.Build</b> is updated. Ignored if <c>xmldocmd</c> is installed
+		/// as a .NET local tool.</remarks>
 		public string? ToolVersion { get; set; }
 
 		/// <summary>
