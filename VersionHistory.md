@@ -6,6 +6,7 @@
 * The `publish` target publishes packages and documentation if no `--trigger` is specified.
 * The `restore` target restores local .NET tools via `dotnet tool restore`.
 * Now requires locally installed `xmldocmd` to publish documentation.
+* Detect current git branch from `GITHUB_REF` in addition to `APPVEYOR_REPO_BRANCH`.
 
 ### 4.8.0
 

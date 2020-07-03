@@ -302,10 +302,20 @@ namespace Faithlife.Build
 								if (branch == null)
 								{
 									var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
+
+									if (autoBranchName == null)
+									{
+										var gitRef = Environment.GetEnvironmentVariable("GITHUB_REF");
+										const string prefix = "refs/heads/";
+										if (gitRef.StartsWith(prefix, StringComparison.Ordinal))
+											autoBranchName = gitRef.Substring(prefix.Length);
+									}
+
 									if (autoBranchName != null)
 										branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
 									else
 										branch = repository.Branches.FirstOrDefault(x => x.Tip.Sha == repository.Head.Tip.Sha);
+
 									if (branch != null)
 										Commands.Checkout(repository, branch);
 								}
