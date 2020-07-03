@@ -63,7 +63,8 @@ namespace Faithlife.Build
 				.Describe("Deletes all build output")
 				.Does(() =>
 				{
-					var findDirectoriesToDelete = settings.CleanSettings?.FindDirectoriesToDelete ?? (() => FindDirectories("{src,tests}/**/{bin,obj}", "tools/XmlDocTarget/{bin,obj}"));
+					var findDirectoriesToDelete = settings.CleanSettings?.FindDirectoriesToDelete ??
+						(() => FindDirectories("{src,tests,tools}/**/{bin,obj}").Except(FindDirectories("tools/bin")).ToList());
 					foreach (var directoryToDelete in findDirectoriesToDelete())
 						DeleteDirectory(directoryToDelete);
 

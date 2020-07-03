@@ -9,6 +9,7 @@
 * Detect current git branch from `GITHUB_REF` in addition to `APPVEYOR_REPO_BRANCH`.
 * Get build number from `APPVEYOR_BUILD_NUMBER` or `GITHUB_RUN_NUMBER`.
 * Improve exit code exception.
+* Clean all `tools` projects but keep `tools/bin`.
 
 ### 4.8.0
 
