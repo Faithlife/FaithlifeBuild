@@ -86,6 +86,9 @@ namespace Faithlife.Build
 						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
 						RunMsBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+
+					if (File.Exists("dotnet-tools.json") || File.Exists(Path.Combine(".config", "dotnet-tools.json")))
+						RunDotNet("tool", "restore");
 				});
 
 			build.Target("build")

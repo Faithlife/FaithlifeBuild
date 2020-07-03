@@ -3,7 +3,8 @@
 ### 5.0.0
 
 * Default to minimal verbosity.
-* The `publish` target now publishes packages and documentation if no `--trigger` is specified.
+* The `publish` target publishes packages and documentation if no `--trigger` is specified.
+* The `restore` target restores local .NET tools via `dotnet tool restore`.
 
 ### 4.8.0
 
