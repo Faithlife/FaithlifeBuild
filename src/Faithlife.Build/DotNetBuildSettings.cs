@@ -82,7 +82,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// The build output verbosity.
 		/// </summary>
-		/// <remarks>Defaults to <see cref="DotNetBuildVerbosity.Normal"/>.</remarks>
+		/// <remarks>Defaults to <see cref="DotNetBuildVerbosity.Minimal"/>.</remarks>
 		public DotNetBuildVerbosity? Verbosity { get; set; }
 
 		/// <summary>

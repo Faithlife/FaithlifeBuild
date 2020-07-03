@@ -1,5 +1,9 @@
 # Version History
 
+### 5.0.0-beta.1
+
+* Default to minimal verbosity.
+
 ### 4.8.0
 
 * Don't show call stack for `BuildException`.

@@ -501,13 +501,13 @@ namespace Faithlife.Build
 				.FirstOrDefault();
 
 		private static string GetVerbosity(DotNetBuildVerbosity? verbosity) =>
-			verbosity switch
+			(verbosity ?? DotNetBuildVerbosity.Minimal) switch
 			{
 				DotNetBuildVerbosity.Quiet => "quiet",
 				DotNetBuildVerbosity.Minimal => "minimal",
 				DotNetBuildVerbosity.Detailed => "detailed",
 				DotNetBuildVerbosity.Diagnostic => "diagnostic",
-				_ => "normal",
+				_ => throw new InvalidOperationException($"Unexpected verbosity: {verbosity}"),
 			};
 	}
 }
