@@ -11,6 +11,7 @@ public static class DotNetRunner
 | name | description |
 | --- | --- |
 | static [RunDotNet](DotNetRunner/RunDotNet.md)(…) | Runs `dotnet` with the specified arguments. (3 methods) |
+| static [RunDotNetTool](DotNetRunner/RunDotNetTool.md)(…) | Runs the specified .NET tool with the specified arguments. (3 methods) |
 
 ## Remarks
 

@@ -20,7 +20,6 @@ public sealed class DotNetDocsSettings
 | [ProjectHasDocs](DotNetDocsSettings/ProjectHasDocs.md) { get; set; } | A function that returns true if documentation should be generated for the project. |
 | [SourceCodeUrl](DotNetDocsSettings/SourceCodeUrl.md) { get; set; } | The GitHub URL of the directory containing the source code. |
 | [TargetDirectory](DotNetDocsSettings/TargetDirectory.md) { get; set; } | The target directory for generated documentation, relative to the root of the repository; defaults to `"docs"`. |
-| [ToolVersion](DotNetDocsSettings/ToolVersion.md) { get; set; } | The version of the `xmldocmd` tool to use when generating documentation. |
 | [Clone](DotNetDocsSettings/Clone.md)() | Clones the settings. |
 
 ## See Also
