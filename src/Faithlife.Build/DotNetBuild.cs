@@ -517,7 +517,7 @@ namespace Faithlife.Build
 					var solutionNames = FindFiles("*.sln");
 					if (solutionNames.Count == 0)
 						throw new BuildException("Solution file not found.");
-					if (solutionNames.Count != 0)
+					if (solutionNames.Count > 1)
 						throw new BuildException("Multiple solution files found.");
 					return solutionNames[0];
 				}
