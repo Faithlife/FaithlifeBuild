@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Xml.Linq;
+using System.Xml.XPath;
 using LibGit2Sharp;
 using NuGet.Common;
 using NuGet.Configuration;
@@ -57,6 +59,7 @@ namespace Faithlife.Build
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
 			var verbosity = GetVerbosity(verbosityOption.Value, settings.Verbosity);
+			var localDotNetToolVersions = GetLocalDotNetToolVersions();
 
 			var packagePaths = new List<string>();
 			string? trigger = null;
@@ -88,7 +91,7 @@ namespace Faithlife.Build
 					else
 						RunMsBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 
-					if (GetLocalDotNetToolVersions().Count != 0)
+					if (localDotNetToolVersions.Count != 0)
 						RunDotNet("tool", "restore");
 				});
 
@@ -345,7 +348,7 @@ namespace Faithlife.Build
 
 								if (assemblyPaths.Count != 0)
 								{
-									if (GetLocalDotNetToolVersions().ContainsKey("xmldocmd"))
+									if (localDotNetToolVersions.ContainsKey("xmldocmd"))
 									{
 										foreach (var assemblyPath in assemblyPaths)
 										{
@@ -455,6 +458,68 @@ namespace Faithlife.Build
 						Console.WriteLine("To publish to NuGet, push this tag: v" + GetPackageInfo(packagePaths[0]).Version);
 					}
 				});
+
+			if (localDotNetToolVersions.ContainsKey("dotnet-format"))
+			{
+				build.Target("format")
+					.DependsOn("restore")
+					.Describe("Fixes coding style with dotnet-format")
+					.Does(() =>
+					{
+						RunDotNet("dotnet-format", "--verbosity", verbosity);
+					});
+			}
+
+			if (localDotNetToolVersions.ContainsKey("jetbrains.resharper.globaltools"))
+			{
+				build.Target("cleanup")
+					.DependsOn("restore")
+					.Describe("Fixes coding style with JetBrains CleanupCode")
+					.Does(() =>
+					{
+						RunDotNet("jb", "cleanupcode",
+							"--profile=Build",
+							"--verbosity=ERROR",
+							"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
+							GetSolutionName());
+					});
+
+				build.Target("inspect")
+					.DependsOn("restore")
+					.Describe("Checks coding style with JetBrains InspectCode")
+					.Does(() =>
+					{
+						var outputPath = Path.Combine("release", "inspect.xml");
+
+						RunDotNet("jb", "inspectcode",
+							"--severity=WARNING",
+							"--verbosity=ERROR",
+							"--format=Xml",
+							"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
+							$"--output={outputPath}",
+							GetSolutionName());
+
+						var outputDocument = XDocument.Load(outputPath);
+						var issueElements = outputDocument.XPathSelectElements("//Issue").ToList();
+						foreach (var issueElement in issueElements)
+							Console.WriteLine($"{issueElement.Attribute("File")!.Value}({issueElement.Attribute("Line")!.Value}): {issueElement.Attribute("Message")!.Value}");
+						if (issueElements.Count != 0)
+							throw new BuildException($"{issueElements.Count} inspection issues found.");
+					});
+
+				string GetSolutionName()
+				{
+					if (solutionName != null)
+						return solutionName;
+
+					var solutionNames = FindFiles("*.sln");
+					if (solutionNames.Count == 0)
+						throw new BuildException("Solution file not found.");
+					if (solutionNames.Count != 0)
+						throw new BuildException("Multiple solution files found.");
+					return solutionNames[0];
+				}
+			}
 
 			string? GetPlatformArg()
 			{
