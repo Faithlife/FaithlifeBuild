@@ -58,7 +58,6 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
-			var verbosity = GetVerbosity(verbosityOption.Value, settings.Verbosity);
 			var localDotNetToolVersions = GetLocalDotNetToolVersions();
 
 			var packagePaths = new List<string>();
@@ -74,6 +73,7 @@ namespace Faithlife.Build
 					foreach (var directoryToDelete in findDirectoriesToDelete())
 						DeleteDirectory(directoryToDelete);
 
+					var verbosity = GetVerbosity();
 					var extraProperties = GetExtraProperties("clean");
 					if (msbuildSettings == null)
 						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
@@ -85,6 +85,7 @@ namespace Faithlife.Build
 				.Describe("Restores NuGet packages")
 				.Does(() =>
 				{
+					var verbosity = GetVerbosity();
 					var extraProperties = GetExtraProperties("restore");
 					if (msbuildSettings == null)
 						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
@@ -102,6 +103,7 @@ namespace Faithlife.Build
 				{
 					var buildNumberArg = GetBuildNumberArg();
 
+					var verbosity = GetVerbosity();
 					var extraProperties = GetExtraProperties("build");
 					if (msbuildSettings == null)
 						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, GetPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
@@ -214,7 +216,7 @@ namespace Faithlife.Build
 								"-p:NoBuild=true",
 								$"-p:PackageOutputPath={tempOutputPath}",
 								versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
-								$"-v:{verbosity}",
+								$"-v:{GetVerbosity()}",
 								GetMaxCpuCountArg(),
 							}.Concat(extraProperties));
 						}
@@ -466,7 +468,7 @@ namespace Faithlife.Build
 					.Describe("Fixes coding style with dotnet-format")
 					.Does(() =>
 					{
-						RunDotNet("dotnet-format", "--verbosity", verbosity);
+						RunDotNet("dotnet-format", "--verbosity", GetVerbosity());
 					});
 			}
 
@@ -541,7 +543,7 @@ namespace Faithlife.Build
 
 			IEnumerable<string> GetExtraProperties(string target)
 			{
-				var pairs = settings!.ExtraProperties?.Invoke(target);
+				var pairs = settings!.ExtraProperties?.Invoke(target!);
 				if (pairs != null)
 				{
 					foreach (var (key, value) in pairs)
@@ -549,7 +551,7 @@ namespace Faithlife.Build
 				}
 			}
 
-			void RunMsBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments);
+			void RunMsBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments!);
 
 			void DeleteDirectory(string path)
 			{
@@ -579,6 +581,35 @@ namespace Faithlife.Build
 					.GetProperty("tools")
 					.EnumerateObject()
 					.ToDictionary(x => x.Name, x => x.Value.GetProperty("version").GetString());
+			}
+
+			string GetVerbosity()
+			{
+				var verbosity = verbosityOption?.Value?.ToLowerInvariant() switch
+				{
+					"q" => DotNetBuildVerbosity.Quiet,
+					"quiet" => DotNetBuildVerbosity.Quiet,
+					"m" => DotNetBuildVerbosity.Minimal,
+					"minimal" => DotNetBuildVerbosity.Minimal,
+					"n" => DotNetBuildVerbosity.Normal,
+					"normal" => DotNetBuildVerbosity.Normal,
+					"d" => DotNetBuildVerbosity.Detailed,
+					"detailed" => DotNetBuildVerbosity.Detailed,
+					"diag" => DotNetBuildVerbosity.Diagnostic,
+					"diagnostic" => DotNetBuildVerbosity.Diagnostic,
+					null => settings?.Verbosity ?? DotNetBuildVerbosity.Minimal,
+					_ => throw new BuildException($"Unexpected verbosity option: {verbosityOption.Value}"),
+				};
+
+				return verbosity switch
+				{
+					DotNetBuildVerbosity.Quiet => "quiet",
+					DotNetBuildVerbosity.Minimal => "minimal",
+					DotNetBuildVerbosity.Normal => "normal",
+					DotNetBuildVerbosity.Detailed => "detailed",
+					DotNetBuildVerbosity.Diagnostic => "diagnostic",
+					_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {settings?.Verbosity}"),
+				};
 			}
 		}
 
@@ -614,34 +645,5 @@ namespace Faithlife.Build
 				.Select(x => x.Tag)
 				.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
 				.FirstOrDefault();
-
-		private static string GetVerbosity(string? verbosityOptionValue, DotNetBuildVerbosity? verbositySetting)
-		{
-			var verbosity = verbosityOptionValue?.ToLowerInvariant() switch
-			{
-				"q" => DotNetBuildVerbosity.Quiet,
-				"quiet" => DotNetBuildVerbosity.Quiet,
-				"m" => DotNetBuildVerbosity.Minimal,
-				"minimal" => DotNetBuildVerbosity.Minimal,
-				"n" => DotNetBuildVerbosity.Normal,
-				"normal" => DotNetBuildVerbosity.Normal,
-				"d" => DotNetBuildVerbosity.Detailed,
-				"detailed" => DotNetBuildVerbosity.Detailed,
-				"diag" => DotNetBuildVerbosity.Diagnostic,
-				"diagnostic" => DotNetBuildVerbosity.Diagnostic,
-				null => verbositySetting ?? DotNetBuildVerbosity.Minimal,
-				_ => throw new BuildException($"Unexpected verbosity option: {verbosityOptionValue}"),
-			};
-
-			return verbosity switch
-			{
-				DotNetBuildVerbosity.Quiet => "quiet",
-				DotNetBuildVerbosity.Minimal => "minimal",
-				DotNetBuildVerbosity.Normal => "normal",
-				DotNetBuildVerbosity.Detailed => "detailed",
-				DotNetBuildVerbosity.Diagnostic => "diagnostic",
-				_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {verbositySetting}"),
-			};
-		}
 	}
 }
