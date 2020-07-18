@@ -17,6 +17,7 @@ public sealed class DotNetBuildOptions
 | [NuGetOutputOption](DotNetBuildOptions/NuGetOutputOption.md) { get; set; } | Directory for generated package. |
 | [PlatformOption](DotNetBuildOptions/PlatformOption.md) { get; set; } | The platform to build. |
 | [TriggerOption](DotNetBuildOptions/TriggerOption.md) { get; set; } | The git branch or tag that triggered the build. |
+| [VerbosityOption](DotNetBuildOptions/VerbosityOption.md) { get; set; } | The build verbosity. |
 | [VersionSuffixOption](DotNetBuildOptions/VersionSuffixOption.md) { get; set; } | Generates a prerelease package. |
 
 ## See Also
