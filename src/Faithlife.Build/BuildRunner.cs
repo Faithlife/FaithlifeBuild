@@ -94,7 +94,7 @@ namespace Faithlife.Build
 		}
 
 		private static bool IsMessageOnlyException(Exception exception) =>
-			exception is ApplicationException || exception is BuildException || exception is CommandParsingException;
+			exception is ApplicationException || exception is BuildException || exception is CommandParsingException || exception is InvalidUsageException;
 
 		private static void ShowTargets(IReadOnlyList<BuildTarget> targets)
 		{

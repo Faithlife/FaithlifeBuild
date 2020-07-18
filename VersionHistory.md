@@ -13,6 +13,7 @@
 * Support `--verbosity` command-line option.
 * Add target `format` if `dotnet-format` is installed locally.
 * Add targets `cleanup` and `inspect` if `JetBrains.ReSharper.GlobalTools` is installed locally.
+* Don't show callstack for `InvalidUsageException`.
 
 ### 4.8.0
 
