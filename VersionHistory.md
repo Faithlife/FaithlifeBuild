@@ -10,6 +10,7 @@
 * Get build number from `APPVEYOR_BUILD_NUMBER` or `GITHUB_RUN_NUMBER`.
 * Improve exit code exception.
 * Clean all `tools` projects but keep `tools/bin`.
+* Support `--verbosity` command-line option.
 
 ### 4.8.0
 

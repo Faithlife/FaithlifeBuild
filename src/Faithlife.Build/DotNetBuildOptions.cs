@@ -16,6 +16,11 @@ namespace Faithlife.Build
 		public BuildOption? PlatformOption { get; set; }
 
 		/// <summary>
+		/// The build verbosity.
+		/// </summary>
+		public BuildOption? VerbosityOption { get; set; }
+
+		/// <summary>
 		/// Generates a prerelease package.
 		/// </summary>
 		public BuildOption? VersionSuffixOption { get; set; }

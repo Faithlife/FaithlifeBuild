@@ -40,6 +40,8 @@ namespace Faithlife.Build
 				build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release"));
 			var platformOption = buildOptions.PlatformOption ?? (buildOptions.PlatformOption =
 				build.AddOption("-p|--platform <name>", "The solution platform to build"));
+			var verbosityOption = buildOptions.VerbosityOption ?? (buildOptions.VerbosityOption =
+				build.AddOption("-v|--verbosity <level>", "The build verbosity (q[uiet], m[inimal], n[ormal], d[etailed])"));
 			var versionSuffixOption = buildOptions.VersionSuffixOption ?? (buildOptions.VersionSuffixOption =
 				build.AddOption("--version-suffix <suffix>", "Generates a prerelease package"));
 			var nugetOutputOption = buildOptions.NuGetOutputOption ?? (buildOptions.NuGetOutputOption =
@@ -54,7 +56,7 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
-			var verbosity = GetVerbosity(settings.Verbosity);
+			var verbosity = GetVerbosity(verbosityOption.Value, settings.Verbosity);
 
 			var packagePaths = new List<string>();
 			string? trigger = null;
@@ -548,14 +550,33 @@ namespace Faithlife.Build
 				.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
 				.FirstOrDefault();
 
-		private static string GetVerbosity(DotNetBuildVerbosity? verbosity) =>
-			(verbosity ?? DotNetBuildVerbosity.Minimal) switch
+		private static string GetVerbosity(string? verbosityOptionValue, DotNetBuildVerbosity? verbositySetting)
+		{
+			var verbosity = verbosityOptionValue?.ToLowerInvariant() switch
+			{
+				"q" => DotNetBuildVerbosity.Quiet,
+				"quiet" => DotNetBuildVerbosity.Quiet,
+				"m" => DotNetBuildVerbosity.Minimal,
+				"minimal" => DotNetBuildVerbosity.Minimal,
+				"n" => DotNetBuildVerbosity.Normal,
+				"normal" => DotNetBuildVerbosity.Normal,
+				"d" => DotNetBuildVerbosity.Detailed,
+				"detailed" => DotNetBuildVerbosity.Detailed,
+				"diag" => DotNetBuildVerbosity.Diagnostic,
+				"diagnostic" => DotNetBuildVerbosity.Diagnostic,
+				null => verbositySetting ?? DotNetBuildVerbosity.Minimal,
+				_ => throw new BuildException($"Unexpected verbosity option: {verbosityOptionValue}"),
+			};
+
+			return verbosity switch
 			{
 				DotNetBuildVerbosity.Quiet => "quiet",
 				DotNetBuildVerbosity.Minimal => "minimal",
+				DotNetBuildVerbosity.Normal => "normal",
 				DotNetBuildVerbosity.Detailed => "detailed",
 				DotNetBuildVerbosity.Diagnostic => "diagnostic",
-				_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {verbosity}"),
+				_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {verbositySetting}"),
 			};
+		}
 	}
 }
