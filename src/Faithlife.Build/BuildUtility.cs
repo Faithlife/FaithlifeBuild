@@ -11,7 +11,7 @@ namespace Faithlife.Build
 	/// </summary>
 	/// <remarks>
 	/// <para>See <see href="https://github.com/kthompson/glob" /> for documentation on globs.</para>
-	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.BuildUtility;</c></para>
+	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.BuildUtility;</c>.</para>
 	/// </remarks>
 	public static class BuildUtility
 	{
@@ -108,6 +108,7 @@ namespace Faithlife.Build
 			}
 		}
 
-		internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> items) where T : class => items.Where(x => x != null)!;
+		internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> items)
+			where T : class => items.Where(x => x != null)!;
 	}
 }

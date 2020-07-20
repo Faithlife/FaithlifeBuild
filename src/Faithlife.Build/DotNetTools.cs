@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -212,7 +213,7 @@ namespace Faithlife.Build
 				for (var index = 0; index < Math.Min(leftDotParts.Length, rightDotParts.Length); index++)
 				{
 					if (leftDotParts[index] != rightDotParts[index])
-						return int.Parse(leftDotParts[index]).CompareTo(int.Parse(rightDotParts[index]));
+						return int.Parse(leftDotParts[index], CultureInfo.InvariantCulture).CompareTo(int.Parse(rightDotParts[index], CultureInfo.InvariantCulture));
 				}
 
 				if (leftDotParts.Length != rightDotParts.Length)

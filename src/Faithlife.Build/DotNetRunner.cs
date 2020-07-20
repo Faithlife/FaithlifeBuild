@@ -10,7 +10,7 @@ namespace Faithlife.Build
 	/// Runs <c>dotnet</c> commands.
 	/// </summary>
 	/// <remarks>
-	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.DotNetRunner;</c></para>
+	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.DotNetRunner;</c>.</para>
 	/// </remarks>
 	public static class DotNetRunner
 	{

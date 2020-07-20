@@ -26,7 +26,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Used to install .NET Core Global tools.
 		/// </summary>
-		/// <remarks>Optional. If not specified, installs tools under <c>tools/bin</c></remarks>
+		/// <remarks>Optional. If not specified, installs tools under <c>tools/bin</c>.</remarks>
 		public DotNetTools? DotNetTools { get; set; }
 
 		/// <summary>

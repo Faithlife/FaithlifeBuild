@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -629,7 +630,7 @@ namespace Faithlife.Build
 		{
 			var hyphenParts = version.Split(new[] { '-' }, 2);
 			var dotParts = hyphenParts[0].Split(new[] { '.' }, 3);
-			return (int.Parse(dotParts[0]), int.Parse(dotParts[1]), int.Parse(dotParts[2]), hyphenParts.ElementAtOrDefault(1));
+			return (int.Parse(dotParts[0], CultureInfo.InvariantCulture), int.Parse(dotParts[1], CultureInfo.InvariantCulture), int.Parse(dotParts[2], CultureInfo.InvariantCulture), hyphenParts.ElementAtOrDefault(1));
 		}
 
 		private static string GetBestTriggerFromTags(IReadOnlyList<string> tags) =>

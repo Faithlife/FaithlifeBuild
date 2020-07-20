@@ -11,7 +11,7 @@ namespace Faithlife.Build
 	/// Runs command-line apps.
 	/// </summary>
 	/// <remarks>
-	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.AppRunner;</c></para>
+	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.AppRunner;</c>.</para>
 	/// </remarks>
 	public static class AppRunner
 	{

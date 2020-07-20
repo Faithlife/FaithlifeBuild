@@ -10,7 +10,7 @@ namespace Faithlife.Build
 	/// Runs MSBuild.
 	/// </summary>
 	/// <remarks>
-	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.MSBuildRunner;</c></para>
+	/// <para>Consider calling these methods directly via <c>using static Faithlife.Build.MSBuildRunner;</c>.</para>
 	/// </remarks>
 	public static class MSBuildRunner
 	{

@@ -15,7 +15,7 @@ namespace Faithlife.Build.Tests
 		[Test]
 		public void NullInitializeThrows()
 		{
-			Assert.Throws<ArgumentNullException>(() => BuildRunner.Execute(new string[0], null!));
+			Assert.Throws<ArgumentNullException>(() => BuildRunner.Execute(Array.Empty<string>(), null!));
 		}
 	}
 }
