@@ -452,8 +452,8 @@ namespace Faithlife.Build
 						Credentials ProvideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 							new UsernamePasswordCredentials
 							{
-								Username = docsSettings.GitLogin?.Username ?? throw new BuildException("GitLogin has a null Username."),
-								Password = docsSettings.GitLogin!.Password ?? throw new BuildException("GitLogin has a null Password."),
+								Username = docsSettings!.GitLogin?.Username ?? throw new BuildException("GitLogin has a null Username."),
+								Password = docsSettings!.GitLogin!.Password ?? throw new BuildException("GitLogin has a null Password."),
 							};
 					}
 					else
