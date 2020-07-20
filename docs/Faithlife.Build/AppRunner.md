@@ -16,7 +16,7 @@ public static class AppRunner
 
 ## Remarks
 
-Consider calling these methods directly via `using static Faithlife.Build.AppRunner;`
+Consider calling these methods directly via `using static Faithlife.Build.AppRunner;`.
 
 ## See Also
 

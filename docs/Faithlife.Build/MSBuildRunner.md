@@ -15,7 +15,7 @@ public static class MSBuildRunner
 
 ## Remarks
 
-Consider calling these methods directly via `using static Faithlife.Build.MSBuildRunner;`
+Consider calling these methods directly via `using static Faithlife.Build.MSBuildRunner;`.
 
 ## See Also
 

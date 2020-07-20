@@ -8,7 +8,7 @@ public DotNetTools DotNetTools { get; set; }
 
 ## Remarks
 
-Optional. If not specified, installs tools under `tools/bin`
+Optional. If not specified, installs tools under `tools/bin`.
 
 ## See Also
 

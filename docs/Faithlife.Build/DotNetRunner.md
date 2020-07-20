@@ -15,7 +15,7 @@ public static class DotNetRunner
 
 ## Remarks
 
-Consider calling these methods directly via `using static Faithlife.Build.DotNetRunner;`
+Consider calling these methods directly via `using static Faithlife.Build.DotNetRunner;`.
 
 ## See Also
 

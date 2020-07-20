@@ -21,7 +21,7 @@ public static class BuildUtility
 
 See [https://github.com/kthompson/glob](https://github.com/kthompson/glob) for documentation on globs.
 
-Consider calling these methods directly via `using static Faithlife.Build.BuildUtility;`
+Consider calling these methods directly via `using static Faithlife.Build.BuildUtility;`.
 
 ## See Also
 
