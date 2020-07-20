@@ -180,7 +180,7 @@ namespace Faithlife.Build
 					if (versionSuffix == null && trigger != null)
 						versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
 
-					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value);
+					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value!);
 					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
 
 					var packageProjects = new List<string?>();
@@ -317,7 +317,7 @@ namespace Faithlife.Build
 									{
 										var gitRef = Environment.GetEnvironmentVariable("GITHUB_REF");
 										const string prefix = "refs/heads/";
-										if (gitRef.StartsWith(prefix, StringComparison.Ordinal))
+										if (gitRef != null && gitRef.StartsWith(prefix, StringComparison.Ordinal))
 											autoBranchName = gitRef.Substring(prefix.Length);
 									}
 
@@ -452,8 +452,8 @@ namespace Faithlife.Build
 						Credentials ProvideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 							new UsernamePasswordCredentials
 							{
-								Username = docsSettings?.GitLogin?.Username ?? throw new BuildException("GitLogin has a null Username."),
-								Password = docsSettings?.GitLogin?.Password ?? throw new BuildException("GitLogin has a null Password."),
+								Username = docsSettings.GitLogin?.Username ?? throw new BuildException("GitLogin has a null Username."),
+								Password = docsSettings.GitLogin!.Password ?? throw new BuildException("GitLogin has a null Password."),
 							};
 					}
 					else
@@ -526,7 +526,7 @@ namespace Faithlife.Build
 
 			string? GetPlatformArg()
 			{
-				var platformValue = platformOption?.Value ?? settings?.SolutionPlatform;
+				var platformValue = platformOption!.Value ?? settings!.SolutionPlatform;
 				return platformValue == null ? null : $"-p:Platform={platformValue}";
 			}
 
@@ -562,7 +562,7 @@ namespace Faithlife.Build
 					{
 						try
 						{
-							Directory.Delete(path, recursive: true);
+							Directory.Delete(path!, recursive: true);
 						}
 						catch (DirectoryNotFoundException)
 						{
@@ -586,7 +586,7 @@ namespace Faithlife.Build
 
 			string GetVerbosity()
 			{
-				var verbosity = verbosityOption?.Value?.ToLowerInvariant() switch
+				var verbosity = verbosityOption!.Value?.ToLowerInvariant() switch
 				{
 					"q" => DotNetBuildVerbosity.Quiet,
 					"quiet" => DotNetBuildVerbosity.Quiet,
@@ -598,7 +598,7 @@ namespace Faithlife.Build
 					"detailed" => DotNetBuildVerbosity.Detailed,
 					"diag" => DotNetBuildVerbosity.Diagnostic,
 					"diagnostic" => DotNetBuildVerbosity.Diagnostic,
-					null => settings?.Verbosity ?? DotNetBuildVerbosity.Minimal,
+					null => settings!.Verbosity ?? DotNetBuildVerbosity.Minimal,
 					_ => throw new BuildException($"Unexpected verbosity option: {verbosityOption.Value}"),
 				};
 
@@ -609,7 +609,7 @@ namespace Faithlife.Build
 					DotNetBuildVerbosity.Normal => "normal",
 					DotNetBuildVerbosity.Detailed => "detailed",
 					DotNetBuildVerbosity.Diagnostic => "diagnostic",
-					_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {settings?.Verbosity}"),
+					_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {settings!.Verbosity}"),
 				};
 			}
 		}
