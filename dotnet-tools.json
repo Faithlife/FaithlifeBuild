@@ -7,6 +7,18 @@
       "commands": [
         "xmldocmd"
       ]
+    },
+    "dotnet-format": {
+      "version": "4.1.131201",
+      "commands": [
+        "dotnet-format"
+      ]
+    },
+    "jetbrains.resharper.globaltools": {
+      "version": "2020.2.0-eap07",
+      "commands": [
+        "jb"
+      ]
     }
   }
 }
