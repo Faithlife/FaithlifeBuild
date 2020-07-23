@@ -79,7 +79,7 @@ namespace Faithlife.Build
 					if (msbuildSettings == null)
 						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						RunMsBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("restore")
@@ -91,7 +91,7 @@ namespace Faithlife.Build
 					if (msbuildSettings == null)
 						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						RunMsBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 
 					if (localDotNetToolVersions.Count != 0)
 						RunDotNet("tool", "restore");
@@ -109,7 +109,7 @@ namespace Faithlife.Build
 					if (msbuildSettings == null)
 						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, GetPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						RunMsBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), buildNumberArg, $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), buildNumberArg, $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -209,7 +209,7 @@ namespace Faithlife.Build
 						}
 						else
 						{
-							RunMsBuild(new[]
+							MSBuild(new[]
 							{
 								packageProject, "-t:Pack",
 								$"-p:Configuration={configurationOption.Value}",
@@ -552,7 +552,7 @@ namespace Faithlife.Build
 				}
 			}
 
-			void RunMsBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments!);
+			void MSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments!);
 
 			void DeleteDirectory(string path)
 			{
@@ -581,7 +581,7 @@ namespace Faithlife.Build
 				return JsonDocument.Parse(File.ReadAllText(manifestPaths[0])).RootElement
 					.GetProperty("tools")
 					.EnumerateObject()
-					.ToDictionary(x => x.Name, x => x.Value.GetProperty("version").GetString());
+					.ToDictionary(x => x.Name, x => x.Value.GetProperty("version").GetString(), StringComparer.OrdinalIgnoreCase);
 			}
 
 			string GetVerbosity()
