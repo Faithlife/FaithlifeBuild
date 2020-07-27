@@ -14,14 +14,14 @@ This library allows developers to use C# to write build scripts. It is similar t
 * [find files and directories](Faithlife.Build/BuildUtility.md) using [globs](https://github.com/kthompson/glob/)
 * [copy files](Faithlife.Build/BuildUtility/CopyFiles.md) from one directory to another
 * get information about the [build environment](Faithlife.Build/BuildEnvironment.md)
+* report [custom build errors](Faithlife.Build/BuildException.md)
 * define [standard targets for .NET builds](#create-net-targets) that build, test, package, and generate documentation for your libraries
-* `--help` displays supported command-line options and targets with descriptions
 
 Most importantly, since the build script is a full-fledged .NET Core app with access to any compatible NuGet package, you can do just about anything, in a language and framework you already know well.
 
 ## Usage
 
-To use this library for your automated build, create a .NET Core Console App project in `tools/build` that references the latest `Faithlife.Build` [NuGet package](https://www.nuget.org/packages/Faithlife.Build). Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project; there are project properties in that file that you may need for everything to work as expected.
+To use this library for your automated build, create a .NET Core Console App project in `tools/Build` that references the latest `Faithlife.Build` [NuGet package](https://www.nuget.org/packages/Faithlife.Build). Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project.
 
 The `Main` method of the console app should call [`BuildRunner.Execute`](Faithlife.Build/BuildRunner/Execute.md) with the `args` and a delegate that defines the build targets and any desired command-line options by calling methods on the provided [`BuildApp`](Faithlife.Build/BuildApp.md).
 
@@ -40,7 +40,15 @@ internal static class Build
 }
 ```
 
-Perform the build by calling `dotnet run` on the build project, which is most easily done from a simple bootstrapper, typically named [`build.cmd`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.cmd) (for Windows) and/or [`build.sh`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.sh) (for non-Windows).
+Perform the build by running the `Build` project. This can be done directly via `dotnet run`, e.g. `dotnet run --project tools/Build -- test`, but builds are more easily run from a simple bootstrapper, usually named [`build.cmd`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.cmd) (for Windows) and/or [`build.sh`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.sh) (for non-Windows).
+
+Specify the desired targets on the command line, e.g. `./build.sh package`. Use `--help` to list the available build targets and command-line options. These command-line arguments are always supported:
+
+* `-n` or `--dry-run` : Don't execute target actions.
+* `-s` or `--skip-dependencies` : Don't run target dependencies.
+* `--no-color` : Disable color output.
+* `--show-tree` : Show the dependency tree.
+* `-?` or `-h` or `--help` : Show build help.
 
 Consult the full [reference documentation](Faithlife.Build.md) for additional details.
 
@@ -56,11 +64,15 @@ The supported targets include:
 * `test` : Runs the unit tests.
 * `package` : Builds NuGet packages.
 * `publish` : Publishes NuGet packages and documentation.
+* `format` : Formats the code (if [`dotnet-format`](https://www.nuget.org/packages/dotnet-format/) is [installed as a local tool](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-tool-install)).
+* `cleanup` : Runs JetBrains CleanupCode (if [`JetBrains.ReSharper.GlobalTools`](https://www.nuget.org/packages/JetBrains.ReSharper.GlobalTools) is installed as a local tool).
+* `inspect` : Runs JetBrains InspectCode (if [`JetBrains.ReSharper.GlobalTools`](https://www.nuget.org/packages/JetBrains.ReSharper.GlobalTools) is installed as a local tool).
 
 The supported command-line options include:
 
-* `--configuration <name>` : The configuration to build (default `Release`).
-* `--platform <name>` : The solution platform to build.
+* `-c <name>` or `--configuration <name>` : The configuration to build (default `Release`).
+* `-p <name>` or `--platform <name>` : The solution platform to build.
+* `-v <level>` or `--verbosity <level>` : The build verbosity (`q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`).
 * `--version-suffix <suffix>` : Generates a prerelease NuGet package.
 * `--nuget-output <path>` : Directory for the generated NuGet package (default `release`).
 * `--trigger <name>` : The git branch or tag that triggered the build.
@@ -71,6 +83,8 @@ The supported [`DotNetBuildSettings`](Faithlife.Build/DotNetBuildSettings.md) in
 
 * `SolutionName` : The name of the solution file; defaults to the only solution in the directory.
 * `SolutionPlatform` : The default solution platform to build.
+* `Verbosity` : The default build verbosity.
+* `NuGetApiKey` : The NuGet API key with which to push packages.
 * `NuGetSource` : The NuGet source to which to push packages, if not the standard source.
 * `DocsSettings` : Used to generate Markdown documentation from XML comments.
 * `MSBuildSettings` : Set to use `MSBuild` instead of `dotnet` to build the solution.
