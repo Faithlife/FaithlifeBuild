@@ -9,8 +9,8 @@ This library allows developers to use C# to write build scripts. It is similar t
 * define [named targets](Faithlife.Build/BuildApp/Target.md) with [dependencies](Faithlife.Build/BuildTarget/DependsOn.md), [descriptions](Faithlife.Build/BuildTarget/Describe.md), and [actions](Faithlife.Build/BuildTarget/Does.md)
 * add custom command-line [flags](Faithlife.Build/BuildApp/AddFlag.md) and [options](Faithlife.Build/BuildApp/AddOption.md)
 * run [command-line apps](Faithlife.Build/AppRunner.md) with automatic argument escaping
-* run [.NET Core Global Tools](Faithlife.Build/DotNetTools.md) and/or [classic NuGet packaged tools](Faithlife.Build/DotNetTools.md)
-* run [dotnet commands](Faithlife.Build/DotNetRunner.md) and/or specific versions of [MSBuild](Faithlife.Build/MSBuildRunner.md)
+* run [dotnet commands](Faithlife.Build/DotNetRunner.md)
+* run specific versions of [MSBuild](Faithlife.Build/MSBuildRunner.md)
 * [find files and directories](Faithlife.Build/BuildUtility.md) using [globs](https://github.com/kthompson/glob/)
 * [copy files](Faithlife.Build/BuildUtility/CopyFiles.md) from one directory to another
 * get information about the [build environment](Faithlife.Build/BuildEnvironment.md)
