@@ -480,11 +480,15 @@ namespace Faithlife.Build
 					.Describe("Fixes coding style with JetBrains CleanupCode")
 					.Does(() =>
 					{
-						RunDotNet("jb", "cleanupcode",
-							"--profile=Build",
-							"--verbosity=ERROR",
-							"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
-							GetSolutionName());
+						RunDotNet(
+							new[]
+							{
+								"jb",
+								"cleanupcode",
+								"--profile=Build",
+								"--verbosity=ERROR",
+								"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
+							}.Concat(GetJetBrainsProperties()).Append(GetSolutionName()));
 					});
 
 				build.Target("inspect")
@@ -494,13 +498,17 @@ namespace Faithlife.Build
 					{
 						var outputPath = Path.Combine("release", "inspect.xml");
 
-						RunDotNet("jb", "inspectcode",
-							"--severity=WARNING",
-							"--verbosity=ERROR",
-							"--format=Xml",
-							"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
-							$"--output={outputPath}",
-							GetSolutionName());
+						RunDotNet(
+							new[]
+							{
+								"jb",
+								"inspectcode",
+								"--severity=WARNING",
+								"--verbosity=ERROR",
+								"--format=Xml",
+								"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
+								$"--output={outputPath}",
+							}.Concat(GetJetBrainsProperties()).Append(GetSolutionName()));
 
 						var outputDocument = XDocument.Load(outputPath);
 						var issueElements = outputDocument.XPathSelectElements("//Issue").ToList();
@@ -521,6 +529,14 @@ namespace Faithlife.Build
 					if (solutionNames.Count > 1)
 						throw new BuildException("Multiple solution files found.");
 					return solutionNames[0];
+				}
+
+				IEnumerable<string?> GetJetBrainsProperties()
+				{
+					yield return $"--properties:Configuration={configurationOption!.Value}";
+
+					var platformValue = platformOption!.Value ?? settings!.SolutionPlatform;
+					yield return platformValue == null ? null : $"--properties:Platform={platformValue}";
 				}
 			}
 
