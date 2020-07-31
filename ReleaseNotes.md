@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.1.0
+
+* Add and use `DotNetLocalTool.(Try)Create(From)` and `Any(From)`.
+* Add `IsFrameworkApp` and `UseCmdOnWindows` to `AppRunnerSettings`. Obsolete `RunDotNetFrameworkApp` and `RunCmd`.
+* Use configuration and platform when running JetBrains.
+
 ## 5.0.0
 
 * Default to minimal verbosity.
