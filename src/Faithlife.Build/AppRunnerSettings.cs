@@ -30,6 +30,16 @@ namespace Faithlife.Build
 		public Func<int, bool>? IsExitCodeSuccess { get; set; }
 
 		/// <summary>
+		/// True if Mono is used to run the app on Linux and macOS.
+		/// </summary>
+		public bool IsFrameworkApp { get; set; }
+
+		/// <summary>
+		/// True to run the app via <c>cmd /c</c> on Windows.
+		/// </summary>
+		public bool UseCmdOnWindows { get; set; }
+
+		/// <summary>
 		/// Clones the settings.
 		/// </summary>
 		public AppRunnerSettings Clone()

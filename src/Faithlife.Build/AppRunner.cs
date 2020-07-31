@@ -37,7 +37,7 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="settings">The settings to use when running the app.</param>
 		public static int RunApp(string path, AppRunnerSettings settings) =>
-			DoRunApp(path, settings, useCmdOnWindows: false);
+			DoRunApp(path, settings);
 
 		/// <summary>
 		/// Runs the specified .NET Framework command-line app.
@@ -45,6 +45,7 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
+		[Obsolete("Use AppRunnerSettings.IsFrameworkApp.")]
 		public static void RunDotNetFrameworkApp(string path, params string?[] args) =>
 			RunDotNetFrameworkApp(path, (args ?? throw new ArgumentNullException(nameof(args))).AsEnumerable());
 
@@ -54,8 +55,9 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
+		[Obsolete("Use AppRunnerSettings.IsFrameworkApp.")]
 		public static void RunDotNetFrameworkApp(string path, IEnumerable<string?> args) =>
-			RunDotNetFrameworkApp(path, new AppRunnerSettings { Arguments = args ?? throw new ArgumentNullException(nameof(args)) });
+			RunDotNetFrameworkApp(path, new AppRunnerSettings { Arguments = args ?? throw new ArgumentNullException(nameof(args)), IsFrameworkApp = true });
 
 		/// <summary>
 		/// Runs the specified .NET Framework command-line app.
@@ -63,21 +65,12 @@ namespace Faithlife.Build
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="settings">The settings to use when running the app.</param>
 		/// <remarks>On Linux and macOS, Mono is used to run the app.</remarks>
+		[Obsolete("Use AppRunnerSettings.IsFrameworkApp.")]
 		public static int RunDotNetFrameworkApp(string path, AppRunnerSettings settings)
 		{
-			if (path == null)
-				throw new ArgumentNullException(nameof(path));
-			if (settings == null)
-				throw new ArgumentNullException(nameof(settings));
-
-			if (BuildEnvironment.IsUnix())
-			{
-				settings = settings.Clone();
-				settings.Arguments = new[] { path }.Concat(settings.Arguments ?? Enumerable.Empty<string>()).ToList();
-				path = "mono";
-			}
-
-			return RunApp(path, settings);
+			var clone = (settings ?? throw new ArgumentNullException(nameof(settings))).Clone();
+			clone.IsFrameworkApp = true;
+			return DoRunApp(path, clone);
 		}
 
 		/// <summary>
@@ -85,6 +78,7 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
+		[Obsolete("Use AppRunnerSettings.UseCmdOnWindows.")]
 		public static void RunCmd(string path, params string?[] args) =>
 			RunCmd(path, (args ?? throw new ArgumentNullException(nameof(args))).AsEnumerable());
 
@@ -93,18 +87,24 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="args">The arguments to send to the command-line app.</param>
+		[Obsolete("Use AppRunnerSettings.UseCmdOnWindows.")]
 		public static void RunCmd(string path, IEnumerable<string?> args) =>
-			RunCmd(path, new AppRunnerSettings { Arguments = args ?? throw new ArgumentNullException(nameof(args)) });
+			DoRunApp(path, new AppRunnerSettings { Arguments = args ?? throw new ArgumentNullException(nameof(args)), UseCmdOnWindows = true });
 
 		/// <summary>
 		/// Runs the specified command-line app, via <c>cmd /c</c> on Windows.
 		/// </summary>
 		/// <param name="path">The path of the command-line app.</param>
 		/// <param name="settings">The settings to use when running the app.</param>
-		public static int RunCmd(string path, AppRunnerSettings settings) =>
-			DoRunApp(path, settings, useCmdOnWindows: true);
+		[Obsolete("Use AppRunnerSettings.UseCmdOnWindows.")]
+		public static int RunCmd(string path, AppRunnerSettings settings)
+		{
+			var clone = (settings ?? throw new ArgumentNullException(nameof(settings))).Clone();
+			clone.UseCmdOnWindows = true;
+			return DoRunApp(path, clone);
+		}
 
-		private static int DoRunApp(string path, AppRunnerSettings settings, bool useCmdOnWindows)
+		private static int DoRunApp(string path, AppRunnerSettings settings)
 		{
 			if (path == null)
 				throw new ArgumentNullException(nameof(path));
@@ -114,10 +114,15 @@ namespace Faithlife.Build
 			var arguments = settings.Arguments?.WhereNotNull() ?? Enumerable.Empty<string>();
 			string commandPath;
 			string argsString;
-			if (useCmdOnWindows && BuildEnvironment.IsWindows())
+			if (settings.UseCmdOnWindows && BuildEnvironment.IsWindows())
 			{
 				commandPath = "cmd.exe";
 				argsString = "/S /C \"" + ArgumentEscaper.EscapeAndConcatenate(arguments.Prepend(path)) + "\"";
+			}
+			else if (settings.IsFrameworkApp && BuildEnvironment.IsUnix())
+			{
+				commandPath = "mono";
+				argsString = ArgumentEscaper.EscapeAndConcatenate(arguments.Prepend(path));
 			}
 			else
 			{

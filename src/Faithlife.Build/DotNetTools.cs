@@ -158,7 +158,7 @@ namespace Faithlife.Build
 				args.Add(source);
 			}
 
-			RunDotNetFrameworkApp(m_nugetPath, args);
+			RunApp(m_nugetPath, new AppRunnerSettings { Arguments = args, IsFrameworkApp = true });
 
 			version ??= Directory.GetDirectories(m_directory, $"{package}.*")
 				.Select(x => Path.GetFileName(x)!.Substring(package.Length + 1))
