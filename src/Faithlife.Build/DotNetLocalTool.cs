@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using static Faithlife.Build.DotNetRunner;
 
 namespace Faithlife.Build
@@ -10,6 +12,59 @@ namespace Faithlife.Build
 	/// </summary>
 	public sealed class DotNetLocalTool
 	{
+		/// <summary>
+		/// Accesses a locally installed .NET Core Tool at the specified directory.
+		/// </summary>
+		/// <param name="name">The package name or command name of the tool.</param>
+		/// <exception cref="BuildException">The tool is not installed.</exception>
+		public static DotNetLocalTool Create(string name) => CreateFrom("", name);
+
+		/// <summary>
+		/// Accesses a locally installed .NET Core Tool at the current directory.
+		/// </summary>
+		/// <param name="name">The package name or command name of the tool.</param>
+		/// <returns>Null if the tool is not installed.</returns>
+		public static DotNetLocalTool? TryCreate(string name) => TryCreateFrom("", name);
+
+		/// <summary>
+		/// Accesses a locally installed .NET Core Tool at the specified directory.
+		/// </summary>
+		/// <param name="directory">The directory from which the tool should be run.</param>
+		/// <param name="name">The package name or command name of the tool.</param>
+		/// <exception cref="BuildException">The tool is not installed.</exception>
+		public static DotNetLocalTool CreateFrom(string directory, string name) =>
+			TryCreateFrom(directory, name) ?? throw new BuildException("Tool '{name}' is not installed.");
+
+		/// <summary>
+		/// Accesses a locally installed .NET Core Tool at the specified directory.
+		/// </summary>
+		/// <param name="directory">The directory from which the tool should be run.</param>
+		/// <param name="name">The package name or command name of the tool.</param>
+		/// <returns>Null if the tool is not installed.</returns>
+		public static DotNetLocalTool? TryCreateFrom(string directory, string name)
+		{
+			var allTools = GetDotNetLocalTools(directory);
+			var foundTools = allTools.Where(x => string.Equals(x.Package, name, StringComparison.OrdinalIgnoreCase)).ToList();
+			if (foundTools.Count == 0)
+				foundTools = allTools.Where(x => string.Equals(x.Command, name, StringComparison.OrdinalIgnoreCase)).ToList();
+			if (foundTools.Count == 0)
+				return null;
+			if (foundTools.Count > 1)
+				throw new BuildException($"Multiple tools were found matching '{name}'.");
+			return new DotNetLocalTool(directory, foundTools[0].Command);
+		}
+
+		/// <summary>
+		/// True if there are any locally installed .NET Core tools at the current directory.
+		/// </summary>
+		public static bool Any() => AnyFrom("");
+
+		/// <summary>
+		/// True if there are any locally installed .NET Core tools at the specified directory.
+		/// </summary>
+		/// <param name="directory">The directory from which the tool would be run.</param>
+		public static bool AnyFrom(string directory) => GetDotNetLocalTools(directory).Any();
+
 		/// <summary>
 		/// Runs the local tool with the specified arguments.
 		/// </summary>
@@ -38,7 +93,7 @@ namespace Faithlife.Build
 				throw new ArgumentNullException(nameof(settings));
 
 			if (settings.WorkingDirectory != null)
-				throw new ArgumentException("WorkingDirectory not supported for local tools.", nameof(settings));
+				throw new ArgumentException($"{nameof(settings.WorkingDirectory)} not supported for local tools.", nameof(settings));
 
 			settings = settings.Clone();
 			settings.Arguments = new[] { "tool", "run", m_name, "--" }.Concat(settings.Arguments ?? Enumerable.Empty<string>());
@@ -51,6 +106,38 @@ namespace Faithlife.Build
 		{
 			m_directory = directory;
 			m_name = name;
+		}
+
+		private static IReadOnlyList<(string Package, string Command)> GetDotNetLocalTools(string directory)
+		{
+			var manifestPath = TryGetDotNetLocalToolManifestPath(directory);
+			if (manifestPath is null)
+				return Array.Empty<(string, string)>();
+
+			return JsonDocument.Parse(File.ReadAllText(manifestPath))
+				.RootElement
+				.GetProperty("tools")
+				.EnumerateObject()
+				.SelectMany(tool => tool.Value.GetProperty("commands").EnumerateArray().Select(x => (tool.Name, x.GetString())))
+				.ToList();
+		}
+
+		private static string? TryGetDotNetLocalToolManifestPath(string directory)
+		{
+			while (true)
+			{
+				var configPath = Path.Combine(directory, ".config", "dotnet-tools.json");
+				if (File.Exists(configPath))
+					return configPath;
+
+				var rootPath = Path.Combine(directory, "dotnet-tools.json");
+				if (File.Exists(rootPath))
+					return rootPath;
+
+				directory = Path.GetDirectoryName(directory);
+				if (directory is null)
+					return null;
+			}
 		}
 
 		private readonly string m_directory;

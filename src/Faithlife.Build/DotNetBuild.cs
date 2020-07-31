@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
@@ -59,7 +58,6 @@ namespace Faithlife.Build
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
-			var localDotNetToolVersions = GetLocalDotNetToolVersions();
 
 			var packagePaths = new List<string>();
 			string? trigger = null;
@@ -93,7 +91,7 @@ namespace Faithlife.Build
 					else
 						MSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
 
-					if (localDotNetToolVersions.Count != 0)
+					if (DotNetLocalTool.Any())
 						RunDotNet("tool", "restore");
 				});
 
@@ -351,11 +349,11 @@ namespace Faithlife.Build
 
 								if (assemblyPaths.Count != 0)
 								{
-									if (localDotNetToolVersions.ContainsKey("xmldocmd"))
+									if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
 									{
 										foreach (var assemblyPath in assemblyPaths)
 										{
-											RunDotNetTool("xmldocmd", assemblyPath,
+											xmldocmd.Run(assemblyPath,
 												Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
 												"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
 										}
@@ -462,28 +460,27 @@ namespace Faithlife.Build
 					}
 				});
 
-			if (localDotNetToolVersions.ContainsKey("dotnet-format"))
+			if (DotNetLocalTool.TryCreate("dotnet-format") is DotNetLocalTool dotnetFormat)
 			{
 				build.Target("format")
 					.DependsOn("restore")
 					.Describe("Fixes coding style with dotnet-format")
 					.Does(() =>
 					{
-						RunDotNet("dotnet-format", "--verbosity", GetVerbosity());
+						dotnetFormat.Run("--verbosity", GetVerbosity());
 					});
 			}
 
-			if (localDotNetToolVersions.ContainsKey("jetbrains.resharper.globaltools"))
+			if (DotNetLocalTool.TryCreate("jetbrains.resharper.globaltools") is DotNetLocalTool jb)
 			{
 				build.Target("cleanup")
 					.DependsOn("restore")
 					.Describe("Fixes coding style with JetBrains CleanupCode")
 					.Does(() =>
 					{
-						RunDotNet(
+						jb.Run(
 							new[]
 							{
-								"jb",
 								"cleanupcode",
 								"--profile=Build",
 								"--verbosity=ERROR",
@@ -498,10 +495,9 @@ namespace Faithlife.Build
 					{
 						var outputPath = Path.Combine("release", "inspect.xml");
 
-						RunDotNet(
+						jb.Run(
 							new[]
 							{
-								"jb",
 								"inspectcode",
 								"--severity=WARNING",
 								"--verbosity=ERROR",
@@ -584,20 +580,6 @@ namespace Faithlife.Build
 						{
 						}
 					});
-			}
-
-			IReadOnlyDictionary<string, string> GetLocalDotNetToolVersions()
-			{
-				var manifestPaths = new[] { "dotnet-tools.json", Path.Combine(".config", "dotnet-tools.json") }.Where(File.Exists).ToList();
-				if (manifestPaths.Count > 1)
-					throw new BuildException($"Multiple .NET local tool manifests: {string.Join(", ", manifestPaths)}");
-				if (manifestPaths.Count == 0)
-					return new Dictionary<string, string>();
-
-				return JsonDocument.Parse(File.ReadAllText(manifestPaths[0])).RootElement
-					.GetProperty("tools")
-					.EnumerateObject()
-					.ToDictionary(x => x.Name, x => x.Value.GetProperty("version").GetString(), StringComparer.OrdinalIgnoreCase);
 			}
 
 			string GetVerbosity()
