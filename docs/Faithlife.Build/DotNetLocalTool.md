@@ -10,7 +10,13 @@ public sealed class DotNetLocalTool
 
 | name | description |
 | --- | --- |
+| static [Create](DotNetLocalTool/Create.md)(…) | Accesses a locally installed .NET Core Tool at the specified directory. |
+| static [CreateFrom](DotNetLocalTool/CreateFrom.md)(…) | Accesses a locally installed .NET Core Tool at the specified directory. |
+| static [TryCreate](DotNetLocalTool/TryCreate.md)(…) | Accesses a locally installed .NET Core Tool at the current directory. |
+| static [TryCreateFrom](DotNetLocalTool/TryCreateFrom.md)(…) | Accesses a locally installed .NET Core Tool at the specified directory. |
 | [Run](DotNetLocalTool/Run.md)(…) | Runs the local tool with the specified arguments. (3 methods) |
+| static [Any](DotNetLocalTool/Any.md)() | True if there are any locally installed .NET Core tools at the current directory. |
+| static [AnyFrom](DotNetLocalTool/AnyFrom.md)(…) | True if there are any locally installed .NET Core tools at the specified directory. |
 
 ## See Also
 

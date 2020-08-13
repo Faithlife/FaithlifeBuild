@@ -13,7 +13,9 @@ public sealed class AppRunnerSettings
 | [AppRunnerSettings](AppRunnerSettings/AppRunnerSettings.md)() | The default constructor. |
 | [Arguments](AppRunnerSettings/Arguments.md) { get; set; } | The arguments to pass to the app. |
 | [IsExitCodeSuccess](AppRunnerSettings/IsExitCodeSuccess.md) { get; set; } | Called to determine if the exit code is successful; it if isn't, an exception is thrown. |
+| [IsFrameworkApp](AppRunnerSettings/IsFrameworkApp.md) { get; set; } | True if Mono is used to run the app on Linux and macOS. |
 | [NoEcho](AppRunnerSettings/NoEcho.md) { get; set; } | True if the process information should not be written to standard error. |
+| [UseCmdOnWindows](AppRunnerSettings/UseCmdOnWindows.md) { get; set; } | True to run the app via `cmd /c` on Windows. |
 | [WorkingDirectory](AppRunnerSettings/WorkingDirectory.md) { get; set; } | The working directory from which to run the app. |
 | [Clone](AppRunnerSettings/Clone.md)() | Clones the settings. |
 
