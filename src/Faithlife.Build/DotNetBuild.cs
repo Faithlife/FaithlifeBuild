@@ -179,7 +179,7 @@ namespace Faithlife.Build
 						versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
 
 					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value!);
-					var tempOutputPath = Path.Combine(nugetOutputPath, $"temp_{Guid.NewGuid():N}");
+					var tempOutputPath = Path.Combine(nugetOutputPath, Path.GetRandomFileName());
 
 					var packageProjects = new List<string?>();
 
