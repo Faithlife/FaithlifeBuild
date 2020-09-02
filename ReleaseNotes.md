@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.1.1
+
+* Refuse to auto-publish NuGet package with version `0.0.0`.
+
 ## 5.1.0
 
 * Add and use `DotNetLocalTool.(Try)Create(From)` and `Any(From)`.
