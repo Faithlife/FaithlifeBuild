@@ -244,7 +244,16 @@ namespace Faithlife.Build
 					if (packagePaths.Count == 0)
 						throw new BuildException("No NuGet packages found.");
 
-					trigger ??= "publish-all";
+					if (trigger is null)
+					{
+						if (packagePaths.Any(x => GetPackageInfo(x).Version == "0.0.0"))
+						{
+							Console.WriteLine("Not publishing package with version 0.0.0. Change package version to publish.");
+							return;
+						}
+
+						trigger = "publish-all";
+					}
 
 					var triggerParts = trigger.Split('-');
 					var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
