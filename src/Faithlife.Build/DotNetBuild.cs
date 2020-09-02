@@ -229,6 +229,7 @@ namespace Faithlife.Build
 							File.Delete(packagePath);
 						File.Move(tempPackagePath, packagePath);
 						packagePaths.Add(packagePath);
+						Console.WriteLine($"NuGet package: {packagePath}");
 					}
 					DeleteDirectory(tempOutputPath);
 
