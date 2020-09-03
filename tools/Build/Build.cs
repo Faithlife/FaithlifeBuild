@@ -9,14 +9,11 @@ internal static class Build
 			new DotNetBuildSettings
 			{
 				NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
-#if false
 				DocsSettings = new DotNetDocsSettings
 				{
 					GitLogin = new GitLoginInfo("faithlifebuildbot", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD") ?? ""),
 					GitAuthor = new GitAuthorInfo("Faithlife Build Bot", "faithlifebuildbot@users.noreply.github.com"),
-					SourceCodeUrl = "https://github.com/Faithlife/FaithlifeBuild/tree/master/src",
 				},
-#endif
 			});
 	});
 }
