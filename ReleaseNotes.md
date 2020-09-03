@@ -1,8 +1,11 @@
 # Release Notes
 
-## 5.1.1
+## 5.2.0
 
+* Support `XmlDocGen` for generating docs.
 * Refuse to auto-publish NuGet package with version `0.0.0`.
+* Use shorter temp path for NuGet packages.
+* Write actual NuGet package path to console.
 
 ## 5.1.0
 
