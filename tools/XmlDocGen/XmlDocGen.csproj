@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Faithlife.Build\Faithlife.Build.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="XmlDocMarkdown.Core" Version="2.2.0" />
+  </ItemGroup>
+
+</Project>

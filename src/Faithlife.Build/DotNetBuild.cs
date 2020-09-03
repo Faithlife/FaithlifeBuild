@@ -342,53 +342,62 @@ namespace Faithlife.Build
 								gitBranchName = branch.FriendlyName;
 							}
 
-							var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
-							foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
-							{
-								var assemblyPaths = new List<string>();
-								if (docsSettings.FindAssemblies != null)
-								{
-									assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
-								}
-								else
-								{
-									var assemblyPath = (docsSettings.FindAssembly ?? FindAssembly)(projectName);
-									if (assemblyPath != null)
-										assemblyPaths.Add(assemblyPath);
-								}
+							var docsPath = Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs");
 
-								if (assemblyPaths.Count != 0)
+							var xmlDocGenProject = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
+							if (xmlDocGenProject != null)
+							{
+								RunDotNet("publish", xmlDocGenProject, "--output", Path.Combine("tools", "bin", "XmlDocGen"), "--nologo", "--verbosity", "quiet");
+								RunDotNet(Path.Combine("tools", "bin", "XmlDocGen", "XmlDocGen.dll"), docsPath);
+							}
+							else
+							{
+								var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
+								foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
 								{
-									if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
+									var assemblyPaths = new List<string>();
+									if (docsSettings.FindAssemblies != null)
 									{
-										foreach (var assemblyPath in assemblyPaths)
+										assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
+									}
+									else
+									{
+										var assemblyPath = (docsSettings.FindAssembly ?? FindAssembly)(projectName);
+										if (assemblyPath != null)
+											assemblyPaths.Add(assemblyPath);
+									}
+
+									if (assemblyPaths.Count != 0)
+									{
+										if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
 										{
-											xmldocmd.Run(assemblyPath,
-												Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
-												"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+											foreach (var assemblyPath in assemblyPaths)
+											{
+												xmldocmd.Run(assemblyPath, docsPath,
+													"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+											}
+										}
+										else
+										{
+											var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
+											var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
+
+											foreach (var assemblyPath in assemblyPaths)
+											{
+												RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath, docsPath,
+													"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
+											}
 										}
 									}
 									else
 									{
-										var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
-										var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
-
-										foreach (var assemblyPath in assemblyPaths)
-										{
-											RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), assemblyPath,
-												Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs"),
-												"--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean");
-										}
+										Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
 									}
-								}
-								else
-								{
-									Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
-								}
 
-								static string FindAssembly(string name) =>
-									FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
-									FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+									static string? FindAssembly(string name) =>
+										FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
+										FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+								}
 							}
 
 							shouldPushDocs = repository.RetrieveStatus().IsDirty;
@@ -641,7 +650,7 @@ namespace Faithlife.Build
 			return (int.Parse(dotParts[0], CultureInfo.InvariantCulture), int.Parse(dotParts[1], CultureInfo.InvariantCulture), int.Parse(dotParts[2], CultureInfo.InvariantCulture), hyphenParts.ElementAtOrDefault(1));
 		}
 
-		private static string GetBestTriggerFromTags(IReadOnlyList<string> tags) =>
+		private static string? GetBestTriggerFromTags(IReadOnlyList<string> tags) =>
 			tags
 				.Select(x => (Tag: x, Version: GetVersionFromTrigger(x)))
 				.Where(x => x.Version != null)

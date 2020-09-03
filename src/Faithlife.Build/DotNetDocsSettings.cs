@@ -46,7 +46,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Called to find the assembly for the specified project.
 		/// </summary>
-		public Func<string, string>? FindAssembly { get; set; }
+		public Func<string, string?>? FindAssembly { get; set; }
 
 		/// <summary>
 		/// Called to find multiple assemblies for the specified project.
