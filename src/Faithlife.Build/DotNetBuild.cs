@@ -400,7 +400,7 @@ namespace Faithlife.Build
 								}
 
 								string?[] GetXmlDocArgs(string input) =>
-									new[] { input, docsPath, "--source", $"{docsSettings.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean" };
+									new[] { input, docsPath, "--source", $"{docsSettings!.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean" };
 							}
 
 							shouldPushDocs = repository.RetrieveStatus().IsDirty;
