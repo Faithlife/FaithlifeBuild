@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.2.2
+
+* Fix bug when calling `DotNetLocalTool.Any`.
+
 ## 5.2.1
 
 * Fix bug when looking for `dotnet-tools.json`.

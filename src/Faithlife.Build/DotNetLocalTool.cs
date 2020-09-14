@@ -57,7 +57,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// True if there are any locally installed .NET Core tools at the current directory.
 		/// </summary>
-		public static bool Any() => AnyFrom("");
+		public static bool Any() => AnyFrom(".");
 
 		/// <summary>
 		/// True if there are any locally installed .NET Core tools at the specified directory.
