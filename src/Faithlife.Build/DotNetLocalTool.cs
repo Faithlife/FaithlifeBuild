@@ -17,14 +17,14 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="name">The package name or command name of the tool.</param>
 		/// <exception cref="BuildException">The tool is not installed.</exception>
-		public static DotNetLocalTool Create(string name) => CreateFrom("", name);
+		public static DotNetLocalTool Create(string name) => CreateFrom(".", name);
 
 		/// <summary>
 		/// Accesses a locally installed .NET Core Tool at the current directory.
 		/// </summary>
 		/// <param name="name">The package name or command name of the tool.</param>
 		/// <returns>Null if the tool is not installed.</returns>
-		public static DotNetLocalTool? TryCreate(string name) => TryCreateFrom("", name);
+		public static DotNetLocalTool? TryCreate(string name) => TryCreateFrom(".", name);
 
 		/// <summary>
 		/// Accesses a locally installed .NET Core Tool at the specified directory.
@@ -110,7 +110,7 @@ namespace Faithlife.Build
 
 		private static IReadOnlyList<(string Package, string Command)> GetDotNetLocalTools(string directory)
 		{
-			var manifestPath = TryGetDotNetLocalToolManifestPath(directory);
+			var manifestPath = TryGetDotNetLocalToolManifestPath(Path.GetFullPath(directory));
 			if (manifestPath is null)
 				return Array.Empty<(string, string)>();
 
@@ -134,9 +134,10 @@ namespace Faithlife.Build
 				if (File.Exists(rootPath))
 					return rootPath;
 
-				directory = Path.GetDirectoryName(directory);
-				if (directory is null)
+				var parent = Path.GetDirectoryName(directory);
+				if (parent is null)
 					return null;
+				directory = parent;
 			}
 		}
 

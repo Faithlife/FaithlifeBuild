@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.2.1
+
+* Fix bug when looking for `dotnet-tools.json`.
+
 ## 5.2.0
 
 * Support `XmlDocGen` for generating docs.
