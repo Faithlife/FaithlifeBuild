@@ -30,7 +30,8 @@ namespace Faithlife.Build
 			initialize(buildApp);
 
 			var dryRunFlag = buildApp.AddFlag("-n|--dry-run", "Don't execute target actions");
-			var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run target dependencies");
+			var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run any target dependencies");
+			var skipOption = buildApp.AddOption("--skip <targets>", "Skip the comma-delimited target dependencies");
 			var noColorFlag = buildApp.AddFlag("--no-color", "Disable color output");
 			var showTreeFlag = buildApp.AddFlag("--show-tree", "Show the dependency tree");
 			var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
@@ -42,10 +43,37 @@ namespace Faithlife.Build
 
 			commandLineApp.OnExecute(() =>
 			{
-				var bullseyeArgs = targetsArgument.Values.ToList();
+				var bullseyeArgs = targetsArgument.Values.WhereNotNull().ToList();
 
 				if (bullseyeArgs.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
 					bullseyeArgs.Add(c_defaultTarget);
+
+				var skipDependencies = skipDependenciesFlag.Value;
+				if (skipOption.Value is not null && !skipDependencies)
+				{
+					var skipTargetNames = new HashSet<string>(skipOption.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+					skipDependencies = true;
+
+					var targetNames = new HashSet<string>(bullseyeArgs);
+					foreach (var targetName in bullseyeArgs.ToList())
+					{
+						var target = buildApp.Targets.FirstOrDefault(x => x.Name == targetName);
+						if (target is not null)
+							AddTargetDependencies(target);
+					}
+
+					void AddTargetDependencies(BuildTarget child)
+					{
+						foreach (var parent in child.Dependencies.Select(name => buildApp.Targets.FirstOrDefault(x => x.Name == name)).WhereNotNull())
+						{
+							if (!skipTargetNames.Contains(parent.Name) && targetNames.Add(parent.Name))
+							{
+								bullseyeArgs.Add(parent.Name);
+								AddTargetDependencies(parent);
+							}
+						}
+					}
+				}
 
 				if (helpFlag.Value || (bullseyeArgs.Count == 0 && !showTreeFlag.Value))
 				{
@@ -56,7 +84,7 @@ namespace Faithlife.Build
 				{
 					if (noColorFlag.Value)
 						bullseyeArgs.Add("--no-color");
-					if (skipDependenciesFlag.Value)
+					if (skipDependencies)
 						bullseyeArgs.Add("--skip-dependencies");
 					if (showTreeFlag.Value)
 						bullseyeArgs.Add("--list-tree");
