@@ -44,5 +44,10 @@ namespace Faithlife.Build
 		/// The "no test" flag.
 		/// </summary>
 		public BuildFlag? NoTestFlag { get; set; }
+
+		/// <summary>
+		/// Whether a build summary should be shown.
+		/// </summary>
+		public BuildFlag? ShowSummaryFlag { get; set; }
 	}
 }

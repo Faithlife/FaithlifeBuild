@@ -54,6 +54,8 @@ namespace Faithlife.Build
 				build.AddOption("--build-number <number>", "The automated build number"));
 			var noTestFlag = buildOptions.NoTestFlag ?? (buildOptions.NoTestFlag =
 				build.AddFlag("--no-test", "Skip the unit tests"));
+			var showSummaryFlag = buildOptions.ShowSummaryFlag ?? (buildOptions.ShowSummaryFlag =
+				build.AddFlag("--show-summary", "Show the build summary"));
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
@@ -101,13 +103,13 @@ namespace Faithlife.Build
 				.Does(() =>
 				{
 					var buildNumberArg = GetBuildNumberArg();
-
+					var consoleLoggerParameters = $"-clp:{string.Join(",", GetConsoleLoggerParameters())}";
 					var verbosity = GetVerbosity();
 					var extraProperties = GetExtraProperties("build");
 					if (msbuildSettings == null)
-						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, GetPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, GetPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, GetMaxCpuCountArg(), consoleLoggerParameters }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), buildNumberArg, $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), buildNumberArg, $"-v:{verbosity}", GetMaxCpuCountArg(), consoleLoggerParameters }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -575,6 +577,12 @@ namespace Faithlife.Build
 					Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
 				return buildNumberValue == null ? null : $"-p:BuildNumber={buildNumberValue}";
 			}
+
+			IReadOnlyList<string> GetConsoleLoggerParameters() =>
+				new[]
+				{
+					showSummaryFlag.Value ? "Summary" : "NoSummary",
+				};
 
 			IEnumerable<string> GetExtraProperties(string target)
 			{
