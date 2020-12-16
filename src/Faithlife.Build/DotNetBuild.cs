@@ -59,7 +59,7 @@ namespace Faithlife.Build
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
 			var msbuildSettings = settings.MSBuildSettings;
 
-			var packagePaths = new List<string>();
+			IReadOnlyList<string>? packagePaths = default;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -157,76 +157,88 @@ namespace Faithlife.Build
 				.Describe("Builds NuGet packages")
 				.Does(() =>
 				{
-					var (trigger, _) = GetTrigger();
-
-					var versionSuffix = versionSuffixOption.Value;
-					if (versionSuffix == null && trigger != null)
-						versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
-
-					var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value!);
-					var tempOutputPath = Path.Combine(nugetOutputPath, Path.GetRandomFileName());
-
-					var packageProjects = new List<string?>();
-
-					var findPackageProjects = settings.PackageSettings?.FindProjects;
-					if (findPackageProjects != null)
-						packageProjects.AddRange(findPackageProjects());
-					else
-						packageProjects.Add(solutionName);
-
-					var extraProperties = GetExtraProperties("package").ToList();
-					foreach (var packageProject in packageProjects)
-					{
-						if (msbuildSettings == null)
-						{
-							RunDotNet(new[]
-							{
-								"pack", packageProject,
-								"-c", configurationOption.Value,
-								GetPlatformArg(),
-								"--no-build",
-								"--output", tempOutputPath,
-								versionSuffix != null ? "--version-suffix" : null, versionSuffix,
-								GetMaxCpuCountArg(),
-							}.Concat(extraProperties));
-						}
-						else
-						{
-							MSBuild(new[]
-							{
-								packageProject, "-t:Pack",
-								$"-p:Configuration={configurationOption.Value}",
-								GetPlatformArg(),
-								"-p:NoBuild=true",
-								$"-p:PackageOutputPath={tempOutputPath}",
-								versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
-								$"-v:{GetVerbosity()}",
-								GetMaxCpuCountArg(),
-							}.Concat(extraProperties));
-						}
-					}
-
-					var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
-					foreach (var tempPackagePath in tempPackagePaths)
-					{
-						var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath) ?? throw new InvalidOperationException());
-						if (File.Exists(packagePath))
-							File.Delete(packagePath);
-						File.Move(tempPackagePath, packagePath);
-						packagePaths.Add(packagePath);
-						Console.WriteLine($"NuGet package: {packagePath}");
-					}
-					DeleteDirectory(tempOutputPath);
-
-					if (packagePaths.Count == 0)
-						throw new BuildException("No NuGet packages created.");
+					packagePaths = BuildNuGetPackages();
 				});
+
+			IReadOnlyList<string> BuildNuGetPackages()
+			{
+				var (trigger, _) = GetTrigger();
+
+				var versionSuffix = versionSuffixOption.Value;
+				if (versionSuffix == null && trigger != null)
+					versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
+
+				var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value!);
+				var tempOutputPath = Path.Combine(nugetOutputPath, Path.GetRandomFileName());
+
+				var packageProjects = new List<string?>();
+
+				var findPackageProjects = settings.PackageSettings?.FindProjects;
+				if (findPackageProjects != null)
+					packageProjects.AddRange(findPackageProjects());
+				else
+					packageProjects.Add(solutionName);
+
+				var extraProperties = GetExtraProperties("package").ToList();
+				foreach (var packageProject in packageProjects)
+				{
+					if (msbuildSettings == null)
+					{
+						RunDotNet(new[]
+						{
+							"pack", packageProject,
+							"-c", configurationOption.Value,
+							GetPlatformArg(),
+							"--no-build",
+							"--output", tempOutputPath,
+							versionSuffix != null ? "--version-suffix" : null, versionSuffix,
+							GetMaxCpuCountArg(),
+						}.Concat(extraProperties));
+					}
+					else
+					{
+						MSBuild(new[]
+						{
+							packageProject, "-t:Pack",
+							$"-p:Configuration={configurationOption.Value}",
+							GetPlatformArg(),
+							"-p:NoBuild=true",
+							$"-p:PackageOutputPath={tempOutputPath}",
+							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
+							$"-v:{GetVerbosity()}",
+							GetMaxCpuCountArg(),
+						}.Concat(extraProperties));
+					}
+				}
+
+				var createdPackagePaths = new List<string>();
+
+				var tempPackagePaths = FindFilesFrom(tempOutputPath, "*.nupkg");
+				foreach (var tempPackagePath in tempPackagePaths)
+				{
+					var packagePath = Path.Combine(nugetOutputPath, Path.GetFileName(tempPackagePath) ?? throw new InvalidOperationException());
+					if (File.Exists(packagePath))
+						File.Delete(packagePath);
+					File.Move(tempPackagePath, packagePath);
+					createdPackagePaths.Add(packagePath);
+					Console.WriteLine($"NuGet package: {packagePath}");
+				}
+				DeleteDirectory(tempOutputPath);
+
+				if (createdPackagePaths.Count == 0)
+					throw new BuildException("No NuGet packages created.");
+
+				return createdPackagePaths;
+			}
 
 			build.Target("publish")
 				.Describe("Publishes NuGet packages and documentation")
 				.DependsOn("package")
 				.Does(() =>
 				{
+					// we must build the packages to identify them
+					packagePaths ??= BuildNuGetPackages();
+
 					if (packagePaths.Count == 0)
 						throw new BuildException("No NuGet packages found.");
 
@@ -409,6 +421,7 @@ namespace Faithlife.Build
 									.Select(x => x.GetResourceAsync<DependencyInfoResource>().GetAwaiter().GetResult())
 									.ToList();
 
+								var alreadyPushedPackages = new List<string>();
 								foreach (var packagePath in packagePaths.ToList())
 								{
 									var (packageName, packageVersion, _) = GetPackageInfo(packagePath);
@@ -421,11 +434,14 @@ namespace Faithlife.Build
 										if (dependencyInfo != null)
 										{
 											Console.WriteLine($"Package already pushed: {packageName} {packageVersion}");
-											packagePaths.Remove(packagePath);
+											alreadyPushedPackages.Add(packagePath);
 											break;
 										}
 									}
 								}
+
+								if (alreadyPushedPackages.Count != 0)
+									packagePaths = packagePaths.Except(alreadyPushedPackages).ToList();
 							}
 
 							foreach (var packagePath in packagePaths)
