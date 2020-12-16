@@ -60,8 +60,6 @@ namespace Faithlife.Build
 			var msbuildSettings = settings.MSBuildSettings;
 
 			var packagePaths = new List<string>();
-			string? trigger = null;
-			var ignoreIfAlreadyPushed = false;
 
 			build.Target("clean")
 				.Describe("Deletes all build output")
@@ -159,20 +157,7 @@ namespace Faithlife.Build
 				.Describe("Builds NuGet packages")
 				.Does(() =>
 				{
-					trigger = triggerOption.Value;
-
-					if (trigger == "detect")
-					{
-						using var repository = new Repository(".");
-						var headSha = repository.Head.Tip.Sha;
-						var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
-						if (autoTrigger != null)
-						{
-							trigger = autoTrigger;
-							ignoreIfAlreadyPushed = true;
-							Console.WriteLine($"Detected trigger: {trigger}");
-						}
-					}
+					var (trigger, _) = GetTrigger();
 
 					var versionSuffix = versionSuffixOption.Value;
 					if (versionSuffix == null && trigger != null)
@@ -244,6 +229,8 @@ namespace Faithlife.Build
 				{
 					if (packagePaths.Count == 0)
 						throw new BuildException("No NuGet packages found.");
+
+					var (trigger, triggerAutoDetected) = GetTrigger();
 
 					if (trigger is null)
 					{
@@ -412,7 +399,7 @@ namespace Faithlife.Build
 							if (string.IsNullOrEmpty(nugetApiKey))
 								throw new BuildException("NuGetApiKey required to publish.");
 
-							if (ignoreIfAlreadyPushed)
+							if (triggerAutoDetected)
 							{
 								var nugetSettings = Settings.LoadDefaultSettings(root: null);
 								var packageSourceProvider = new PackageSourceProvider(nugetSettings);
@@ -631,6 +618,25 @@ namespace Faithlife.Build
 					DotNetBuildVerbosity.Diagnostic => "diagnostic",
 					_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {settings!.Verbosity}"),
 				};
+			}
+
+			(string? Trigger, bool AutoDetected) GetTrigger()
+			{
+				var trigger = triggerOption.Value;
+
+				if (trigger == "detect")
+				{
+					using var repository = new Repository(".");
+					var headSha = repository.Head.Tip.Sha;
+					var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
+					if (autoTrigger != null)
+					{
+						Console.WriteLine($"Detected trigger: {trigger}");
+						return (autoTrigger, true);
+					}
+				}
+
+				return (trigger, false);
 			}
 		}
 
