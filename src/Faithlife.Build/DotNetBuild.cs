@@ -160,6 +160,25 @@ namespace Faithlife.Build
 					packagePaths = BuildNuGetPackages();
 				});
 
+			(string? Trigger, bool AutoDetected) GetTrigger()
+			{
+				var trigger = triggerOption.Value;
+
+				if (trigger == "detect")
+				{
+					using var repository = new Repository(".");
+					var headSha = repository.Head.Tip.Sha;
+					var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
+					if (autoTrigger != null)
+					{
+						Console.WriteLine($"Detected trigger: {trigger}");
+						return (autoTrigger, true);
+					}
+				}
+
+				return (trigger, false);
+			}
+
 			IReadOnlyList<string> BuildNuGetPackages()
 			{
 				var (trigger, _) = GetTrigger();
@@ -634,25 +653,6 @@ namespace Faithlife.Build
 					DotNetBuildVerbosity.Diagnostic => "diagnostic",
 					_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {settings!.Verbosity}"),
 				};
-			}
-
-			(string? Trigger, bool AutoDetected) GetTrigger()
-			{
-				var trigger = triggerOption.Value;
-
-				if (trigger == "detect")
-				{
-					using var repository = new Repository(".");
-					var headSha = repository.Head.Tip.Sha;
-					var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
-					if (autoTrigger != null)
-					{
-						Console.WriteLine($"Detected trigger: {trigger}");
-						return (autoTrigger, true);
-					}
-				}
-
-				return (trigger, false);
 			}
 		}
 
