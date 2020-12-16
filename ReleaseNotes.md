@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.3.0
+
+* Support `--skip <targets>`.
+
 ## 5.2.2
 
 * Fix bug when calling `DotNetLocalTool.Any`.
