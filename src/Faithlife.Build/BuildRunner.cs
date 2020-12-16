@@ -30,7 +30,8 @@ namespace Faithlife.Build
 			initialize(buildApp);
 
 			var dryRunFlag = buildApp.AddFlag("-n|--dry-run", "Don't execute target actions");
-			var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run target dependencies");
+			var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run any target dependencies");
+			var skipOption = buildApp.AddOption("--skip <targets>", "Skip the comma-delimited target dependencies");
 			var noColorFlag = buildApp.AddFlag("--no-color", "Disable color output");
 			var showTreeFlag = buildApp.AddFlag("--show-tree", "Show the dependency tree");
 			var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
@@ -42,21 +43,50 @@ namespace Faithlife.Build
 
 			commandLineApp.OnExecute(() =>
 			{
-				var bullseyeArgs = targetsArgument.Values.ToList();
+				var targetNames = targetsArgument.Values.WhereNotNull().ToList();
 
-				if (bullseyeArgs.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
-					bullseyeArgs.Add(c_defaultTarget);
+				if (targetNames.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
+					targetNames.Add(c_defaultTarget);
 
-				if (helpFlag.Value || (bullseyeArgs.Count == 0 && !showTreeFlag.Value))
+				var skipDependencies = skipDependenciesFlag.Value;
+				if (skipOption.Value is not null && !skipDependencies)
+				{
+					var skipTargetNames = new HashSet<string>(skipOption.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+					var targetNamesWithDependencies = new List<string>();
+
+					void AddTargetAndDependencies(BuildTarget target)
+					{
+						if (!skipTargetNames.Contains(target.Name) && !targetNamesWithDependencies.Contains(target.Name))
+						{
+							foreach (var dependency in target.Dependencies.Select(name => buildApp.Targets.FirstOrDefault(x => x.Name == name)).WhereNotNull())
+								AddTargetAndDependencies(dependency);
+
+							targetNamesWithDependencies.Add(target.Name);
+						}
+					}
+
+					foreach (var targetName in targetNames)
+					{
+						var target = buildApp.Targets.FirstOrDefault(x => x.Name == targetName);
+						if (target is not null)
+							AddTargetAndDependencies(target);
+					}
+
+					targetNames = targetNamesWithDependencies;
+					skipDependencies = true;
+				}
+
+				if (helpFlag.Value || (targetNames.Count == 0 && !showTreeFlag.Value))
 				{
 					commandLineApp.ShowHelp(usePager: false);
 					ShowTargets(buildApp.Targets);
 				}
 				else
 				{
+					var bullseyeArgs = targetNames.ToList();
 					if (noColorFlag.Value)
 						bullseyeArgs.Add("--no-color");
-					if (skipDependenciesFlag.Value)
+					if (skipDependencies)
 						bullseyeArgs.Add("--skip-dependencies");
 					if (showTreeFlag.Value)
 						bullseyeArgs.Add("--list-tree");
