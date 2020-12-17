@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.3.1
+
+* Allow target `publish` to work if `package` is skipped.
+
 ## 5.3.0
 
 * Support `--skip <targets>`.

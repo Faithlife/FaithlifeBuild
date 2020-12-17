@@ -32,4 +32,4 @@ jobs:
       env:
         BUILD_BOT_PASSWORD: ${{ secrets.BUILD_BOT_PASSWORD }}
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: .\build.ps1 publish --skip package
+      run: .\build.ps1 publish
