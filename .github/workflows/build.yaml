@@ -25,7 +25,6 @@ jobs:
       with:
         dotnet-version: 5.0.100
     - name: Build
-      if: runner.os == 'Windows'
       run: .\build.ps1 package
       shell: pwsh
     - name: Publish
