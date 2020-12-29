@@ -80,13 +80,15 @@ namespace Faithlife.Build
 		/// </summary>
 		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="args">The arguments, if any.</param>
-		public static void RunMSBuild(MSBuildSettings? settings, IEnumerable<string?> args) => RunApp(GetMSBuildPath(settings), args);
+		public static void RunMSBuild(MSBuildSettings? settings, IEnumerable<string?> args) =>
+			RunApp(GetMSBuildPath(settings), args);
 
 		/// <summary>
 		/// Runs MSBuild with the specified settings.
 		/// </summary>
 		/// <param name="settings">The MSBuild settings.</param>
 		/// <param name="runnerSettings">The settings to use when running the app.</param>
-		public static int RunMSBuild(MSBuildSettings? settings, AppRunnerSettings runnerSettings) => RunApp(GetMSBuildPath(settings), runnerSettings);
+		public static int RunMSBuild(MSBuildSettings? settings, AppRunnerSettings runnerSettings) =>
+			RunApp(GetMSBuildPath(settings), runnerSettings ?? throw new ArgumentNullException(nameof(runnerSettings)));
 	}
 }
