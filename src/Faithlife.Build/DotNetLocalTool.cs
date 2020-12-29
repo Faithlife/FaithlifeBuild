@@ -118,7 +118,7 @@ namespace Faithlife.Build
 				.RootElement
 				.GetProperty("tools")
 				.EnumerateObject()
-				.SelectMany(tool => tool.Value.GetProperty("commands").EnumerateArray().Select(x => (tool.Name, x.GetString())))
+				.SelectMany(tool => tool.Value.GetProperty("commands").EnumerateArray().Select(x => (tool.Name, x.GetString()!)))
 				.ToList();
 		}
 
