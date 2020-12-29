@@ -128,7 +128,7 @@ namespace Faithlife.Build
 								if (settings.TestSettings?.RunTests != null)
 									settings.TestSettings.RunTests(testAssembly);
 								else
-									RunDotNet(new AppRunnerSettings { Arguments = new[] { "vstest", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
+									RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
 							}
 						}
 						else
