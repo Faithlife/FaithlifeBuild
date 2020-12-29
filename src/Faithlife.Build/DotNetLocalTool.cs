@@ -8,26 +8,26 @@ using static Faithlife.Build.DotNetRunner;
 namespace Faithlife.Build
 {
 	/// <summary>
-	/// Provides access to a .NET Core Tool, installed locally.
+	/// Provides access to a .NET local tool.
 	/// </summary>
 	public sealed class DotNetLocalTool
 	{
 		/// <summary>
-		/// Accesses a locally installed .NET Core Tool at the specified directory.
+		/// Accesses a .NET local tool at the specified directory.
 		/// </summary>
 		/// <param name="name">The package name or command name of the tool.</param>
 		/// <exception cref="BuildException">The tool is not installed.</exception>
 		public static DotNetLocalTool Create(string name) => CreateFrom(".", name);
 
 		/// <summary>
-		/// Accesses a locally installed .NET Core Tool at the current directory.
+		/// Accesses a .NET local tool at the current directory.
 		/// </summary>
 		/// <param name="name">The package name or command name of the tool.</param>
 		/// <returns>Null if the tool is not installed.</returns>
 		public static DotNetLocalTool? TryCreate(string name) => TryCreateFrom(".", name);
 
 		/// <summary>
-		/// Accesses a locally installed .NET Core Tool at the specified directory.
+		/// Accesses a .NET local tool at the specified directory.
 		/// </summary>
 		/// <param name="directory">The directory from which the tool should be run.</param>
 		/// <param name="name">The package name or command name of the tool.</param>
@@ -36,7 +36,7 @@ namespace Faithlife.Build
 			TryCreateFrom(directory, name) ?? throw new BuildException("Tool '{name}' is not installed.");
 
 		/// <summary>
-		/// Accesses a locally installed .NET Core Tool at the specified directory.
+		/// Accesses a .NET local tool at the specified directory.
 		/// </summary>
 		/// <param name="directory">The directory from which the tool should be run.</param>
 		/// <param name="name">The package name or command name of the tool.</param>
@@ -55,12 +55,12 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
-		/// True if there are any locally installed .NET Core tools at the current directory.
+		/// True if there are any .NET local tools at the current directory.
 		/// </summary>
 		public static bool Any() => AnyFrom(".");
 
 		/// <summary>
-		/// True if there are any locally installed .NET Core tools at the specified directory.
+		/// True if there are any .NET local tools at the specified directory.
 		/// </summary>
 		/// <param name="directory">The directory from which the tool would be run.</param>
 		public static bool AnyFrom(string directory) => GetDotNetLocalTools(directory).Any();
