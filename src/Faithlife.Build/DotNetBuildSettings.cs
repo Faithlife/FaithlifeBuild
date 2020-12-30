@@ -27,6 +27,7 @@ namespace Faithlife.Build
 		/// Used to install .NET global tools.
 		/// </summary>
 		/// <remarks>Optional. If not specified, installs tools under <c>tools/bin</c>.</remarks>
+		[Obsolete("Use DotNetLocalTool and/or DotNetClassicTool.")]
 		public DotNetTools? DotNetTools { get; set; }
 
 		/// <summary>

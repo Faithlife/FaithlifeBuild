@@ -400,11 +400,13 @@ namespace Faithlife.Build
 										}
 										else
 										{
+#pragma warning disable 618
 											var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
 											var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
 
 											foreach (var assemblyPath in assemblyPaths)
 												RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), GetXmlDocArgs(assemblyPath));
+#pragma warning restore 618
 										}
 									}
 									else

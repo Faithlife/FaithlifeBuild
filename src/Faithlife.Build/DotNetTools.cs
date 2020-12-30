@@ -12,6 +12,7 @@ namespace Faithlife.Build
 	/// <summary>
 	/// Manages .NET tools and classic NuGet packaged tools, installed within a local directory.
 	/// </summary>
+	[Obsolete("Use DotNetLocalTool and/or DotNetClassicTool.")]
 	public sealed class DotNetTools
 	{
 		/// <summary>
