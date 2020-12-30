@@ -33,7 +33,7 @@ namespace Faithlife.Build
 		/// <param name="name">The package name or command name of the tool.</param>
 		/// <exception cref="BuildException">The tool is not installed.</exception>
 		public static DotNetLocalTool CreateFrom(string directory, string name) =>
-			TryCreateFrom(directory, name) ?? throw new BuildException("Tool '{name}' is not installed.");
+			TryCreateFrom(directory, name) ?? throw new BuildException($"Tool '{name}' is not installed.");
 
 		/// <summary>
 		/// Accesses a .NET local tool at the specified directory.
