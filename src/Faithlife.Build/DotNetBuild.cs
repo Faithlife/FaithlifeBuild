@@ -373,50 +373,56 @@ namespace Faithlife.Build
 							var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
 							foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
 							{
-								if (xmlDocGenPath != null)
+								var assemblyPaths = new List<string>();
+								if (docsSettings.FindAssemblies != null)
 								{
-									RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(projectName)));
+									assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
+								}
+								else if (docsSettings.FindAssembly != null)
+								{
+									var assemblyPath = docsSettings.FindAssembly(projectName);
+									if (assemblyPath != null)
+										assemblyPaths.Add(assemblyPath);
+								}
+								else if (xmlDocGenPath != null)
+								{
+									assemblyPaths.Add(projectName);
 								}
 								else
 								{
-									var assemblyPaths = new List<string>();
-									if (docsSettings.FindAssemblies != null)
+									var assemblyPath =
+										FindFiles($"tools/XmlDocTarget/bin/**/{projectName}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
+										FindFiles($"src/{projectName}/bin/**/{projectName}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+									if (assemblyPath != null)
+										assemblyPaths.Add(assemblyPath);
+								}
+
+								if (assemblyPaths.Count != 0)
+								{
+									if (xmlDocGenPath != null)
 									{
-										assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
+										foreach (var assemblyPath in assemblyPaths)
+											RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
+									}
+									if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
+									{
+										foreach (var assemblyPath in assemblyPaths)
+											xmldocmd.Run(GetXmlDocArgs(assemblyPath));
 									}
 									else
 									{
-										var assemblyPath = (docsSettings.FindAssembly ?? FindAssembly)(projectName);
-										if (assemblyPath != null)
-											assemblyPaths.Add(assemblyPath);
-									}
-
-									if (assemblyPaths.Count != 0)
-									{
-										if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
-										{
-											foreach (var assemblyPath in assemblyPaths)
-												xmldocmd.Run(GetXmlDocArgs(assemblyPath));
-										}
-										else
-										{
 #pragma warning disable 618
-											var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
-											var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
+										var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
+										var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
 
-											foreach (var assemblyPath in assemblyPaths)
-												RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), GetXmlDocArgs(assemblyPath));
+										foreach (var assemblyPath in assemblyPaths)
+											RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), GetXmlDocArgs(assemblyPath));
 #pragma warning restore 618
-										}
 									}
-									else
-									{
-										Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
-									}
-
-									static string? FindAssembly(string name) =>
-										FindFiles($"tools/XmlDocTarget/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
-										FindFiles($"src/{name}/bin/**/{name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+								}
+								else
+								{
+									Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
 								}
 
 								string?[] GetXmlDocArgs(string input) =>

@@ -59,6 +59,7 @@ namespace Faithlife.Build
 		/// <remarks>Defaults to a stable version, which may change with new versions of <b>Faithlife.Build</b>,
 		/// but will not change unless <b>Faithlife.Build</b> is updated. Ignored if <c>xmldocmd</c> is installed
 		/// as a .NET local tool.</remarks>
+		[Obsolete("Use XmlDocGen project.")]
 		public string? ToolVersion { get; set; }
 
 		/// <summary>
