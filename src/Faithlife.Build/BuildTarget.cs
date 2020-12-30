@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Faithlife.Build
 {
@@ -52,7 +53,26 @@ namespace Faithlife.Build
 		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 		public BuildTarget Does(Action action)
 		{
-			m_action += action ?? throw new ArgumentNullException(nameof(action));
+			if (action is null)
+				throw new ArgumentNullException(nameof(action));
+
+			m_actions.Add(ActionAsync);
+			return this;
+
+			async Task ActionAsync() => action();
+		}
+
+		/// <summary>
+		/// Adds an action to the target.
+		/// </summary>
+		/// <param name="action">The target action.</param>
+		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
+		public BuildTarget Does(Func<Task> action)
+		{
+			if (action is null)
+				throw new ArgumentNullException(nameof(action));
+
+			m_actions.Add(action);
 			return this;
 		}
 
@@ -62,23 +82,33 @@ namespace Faithlife.Build
 		/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 		public BuildTarget ClearActions()
 		{
-			m_action = null;
+			m_actions.Clear();
 			return this;
 		}
 
 		/// <summary>
 		/// Runs the target action, if any.
 		/// </summary>
-		public void Run() => m_action?.Invoke();
+		public void Run() => RunAsync().GetAwaiter().GetResult();
+
+		/// <summary>
+		/// Runs the target action, if any.
+		/// </summary>
+		public async Task RunAsync()
+		{
+			foreach (var action in m_actions)
+				await action().ConfigureAwait(false);
+		}
 
 		internal BuildTarget(string name)
 		{
 			Name = name;
 			Description = "";
 			m_dependencies = new List<string>();
+			m_actions = new List<Func<Task>>();
 		}
 
 		private readonly List<string> m_dependencies;
-		private Action? m_action;
+		private readonly List<Func<Task>> m_actions;
 	}
 }

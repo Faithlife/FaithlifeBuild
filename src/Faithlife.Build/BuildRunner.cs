@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Bullseye;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -17,7 +18,16 @@ namespace Faithlife.Build
 		/// <param name="args">The command-line arguments from <c>Main</c>.</param>
 		/// <param name="initialize">Called to initialize the build.</param>
 		/// <returns>The exit code for the build.</returns>
-		public static int Execute(string[] args, Action<BuildApp> initialize)
+		public static int Execute(string[] args, Action<BuildApp> initialize) =>
+			ExecuteAsync(args, initialize).GetAwaiter().GetResult();
+
+		/// <summary>
+		/// Executes an automated build. Called from <c>Main</c>.
+		/// </summary>
+		/// <param name="args">The command-line arguments from <c>Main</c>.</param>
+		/// <param name="initialize">Called to initialize the build.</param>
+		/// <returns>The exit code for the build.</returns>
+		public static async Task<int> ExecuteAsync(string[] args, Action<BuildApp> initialize)
 		{
 			if (args == null)
 				throw new ArgumentNullException(nameof(args));
@@ -39,9 +49,9 @@ namespace Faithlife.Build
 
 			var bullseyeTargets = new Targets();
 			foreach (var target in buildApp.Targets)
-				bullseyeTargets.Add(target.Name, target.Dependencies, target.Run);
+				bullseyeTargets.Add(target.Name, target.Dependencies, target.RunAsync);
 
-			commandLineApp.OnExecute(() =>
+			commandLineApp.OnExecuteAsync(async _ =>
 			{
 				var targetNames = targetsArgument.Values.WhereNotNull().ToList();
 
@@ -96,7 +106,7 @@ namespace Faithlife.Build
 
 					try
 					{
-						bullseyeTargets.RunWithoutExiting(bullseyeArgs, messageOnly: IsMessageOnlyException);
+						await bullseyeTargets.RunWithoutExitingAsync(bullseyeArgs, messageOnly: IsMessageOnlyException).ConfigureAwait(false);
 					}
 					catch (TargetFailedException)
 					{
@@ -114,7 +124,7 @@ namespace Faithlife.Build
 
 			try
 			{
-				return commandLineApp.Execute(args);
+				return await commandLineApp.ExecuteAsync(args).ConfigureAwait(false);
 			}
 			catch (Exception exception) when (IsMessageOnlyException(exception))
 			{
