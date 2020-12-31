@@ -1,5 +1,14 @@
 # Release Notes
 
+## 5.4.0
+
+* Support async target actions.
+* Support `DotNetClassicTool` for running tools directly from restored NuGet packages referenced in `Build.csproj`.
+* Obsolete `DotNetTools`.
+* Use `dotnet test` instead of `dotnet vstest`.
+* Support `FindAssemblies` with `XmlDocGen` strategy.
+* Use latest libraries.
+
 ## 5.3.1
 
 * Allow target `publish` to work if `package` is skipped.
