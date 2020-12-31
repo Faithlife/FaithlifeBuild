@@ -37,23 +37,23 @@ namespace Faithlife.Build
 		{
 			settings ??= new DotNetBuildSettings();
 
-			var buildOptions = settings.BuildOptions ?? (settings.BuildOptions = new DotNetBuildOptions());
-			var configurationOption = buildOptions.ConfigurationOption ?? (buildOptions.ConfigurationOption =
-				build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release"));
-			var platformOption = buildOptions.PlatformOption ?? (buildOptions.PlatformOption =
-				build.AddOption("-p|--platform <name>", "The solution platform to build"));
-			var verbosityOption = buildOptions.VerbosityOption ?? (buildOptions.VerbosityOption =
-				build.AddOption("-v|--verbosity <level>", "The build verbosity (q[uiet], m[inimal], n[ormal], d[etailed])"));
-			var versionSuffixOption = buildOptions.VersionSuffixOption ?? (buildOptions.VersionSuffixOption =
-				build.AddOption("--version-suffix <suffix>", "Generates a prerelease package"));
-			var nugetOutputOption = buildOptions.NuGetOutputOption ?? (buildOptions.NuGetOutputOption =
-				build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release"));
-			var triggerOption = buildOptions.TriggerOption ?? (buildOptions.TriggerOption =
-				build.AddOption("--trigger <name>", "The git branch or tag that triggered the build"));
-			var buildNumberOption = buildOptions.BuildNumberOption ?? (buildOptions.BuildNumberOption =
-				build.AddOption("--build-number <number>", "The automated build number"));
-			var noTestFlag = buildOptions.NoTestFlag ?? (buildOptions.NoTestFlag =
-				build.AddFlag("--no-test", "Skip the unit tests"));
+			var buildOptions = settings.BuildOptions ??= new DotNetBuildOptions();
+			var configurationOption = buildOptions.ConfigurationOption ??=
+				build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release");
+			var platformOption = buildOptions.PlatformOption ??=
+				build.AddOption("-p|--platform <name>", "The solution platform to build");
+			var verbosityOption = buildOptions.VerbosityOption ??=
+				build.AddOption("-v|--verbosity <level>", "The build verbosity (q[uiet], m[inimal], n[ormal], d[etailed])");
+			var versionSuffixOption = buildOptions.VersionSuffixOption ??=
+				build.AddOption("--version-suffix <suffix>", "Generates a prerelease package");
+			var nugetOutputOption = buildOptions.NuGetOutputOption ??=
+				build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release");
+			var triggerOption = buildOptions.TriggerOption ??=
+				build.AddOption("--trigger <name>", "The git branch or tag that triggered the build");
+			var buildNumberOption = buildOptions.BuildNumberOption ??=
+				build.AddOption("--build-number <number>", "The automated build number");
+			var noTestFlag = buildOptions.NoTestFlag ??=
+				build.AddFlag("--no-test", "Skip the unit tests");
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
