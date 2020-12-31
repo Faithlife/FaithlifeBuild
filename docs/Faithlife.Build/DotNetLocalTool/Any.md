@@ -1,6 +1,6 @@
 # DotNetLocalTool.Any method
 
-True if there are any locally installed .NET Core tools at the current directory.
+True if there are any .NET local tools at the current directory.
 
 ```csharp
 public static bool Any()

@@ -1,6 +1,6 @@
 # DotNetLocalTool.AnyFrom method
 
-True if there are any locally installed .NET Core tools at the specified directory.
+True if there are any .NET local tools at the specified directory.
 
 ```csharp
 public static bool AnyFrom(string directory)

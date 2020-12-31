@@ -11,6 +11,7 @@ public static class BuildRunner
 | name | description |
 | --- | --- |
 | static [Execute](BuildRunner/Execute.md)(…) | Executes an automated build. Called from `Main`. |
+| static [ExecuteAsync](BuildRunner/ExecuteAsync.md)(…) | Executes an automated build. Called from `Main`. |
 
 ## See Also
 

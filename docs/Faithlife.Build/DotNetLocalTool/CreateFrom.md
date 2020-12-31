@@ -1,6 +1,6 @@
 # DotNetLocalTool.CreateFrom method
 
-Accesses a locally installed .NET Core Tool at the specified directory.
+Accesses a .NET local tool at the specified directory.
 
 ```csharp
 public static DotNetLocalTool CreateFrom(string directory, string name)

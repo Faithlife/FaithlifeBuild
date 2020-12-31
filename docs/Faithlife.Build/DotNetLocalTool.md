@@ -1,6 +1,6 @@
 # DotNetLocalTool class
 
-Provides access to a .NET Core Tool, installed locally.
+Provides access to a .NET local tool.
 
 ```csharp
 public sealed class DotNetLocalTool
@@ -10,13 +10,13 @@ public sealed class DotNetLocalTool
 
 | name | description |
 | --- | --- |
-| static [Create](DotNetLocalTool/Create.md)(…) | Accesses a locally installed .NET Core Tool at the specified directory. |
-| static [CreateFrom](DotNetLocalTool/CreateFrom.md)(…) | Accesses a locally installed .NET Core Tool at the specified directory. |
-| static [TryCreate](DotNetLocalTool/TryCreate.md)(…) | Accesses a locally installed .NET Core Tool at the current directory. |
-| static [TryCreateFrom](DotNetLocalTool/TryCreateFrom.md)(…) | Accesses a locally installed .NET Core Tool at the specified directory. |
+| static [Create](DotNetLocalTool/Create.md)(…) | Accesses a .NET local tool at the specified directory. |
+| static [CreateFrom](DotNetLocalTool/CreateFrom.md)(…) | Accesses a .NET local tool at the specified directory. |
+| static [TryCreate](DotNetLocalTool/TryCreate.md)(…) | Accesses a .NET local tool at the current directory. |
+| static [TryCreateFrom](DotNetLocalTool/TryCreateFrom.md)(…) | Accesses a .NET local tool at the specified directory. |
 | [Run](DotNetLocalTool/Run.md)(…) | Runs the local tool with the specified arguments. (3 methods) |
-| static [Any](DotNetLocalTool/Any.md)() | True if there are any locally installed .NET Core tools at the current directory. |
-| static [AnyFrom](DotNetLocalTool/AnyFrom.md)(…) | True if there are any locally installed .NET Core tools at the specified directory. |
+| static [Any](DotNetLocalTool/Any.md)() | True if there are any .NET local tools at the current directory. |
+| static [AnyFrom](DotNetLocalTool/AnyFrom.md)(…) | True if there are any .NET local tools at the specified directory. |
 
 ## See Also
 

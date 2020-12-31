@@ -1,9 +1,32 @@
-# BuildTarget.Does method
+# BuildTarget.Does method (1 of 2)
 
 Adds an action to the target.
 
 ```csharp
 public BuildTarget Does(Action action)
+```
+
+| parameter | description |
+| --- | --- |
+| action | The target action. |
+
+## Return Value
+
+The target, for use by the "fluent" builder pattern.
+
+## See Also
+
+* class [BuildTarget](../BuildTarget.md)
+* namespace [Faithlife.Build](../../Faithlife.Build.md)
+
+---
+
+# BuildTarget.Does method (2 of 2)
+
+Adds an action to the target.
+
+```csharp
+public BuildTarget Does(Func<Task> action)
 ```
 
 | parameter | description |

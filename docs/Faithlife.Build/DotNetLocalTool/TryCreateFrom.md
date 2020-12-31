@@ -1,6 +1,6 @@
 # DotNetLocalTool.TryCreateFrom method
 
-Accesses a locally installed .NET Core Tool at the specified directory.
+Accesses a .NET local tool at the specified directory.
 
 ```csharp
 public static DotNetLocalTool TryCreateFrom(string directory, string name)
