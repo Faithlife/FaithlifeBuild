@@ -17,13 +17,13 @@ This library allows developers to use C# to write build scripts. It is similar t
 * report [custom build errors](Faithlife.Build/BuildException.md)
 * define [standard targets for .NET builds](#create-net-targets) that build, test, package, and generate documentation for your libraries
 
-Most importantly, since the build script is a full-fledged .NET Core app with access to any compatible NuGet package, you can do just about anything, in a language and framework you already know well.
+Most importantly, since the build script is a full-fledged .NET app with access to any compatible NuGet package, you can do just about anything, in a language and framework you already know well.
 
 ## Usage
 
-To use this library for your automated build, create a .NET Core Console App project in `tools/Build` that references the latest `Faithlife.Build` [NuGet package](https://www.nuget.org/packages/Faithlife.Build). Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project.
+To use this library for your automated build, create a .NET Console App project in `tools/Build` that references the latest `Faithlife.Build` [NuGet package](https://www.nuget.org/packages/Faithlife.Build). Optionally add the project to your Visual Studio solution file. See [`Build.csproj`](https://github.com/Faithlife/FaithlifeBuild/blob/master/tools/Build/Build.csproj) for an example project.
 
-The `Main` method of the console app should call [`BuildRunner.Execute`](Faithlife.Build/BuildRunner/Execute.md) with the `args` and a delegate that defines the build targets and any desired command-line options by calling methods on the provided [`BuildApp`](Faithlife.Build/BuildApp.md).
+The `Main` method of the console app should call [`BuildRunner.Execute`](Faithlife.Build/BuildRunner/Execute.md) or [`BuildRunner.ExecuteAsync`](Faithlife.Build/BuildRunner/ExecuteAsync.md) with the `args` and a delegate that defines the build targets and any desired command-line options by calling methods on the provided [`BuildApp`](Faithlife.Build/BuildApp.md).
 
 ```csharp
 using Faithlife.Build;
@@ -40,12 +40,13 @@ internal static class Build
 }
 ```
 
-Perform the build by running the `Build` project. This can be done directly via `dotnet run`, e.g. `dotnet run --project tools/Build -- test`, but builds are more easily run from a simple bootstrapper, usually named [`build.cmd`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.cmd) (for Windows) and/or [`build.sh`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.sh) (for non-Windows).
+Perform the build by running the `Build` project. This can be done directly via `dotnet run`, e.g. `dotnet run --project tools/Build -- test`, but builds are more easily run from a simple bootstrapper, usually named [`build.ps1`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.ps1), [`build.cmd`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.cmd), and/or [`build.sh`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.sh).
 
 Specify the desired targets on the command line, e.g. `./build.sh package`. Use `--help` to list the available build targets and command-line options. These command-line arguments are always supported:
 
 * `-n` or `--dry-run` : Don't execute target actions.
-* `-s` or `--skip-dependencies` : Don't run target dependencies.
+* `-s` or `--skip-dependencies` : Don't run any target dependencies.
+* `--skip <targets>` : Skip the comma-delimited target dependencies.
 * `--no-color` : Disable color output.
 * `--show-tree` : Show the dependency tree.
 * `-?` or `-h` or `--help` : Show build help.
