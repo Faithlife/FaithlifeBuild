@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.4.1
+
+* Fix bug when using `XmlDocGen`.
+
 ## 5.4.0
 
 * Support async target actions.

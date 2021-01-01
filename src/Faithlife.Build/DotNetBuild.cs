@@ -404,7 +404,7 @@ namespace Faithlife.Build
 										foreach (var assemblyPath in assemblyPaths)
 											RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
 									}
-									if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
+									else if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
 									{
 										foreach (var assemblyPath in assemblyPaths)
 											xmldocmd.Run(GetXmlDocArgs(assemblyPath));
