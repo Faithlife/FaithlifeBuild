@@ -198,11 +198,11 @@ namespace Faithlife.Build
 
 		private class NuGetVersionComparer : IComparer<string>
 		{
-			public int Compare(string left, string right)
+			public int Compare(string? left, string? right)
 			{
-				if (left == null)
-					return right == null ? 0 : -1;
-				if (right == null)
+				if (left is null)
+					return right is null ? 0 : -1;
+				if (right is null)
 					return 1;
 
 				var leftHyphenParts = left.Split(new[] { '-' }, 2);

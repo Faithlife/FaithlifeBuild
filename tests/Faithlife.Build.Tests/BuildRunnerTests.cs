@@ -9,7 +9,7 @@ namespace Faithlife.Build.Tests
 		[Test]
 		public void NullArgsThrows()
 		{
-			Assert.Throws<ArgumentNullException>(() => BuildRunner.Execute(null!, app => { }));
+			Assert.Throws<ArgumentNullException>(() => BuildRunner.Execute(null!, _ => { }));
 		}
 
 		[Test]
