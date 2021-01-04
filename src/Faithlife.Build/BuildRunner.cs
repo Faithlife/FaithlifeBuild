@@ -29,9 +29,9 @@ namespace Faithlife.Build
 		/// <returns>The exit code for the build.</returns>
 		public static async Task<int> ExecuteAsync(string[] args, Action<BuildApp> initialize)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException(nameof(args));
-			if (initialize == null)
+			if (initialize is null)
 				throw new ArgumentNullException(nameof(initialize));
 
 			var commandLineApp = new CommandLineApplication();

@@ -106,9 +106,9 @@ namespace Faithlife.Build
 
 		private static int DoRunApp(string path, AppRunnerSettings settings)
 		{
-			if (path == null)
+			if (path is null)
 				throw new ArgumentNullException(nameof(path));
-			if (settings == null)
+			if (settings is null)
 				throw new ArgumentNullException(nameof(settings));
 
 			var arguments = settings.Arguments?.WhereNotNull() ?? Enumerable.Empty<string>();

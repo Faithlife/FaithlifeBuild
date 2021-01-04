@@ -61,11 +61,11 @@ namespace Faithlife.Build
 		/// <returns>The specified build target. If a target with the specified name already exists, it is returned.</returns>
 		public BuildTarget Target(string name)
 		{
-			if (name == null)
+			if (name is null)
 				throw new ArgumentNullException(nameof(name));
 
 			var target = m_targets.SingleOrDefault(x => x.Name == name);
-			if (target == null)
+			if (target is null)
 				m_targets.Add(target = new BuildTarget(name));
 			return target;
 		}

@@ -69,7 +69,7 @@ namespace Faithlife.Build
 		/// <param name="args">The arguments, if any.</param>
 		public static void RunMSBuild(MSBuildSettings? settings, params string?[] args)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException(nameof(args));
 
 			RunMSBuild(settings, args.AsEnumerable());

@@ -71,7 +71,7 @@ namespace Faithlife.Build
 		/// <param name="args">The command-line arguments.</param>
 		public void Run(params string?[] args)
 		{
-			if (args == null)
+			if (args is null)
 				throw new ArgumentNullException(nameof(args));
 
 			Run(args.AsEnumerable());
@@ -89,10 +89,10 @@ namespace Faithlife.Build
 		/// <param name="settings">The settings to use when running the tool.</param>
 		public int Run(AppRunnerSettings settings)
 		{
-			if (settings == null)
+			if (settings is null)
 				throw new ArgumentNullException(nameof(settings));
 
-			if (settings.WorkingDirectory != null)
+			if (settings.WorkingDirectory is not null)
 				throw new ArgumentException($"{nameof(settings.WorkingDirectory)} not supported for local tools.", nameof(settings));
 
 			settings = settings.Clone();

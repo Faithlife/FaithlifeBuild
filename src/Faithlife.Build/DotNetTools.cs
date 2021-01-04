@@ -49,13 +49,13 @@ namespace Faithlife.Build
 				args.Add("install");
 				args.Add(package);
 
-				if (version != null)
+				if (version is not null)
 				{
 					args.Add("--version");
 					args.Add(version);
 				}
 			}
-			else if (version == null)
+			else if (version is null)
 			{
 				args.Add("tool");
 				args.Add("update");
@@ -96,13 +96,13 @@ namespace Faithlife.Build
 				args.Add("install");
 				args.Add(package);
 
-				if (version != null)
+				if (version is not null)
 				{
 					args.Add("--version");
 					args.Add(version);
 				}
 			}
-			else if (version == null)
+			else if (version is null)
 			{
 				args.Add("tool");
 				args.Add("update");
@@ -147,7 +147,7 @@ namespace Faithlife.Build
 				m_directory,
 			};
 
-			if (version != null)
+			if (version is not null)
 			{
 				args.Add("-Version");
 				args.Add(version);
@@ -176,7 +176,7 @@ namespace Faithlife.Build
 		/// <returns>The <c>DotNetTools</c> instance, for use by the "fluent" builder pattern.</returns>
 		public DotNetTools AddSource(string source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new ArgumentNullException(nameof(source));
 
 			m_sources.Add(Regex.IsMatch(source, @"^\w+:") ? source : Path.GetFullPath(source));
@@ -222,9 +222,9 @@ namespace Faithlife.Build
 
 				var leftSuffix = leftHyphenParts.ElementAtOrDefault(1);
 				var rightSuffix = rightHyphenParts.ElementAtOrDefault(1);
-				if (leftSuffix == null)
-					return rightSuffix == null ? 0 : 1;
-				if (rightSuffix == null)
+				if (leftSuffix is null)
+					return rightSuffix is null ? 0 : 1;
+				if (rightSuffix is null)
 					return -1;
 				return string.CompareOrdinal(leftSuffix, rightSuffix);
 			}

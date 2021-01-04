@@ -37,9 +37,9 @@ namespace Faithlife.Build
 		/// <returns>The paths of the matching files.</returns>
 		public static IReadOnlyList<string> FindFilesFrom(string directory, params string[] globs)
 		{
-			if (directory == null)
+			if (directory is null)
 				throw new ArgumentNullException(nameof(directory));
-			if (globs == null)
+			if (globs is null)
 				throw new ArgumentNullException(nameof(globs));
 
 			return globs.SelectMany(glob => Glob.Files(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
@@ -53,9 +53,9 @@ namespace Faithlife.Build
 		/// <returns>The paths of the matching directories.</returns>
 		public static IReadOnlyList<string> FindDirectoriesFrom(string directory, params string[] globs)
 		{
-			if (directory == null)
+			if (directory is null)
 				throw new ArgumentNullException(nameof(directory));
-			if (globs == null)
+			if (globs is null)
 				throw new ArgumentNullException(nameof(globs));
 
 			return globs.SelectMany(glob => Glob.Directories(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
@@ -69,11 +69,11 @@ namespace Faithlife.Build
 		/// <param name="globs">The globs to match. Use <c>"**"</c> to copy all files and directories.</param>
 		public static void CopyFiles(string fromDirectory, string toDirectory, params string[] globs)
 		{
-			if (fromDirectory == null)
+			if (fromDirectory is null)
 				throw new ArgumentNullException(nameof(fromDirectory));
-			if (toDirectory == null)
+			if (toDirectory is null)
 				throw new ArgumentNullException(nameof(toDirectory));
-			if (globs == null)
+			if (globs is null)
 				throw new ArgumentNullException(nameof(globs));
 
 			CopyFilesCore(fromDirectory, toDirectory, globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct());
@@ -87,11 +87,11 @@ namespace Faithlife.Build
 		/// <param name="globs">The globs to exclude from copying.</param>
 		public static void CopyFilesExcept(string fromDirectory, string toDirectory, params string[] globs)
 		{
-			if (fromDirectory == null)
+			if (fromDirectory is null)
 				throw new ArgumentNullException(nameof(fromDirectory));
-			if (toDirectory == null)
+			if (toDirectory is null)
 				throw new ArgumentNullException(nameof(toDirectory));
-			if (globs == null)
+			if (globs is null)
 				throw new ArgumentNullException(nameof(globs));
 
 			CopyFilesCore(fromDirectory, toDirectory, Glob.Files(fromDirectory, "**").Except(globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct()));
@@ -109,6 +109,6 @@ namespace Faithlife.Build
 		}
 
 		internal static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> items)
-			where T : class => items.Where(x => x != null)!;
+			where T : class => items.Where(x => x is not null)!;
 	}
 }

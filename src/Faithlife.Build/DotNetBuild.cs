@@ -72,7 +72,7 @@ namespace Faithlife.Build
 
 					var verbosity = GetVerbosity();
 					var extraProperties = GetExtraProperties("clean");
-					if (msbuildSettings == null)
+					if (msbuildSettings is null)
 						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
 						MSBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
@@ -84,7 +84,7 @@ namespace Faithlife.Build
 				{
 					var verbosity = GetVerbosity();
 					var extraProperties = GetExtraProperties("restore");
-					if (msbuildSettings == null)
+					if (msbuildSettings is null)
 						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
 						MSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
@@ -102,7 +102,7 @@ namespace Faithlife.Build
 
 					var verbosity = GetVerbosity();
 					var extraProperties = GetExtraProperties("build");
-					if (msbuildSettings == null)
+					if (msbuildSettings is null)
 						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, GetPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
 						MSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), buildNumberArg, $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
@@ -121,11 +121,11 @@ namespace Faithlife.Build
 					{
 						var extraProperties = GetExtraProperties("test").ToList();
 						var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
-						if (findTestAssemblies != null)
+						if (findTestAssemblies is not null)
 						{
 							foreach (var testAssembly in findTestAssemblies())
 							{
-								if (settings.TestSettings?.RunTests != null)
+								if (settings.TestSettings?.RunTests is not null)
 									settings.TestSettings.RunTests(testAssembly);
 								else
 									RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
@@ -136,14 +136,14 @@ namespace Faithlife.Build
 							var testProjects = new List<string?>();
 
 							var findTestProjects = settings.TestSettings?.FindProjects;
-							if (findTestProjects != null)
+							if (findTestProjects is not null)
 								testProjects.AddRange(findTestProjects());
 							else
 								testProjects.Add(solutionName);
 
 							foreach (var testProject in testProjects)
 							{
-								if (settings.TestSettings?.RunTests != null)
+								if (settings.TestSettings?.RunTests is not null)
 									settings.TestSettings.RunTests(testProject);
 								else
 									RunDotNet(new[] { "test", testProject, "-c", configurationOption.Value, GetPlatformArg(), "--no-build", GetMaxCpuCountArg() }.Concat(extraProperties));
@@ -169,7 +169,7 @@ namespace Faithlife.Build
 					using var repository = new Repository(".");
 					var headSha = repository.Head.Tip.Sha;
 					var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
-					if (autoTrigger != null)
+					if (autoTrigger is not null)
 					{
 						Console.WriteLine($"Detected trigger: {trigger}");
 						return (autoTrigger, true);
@@ -184,7 +184,7 @@ namespace Faithlife.Build
 				var (trigger, _) = GetTrigger();
 
 				var versionSuffix = versionSuffixOption.Value;
-				if (versionSuffix == null && trigger != null)
+				if (versionSuffix is null && trigger is not null)
 					versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
 
 				var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value!);
@@ -193,7 +193,7 @@ namespace Faithlife.Build
 				var packageProjects = new List<string?>();
 
 				var findPackageProjects = settings.PackageSettings?.FindProjects;
-				if (findPackageProjects != null)
+				if (findPackageProjects is not null)
 					packageProjects.AddRange(findPackageProjects());
 				else
 					packageProjects.Add(solutionName);
@@ -201,7 +201,7 @@ namespace Faithlife.Build
 				var extraProperties = GetExtraProperties("package").ToList();
 				foreach (var packageProject in packageProjects)
 				{
-					if (msbuildSettings == null)
+					if (msbuildSettings is null)
 					{
 						RunDotNet(new[]
 						{
@@ -210,7 +210,7 @@ namespace Faithlife.Build
 							GetPlatformArg(),
 							"--no-build",
 							"--output", tempOutputPath,
-							versionSuffix != null ? "--version-suffix" : null, versionSuffix,
+							versionSuffix is not null ? "--version-suffix" : null, versionSuffix,
 							GetMaxCpuCountArg(),
 						}.Concat(extraProperties));
 					}
@@ -223,7 +223,7 @@ namespace Faithlife.Build
 							GetPlatformArg(),
 							"-p:NoBuild=true",
 							$"-p:PackageOutputPath={tempOutputPath}",
-							versionSuffix != null ? $"-p:VersionSuffix={versionSuffix}" : null,
+							versionSuffix is not null ? $"-p:VersionSuffix={versionSuffix}" : null,
 							$"-v:{GetVerbosity()}",
 							GetMaxCpuCountArg(),
 						}.Concat(extraProperties));
@@ -281,7 +281,7 @@ namespace Faithlife.Build
 					var shouldSkipDuplicates = publishTrigger == "all";
 
 					var triggerVersion = GetVersionFromTrigger(trigger);
-					if (triggerVersion != null)
+					if (triggerVersion is not null)
 					{
 						var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
 						if (mismatches.Count != 0)
@@ -299,15 +299,15 @@ namespace Faithlife.Build
 						string? repoDirectory = null;
 						string? gitBranchName = null;
 
-						if (shouldPublishDocs && docsSettings != null)
+						if (shouldPublishDocs && docsSettings is not null)
 						{
-							if (docsSettings.GitLogin == null || docsSettings.GitAuthor == null)
+							if (docsSettings.GitLogin is null || docsSettings.GitAuthor is null)
 								throw new BuildException("GitLogin and GitAuthor must be set on DocsSettings.");
 
 							var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
 							gitBranchName = docsSettings.GitBranchName;
 
-							if (gitRepositoryUrl != null)
+							if (gitRepositoryUrl is not null)
 							{
 								cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
 								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: cloneDirectory,
@@ -320,11 +320,11 @@ namespace Faithlife.Build
 							}
 
 							using var repository = new Repository(repoDirectory);
-							if (gitRepositoryUrl != null)
+							if (gitRepositoryUrl is not null)
 							{
 								gitBranchName ??= repository.Head.FriendlyName;
 							}
-							else if (gitBranchName != null)
+							else if (gitBranchName is not null)
 							{
 								if (gitBranchName != repository.Head.FriendlyName)
 								{
@@ -335,27 +335,27 @@ namespace Faithlife.Build
 							else
 							{
 								var branch = repository.Branches.FirstOrDefault(x => x.IsCurrentRepositoryHead);
-								if (branch == null)
+								if (branch is null)
 								{
 									var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
 
-									if (autoBranchName == null)
+									if (autoBranchName is null)
 									{
 										var gitRef = Environment.GetEnvironmentVariable("GITHUB_REF");
 										const string prefix = "refs/heads/";
-										if (gitRef != null && gitRef.StartsWith(prefix, StringComparison.Ordinal))
+										if (gitRef is not null && gitRef.StartsWith(prefix, StringComparison.Ordinal))
 											autoBranchName = gitRef.Substring(prefix.Length);
 									}
 
-									if (autoBranchName != null)
+									if (autoBranchName is not null)
 										branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
 									else
 										branch = repository.Branches.FirstOrDefault(x => x.Tip.Sha == repository.Head.Tip.Sha);
 
-									if (branch != null)
+									if (branch is not null)
 										Commands.Checkout(repository, branch);
 								}
-								if (branch == null)
+								if (branch is null)
 									throw new BuildException("Could not determine repository branch for publishing docs.");
 								gitBranchName = branch.FriendlyName;
 							}
@@ -364,7 +364,7 @@ namespace Faithlife.Build
 
 							string? xmlDocGenPath = null;
 							var xmlDocGenProject = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
-							if (xmlDocGenProject != null)
+							if (xmlDocGenProject is not null)
 							{
 								RunDotNet("publish", xmlDocGenProject, "--output", Path.Combine("tools", "bin", "XmlDocGen"), "--nologo", "--verbosity", "quiet");
 								xmlDocGenPath = Path.Combine("tools", "bin", "XmlDocGen", "XmlDocGen.dll");
@@ -374,17 +374,17 @@ namespace Faithlife.Build
 							foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
 							{
 								var assemblyPaths = new List<string>();
-								if (docsSettings.FindAssemblies != null)
+								if (docsSettings.FindAssemblies is not null)
 								{
 									assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
 								}
-								else if (docsSettings.FindAssembly != null)
+								else if (docsSettings.FindAssembly is not null)
 								{
 									var assemblyPath = docsSettings.FindAssembly(projectName);
-									if (assemblyPath != null)
+									if (assemblyPath is not null)
 										assemblyPaths.Add(assemblyPath);
 								}
-								else if (xmlDocGenPath != null)
+								else if (xmlDocGenPath is not null)
 								{
 									assemblyPaths.Add(projectName);
 								}
@@ -393,13 +393,13 @@ namespace Faithlife.Build
 									var assemblyPath =
 										FindFiles($"tools/XmlDocTarget/bin/**/{projectName}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
 										FindFiles($"src/{projectName}/bin/**/{projectName}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
-									if (assemblyPath != null)
+									if (assemblyPath is not null)
 										assemblyPaths.Add(assemblyPath);
 								}
 
 								if (assemblyPaths.Count != 0)
 								{
-									if (xmlDocGenPath != null)
+									if (xmlDocGenPath is not null)
 									{
 										foreach (var assemblyPath in assemblyPaths)
 											RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
@@ -458,7 +458,7 @@ namespace Faithlife.Build
 									{
 										var dependencyInfo = nugetRepository.ResolvePackage(package, NuGetFramework.AnyFramework,
 											sourceCacheContext, NullLogger.Instance, CancellationToken.None).GetAwaiter().GetResult();
-										if (dependencyInfo != null)
+										if (dependencyInfo is not null)
 										{
 											Console.WriteLine($"Package already pushed: {packageName} {packageVersion}");
 											alreadyPushedPackages.Add(packagePath);
@@ -491,7 +491,7 @@ namespace Faithlife.Build
 								$"refs/heads/{gitBranchName}", new PushOptions { CredentialsProvider = ProvideCredentials });
 						}
 
-						if (cloneDirectory != null)
+						if (cloneDirectory is not null)
 						{
 							// delete the cloned directory
 							foreach (var fileInfo in FindFiles(cloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
@@ -568,7 +568,7 @@ namespace Faithlife.Build
 
 				string GetSolutionName()
 				{
-					if (solutionName != null)
+					if (solutionName is not null)
 						return solutionName;
 
 					var solutionNames = FindFiles("*.sln");
@@ -584,32 +584,32 @@ namespace Faithlife.Build
 					yield return $"--properties:Configuration={configurationOption!.Value}";
 
 					var platformValue = platformOption!.Value ?? settings!.SolutionPlatform;
-					yield return platformValue == null ? null : $"--properties:Platform={platformValue}";
+					yield return platformValue is null ? null : $"--properties:Platform={platformValue}";
 				}
 			}
 
 			string? GetPlatformArg()
 			{
 				var platformValue = platformOption!.Value ?? settings!.SolutionPlatform;
-				return platformValue == null ? null : $"-p:Platform={platformValue}";
+				return platformValue is null ? null : $"-p:Platform={platformValue}";
 			}
 
 			string? GetMaxCpuCountArg() =>
-				settings!.MaxCpuCount != null ? $"-maxcpucount:{settings.MaxCpuCount}" :
-				msbuildSettings != null ? "-maxcpucount" : null;
+				settings!.MaxCpuCount is not null ? $"-maxcpucount:{settings.MaxCpuCount}" :
+				msbuildSettings is not null ? "-maxcpucount" : null;
 
 			string? GetBuildNumberArg()
 			{
 				var buildNumberValue = buildNumberOption!.Value ??
 					Environment.GetEnvironmentVariable("APPVEYOR_BUILD_NUMBER") ??
 					Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
-				return buildNumberValue == null ? null : $"-p:BuildNumber={buildNumberValue}";
+				return buildNumberValue is null ? null : $"-p:BuildNumber={buildNumberValue}";
 			}
 
 			IEnumerable<string> GetExtraProperties(string target)
 			{
 				var pairs = settings!.ExtraProperties?.Invoke(target!);
-				if (pairs != null)
+				if (pairs is not null)
 				{
 					foreach (var (key, value) in pairs)
 						yield return $"-p:{key}={value}";
@@ -686,12 +686,12 @@ namespace Faithlife.Build
 		private static string? GetBestTriggerFromTags(IReadOnlyList<string> tags) =>
 			tags
 				.Select(x => (Tag: x, Version: GetVersionFromTrigger(x)))
-				.Where(x => x.Version != null)
+				.Where(x => x.Version is not null)
 				.Select(x => (x.Tag, Version: SplitVersion(x.Version!)))
 				.OrderByDescending(x => x.Version.Major)
 				.ThenByDescending(x => x.Version.Minor)
 				.ThenByDescending(x => x.Version.Patch)
-				.ThenByDescending(x => x.Version.Suffix == null)
+				.ThenByDescending(x => x.Version.Suffix is null)
 				.ThenByDescending(x => x.Version.Suffix, StringComparer.Ordinal)
 				.Select(x => x.Tag)
 				.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
