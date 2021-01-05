@@ -14,7 +14,6 @@ using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
-using Polly;
 using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.BuildUtility;
 using static Faithlife.Build.DotNetRunner;
@@ -617,22 +616,6 @@ namespace Faithlife.Build
 			}
 
 			void MSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments!);
-
-			void DeleteDirectory(string path)
-			{
-				Policy.Handle<IOException>()
-					.WaitAndRetry(new[] { TimeSpan.FromMilliseconds(50) })
-					.Execute(() =>
-					{
-						try
-						{
-							Directory.Delete(path!, recursive: true);
-						}
-						catch (DirectoryNotFoundException)
-						{
-						}
-					});
-			}
 
 			string GetVerbosity()
 			{

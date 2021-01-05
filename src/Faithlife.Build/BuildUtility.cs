@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using GlobExpressions;
+using Polly;
 
 namespace Faithlife.Build
 {
@@ -95,6 +96,30 @@ namespace Faithlife.Build
 				throw new ArgumentNullException(nameof(globs));
 
 			CopyFilesCore(fromDirectory, toDirectory, Glob.Files(fromDirectory, "**").Except(globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct()));
+		}
+
+		/// <summary>
+		/// Recursively deletes the specified directory.
+		/// </summary>
+		/// <param name="path">The directory to delete.</param>
+		/// <remarks>Retries once on error.</remarks>
+		public static void DeleteDirectory(string path)
+		{
+			if (path is null)
+				throw new ArgumentNullException(nameof(path));
+
+			Policy.Handle<IOException>()
+				.WaitAndRetry(new[] { TimeSpan.FromMilliseconds(50) })
+				.Execute(() =>
+				{
+					try
+					{
+						Directory.Delete(path, recursive: true);
+					}
+					catch (DirectoryNotFoundException)
+					{
+					}
+				});
 		}
 
 		private static void CopyFilesCore(string fromDirectory, string toDirectory, IEnumerable<string> filePaths)
