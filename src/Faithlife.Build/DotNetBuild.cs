@@ -140,7 +140,7 @@ namespace Faithlife.Build
 
 			build.Target("package")
 				.DependsOn("test")
-				.Describe("Builds NuGet packages")
+				.Describe("Creates NuGet packages")
 				.Does(() =>
 				{
 					packagePaths = BuildNuGetPackages();
