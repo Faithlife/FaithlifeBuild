@@ -11,6 +11,15 @@ public static class DotNetBuild
 | name | description |
 | --- | --- |
 | static [AddDotNetTargets](DotNetBuild/AddDotNetTargets.md)(…) | Adds the standard .NET targets to the build. |
+| static [GetBuildNumber](DotNetBuild/GetBuildNumber.md)(…) | Gets the build number, if any. |
+| static [GetBuildNumberArg](DotNetBuild/GetBuildNumberArg.md)(…) | Gets the argument that specifies the build number. |
+| static [GetConfiguration](DotNetBuild/GetConfiguration.md)(…) | Gets the configuration. |
+| static [GetConfigurationArg](DotNetBuild/GetConfigurationArg.md)(…) | Gets the MSBuild-style argument that specifies the configuration. |
+| static [GetExtraPropertyArgs](DotNetBuild/GetExtraPropertyArgs.md)(…) | Gets extra properties for the specified target. |
+| static [GetMaxCpuCountArg](DotNetBuild/GetMaxCpuCountArg.md)(…) | Gets the argument that specifies the maximum CPU count. |
+| static [GetPlatform](DotNetBuild/GetPlatform.md)(…) | Gets the platform, if any. |
+| static [GetPlatformArg](DotNetBuild/GetPlatformArg.md)(…) | Gets the argument that specifies the platform, if needed. |
+| static [GetVerbosityArg](DotNetBuild/GetVerbosityArg.md)(…) | Gets the argument that specifies the verbosity. |
 
 ## See Also
 
