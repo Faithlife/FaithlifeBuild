@@ -37,7 +37,15 @@ namespace Faithlife.Build
 			var commandLineApp = new CommandLineApplication();
 
 			var buildApp = new BuildApp(commandLineApp);
-			initialize(buildApp);
+			try
+			{
+				initialize(buildApp);
+			}
+			catch (Exception exception) when (IsMessageOnlyException(exception))
+			{
+				Console.Error.WriteLine(exception.Message);
+				return 2;
+			}
 
 			var dryRunFlag = buildApp.AddFlag("-n|--dry-run", "Don't execute target actions");
 			var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run any target dependencies");
