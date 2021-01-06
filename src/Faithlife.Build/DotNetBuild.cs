@@ -37,22 +37,14 @@ namespace Faithlife.Build
 			settings ??= new DotNetBuildSettings();
 
 			var buildOptions = settings.BuildOptions ??= new DotNetBuildOptions();
-			var configurationOption = buildOptions.ConfigurationOption ??=
-				build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release");
-			var platformOption = buildOptions.PlatformOption ??=
-				build.AddOption("-p|--platform <name>", "The solution platform to build");
-			var verbosityOption = buildOptions.VerbosityOption ??=
-				build.AddOption("-v|--verbosity <level>", "The build verbosity (q[uiet], m[inimal], n[ormal], d[etailed])");
-			var versionSuffixOption = buildOptions.VersionSuffixOption ??=
-				build.AddOption("--version-suffix <suffix>", "Generates a prerelease package");
-			var nugetOutputOption = buildOptions.NuGetOutputOption ??=
-				build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release");
-			var triggerOption = buildOptions.TriggerOption ??=
-				build.AddOption("--trigger <name>", "The git branch or tag that triggered the build");
-			var buildNumberOption = buildOptions.BuildNumberOption ??=
-				build.AddOption("--build-number <number>", "The automated build number");
-			var noTestFlag = buildOptions.NoTestFlag ??=
-				build.AddFlag("--no-test", "Skip the unit tests");
+			buildOptions.ConfigurationOption ??= build.AddOption("-c|--configuration <name>", "The configuration to build (default Release)", "Release");
+			buildOptions.PlatformOption ??= build.AddOption("-p|--platform <name>", "The solution platform to build");
+			buildOptions.VerbosityOption ??= build.AddOption("-v|--verbosity <level>", "The build verbosity (q[uiet], m[inimal], n[ormal], d[etailed])");
+			buildOptions.VersionSuffixOption ??= build.AddOption("--version-suffix <suffix>", "Generates a prerelease package");
+			buildOptions.NuGetOutputOption ??= build.AddOption("--nuget-output <path>", "Directory for generated package (default release)", "release");
+			buildOptions.TriggerOption ??= build.AddOption("--trigger <name>", "The git branch or tag that triggered the build");
+			buildOptions.BuildNumberOption ??= build.AddOption("--build-number <number>", "The automated build number");
+			buildOptions.NoTestFlag ??= build.AddFlag("--no-test", "Skip the unit tests");
 
 			var solutionName = settings.SolutionName;
 			var nugetSource = settings.NuGetSource ?? "https://api.nuget.org/v3/index.json";
@@ -69,24 +61,22 @@ namespace Faithlife.Build
 					foreach (var directoryToDelete in findDirectoriesToDelete())
 						DeleteDirectory(directoryToDelete);
 
-					var verbosity = GetVerbosity();
-					var extraProperties = GetExtraProperties("clean");
+					var extraProperties = GetExtraPropertyArgs("clean", settings);
 					if (msbuildSettings is null)
-						RunDotNet(new[] { "clean", solutionName, "-c", configurationOption.Value, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "clean", solutionName, "-c", GetConfiguration(settings), GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, "-t:Clean", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, "-t:Clean", GetConfigurationArg(settings), GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
 				});
 
 			build.Target("restore")
 				.Describe("Restores NuGet packages")
 				.Does(() =>
 				{
-					var verbosity = GetVerbosity();
-					var extraProperties = GetExtraProperties("restore");
+					var extraProperties = GetExtraPropertyArgs("restore", settings);
 					if (msbuildSettings is null)
-						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(), "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, "-t:Restore", $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, "-t:Restore", GetConfigurationArg(settings), GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
 
 					if (DotNetLocalTool.Any())
 						RunDotNet("tool", "restore");
@@ -97,14 +87,11 @@ namespace Faithlife.Build
 				.Describe("Builds the solution")
 				.Does(() =>
 				{
-					var buildNumberArg = GetBuildNumberArg();
-
-					var verbosity = GetVerbosity();
-					var extraProperties = GetExtraProperties("build");
+					var extraProperties = GetExtraPropertyArgs("build", settings);
 					if (msbuildSettings is null)
-						RunDotNet(new[] { "build", solutionName, "-c", configurationOption.Value, GetPlatformArg(), buildNumberArg, "--no-restore", "--verbosity", verbosity, GetMaxCpuCountArg() }.Concat(extraProperties));
+						RunDotNet(new[] { "build", solutionName, "-c", GetConfiguration(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), "--no-restore", GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, $"-p:Configuration={configurationOption.Value}", GetPlatformArg(), buildNumberArg, $"-v:{verbosity}", GetMaxCpuCountArg() }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, GetConfigurationArg(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -112,13 +99,13 @@ namespace Faithlife.Build
 				.Describe("Runs the unit tests")
 				.Does(() =>
 				{
-					if (noTestFlag.Value)
+					if (buildOptions.NoTestFlag!.Value)
 					{
 						Console.WriteLine("Skipping unit tests due to --no-test.");
 					}
 					else
 					{
-						var extraProperties = GetExtraProperties("test").ToList();
+						var extraProperties = GetExtraPropertyArgs("test", settings).ToList();
 						var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
 						if (findTestAssemblies is not null)
 						{
@@ -145,7 +132,7 @@ namespace Faithlife.Build
 								if (settings.TestSettings?.RunTests is not null)
 									settings.TestSettings.RunTests(testProject);
 								else
-									RunDotNet(new[] { "test", testProject, "-c", configurationOption.Value, GetPlatformArg(), "--no-build", GetMaxCpuCountArg() }.Concat(extraProperties));
+									RunDotNet(new[] { "test", testProject, "-c", GetConfiguration(settings), GetPlatformArg(settings), "--no-build", GetMaxCpuCountArg(settings) }.Concat(extraProperties));
 							}
 						}
 					}
@@ -161,7 +148,7 @@ namespace Faithlife.Build
 
 			(string? Trigger, bool AutoDetected) GetTrigger()
 			{
-				var trigger = triggerOption.Value;
+				var trigger = buildOptions.TriggerOption!.Value;
 
 				if (trigger == "detect")
 				{
@@ -182,11 +169,11 @@ namespace Faithlife.Build
 			{
 				var (trigger, _) = GetTrigger();
 
-				var versionSuffix = versionSuffixOption.Value;
+				var versionSuffix = buildOptions.VersionSuffixOption!.Value;
 				if (versionSuffix is null && trigger is not null)
 					versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
 
-				var nugetOutputPath = Path.GetFullPath(nugetOutputOption.Value!);
+				var nugetOutputPath = Path.GetFullPath(buildOptions.NuGetOutputOption!.Value!);
 				var tempOutputPath = Path.Combine(nugetOutputPath, Path.GetRandomFileName());
 
 				var packageProjects = new List<string?>();
@@ -197,7 +184,7 @@ namespace Faithlife.Build
 				else
 					packageProjects.Add(solutionName);
 
-				var extraProperties = GetExtraProperties("package").ToList();
+				var extraProperties = GetExtraPropertyArgs("package", settings).ToList();
 				foreach (var packageProject in packageProjects)
 				{
 					if (msbuildSettings is null)
@@ -205,12 +192,12 @@ namespace Faithlife.Build
 						RunDotNet(new[]
 						{
 							"pack", packageProject,
-							"-c", configurationOption.Value,
-							GetPlatformArg(),
+							"-c", GetConfiguration(settings),
+							GetPlatformArg(settings),
 							"--no-build",
 							"--output", tempOutputPath,
 							versionSuffix is not null ? "--version-suffix" : null, versionSuffix,
-							GetMaxCpuCountArg(),
+							GetMaxCpuCountArg(settings),
 						}.Concat(extraProperties));
 					}
 					else
@@ -218,13 +205,13 @@ namespace Faithlife.Build
 						MSBuild(new[]
 						{
 							packageProject, "-t:Pack",
-							$"-p:Configuration={configurationOption.Value}",
-							GetPlatformArg(),
+							GetConfigurationArg(settings),
+							GetPlatformArg(settings),
 							"-p:NoBuild=true",
 							$"-p:PackageOutputPath={tempOutputPath}",
 							versionSuffix is not null ? $"-p:VersionSuffix={versionSuffix}" : null,
-							$"-v:{GetVerbosity()}",
-							GetMaxCpuCountArg(),
+							GetVerbosityArg(settings),
+							GetMaxCpuCountArg(settings),
 						}.Concat(extraProperties));
 					}
 				}
@@ -518,7 +505,7 @@ namespace Faithlife.Build
 					.Describe("Fixes coding style with dotnet-format")
 					.Does(() =>
 					{
-						dotnetFormat.Run("--verbosity", GetVerbosity());
+						dotnetFormat.Run(GetVerbosityArg(settings));
 					});
 			}
 
@@ -580,70 +567,105 @@ namespace Faithlife.Build
 
 				IEnumerable<string?> GetJetBrainsProperties()
 				{
-					yield return $"--properties:Configuration={configurationOption!.Value}";
-
-					var platformValue = platformOption!.Value ?? settings!.SolutionPlatform;
-					yield return platformValue is null ? null : $"--properties:Platform={platformValue}";
-				}
-			}
-
-			string? GetPlatformArg()
-			{
-				var platformValue = platformOption!.Value ?? settings!.SolutionPlatform;
-				return platformValue is null ? null : $"-p:Platform={platformValue}";
-			}
-
-			string? GetMaxCpuCountArg() =>
-				settings!.MaxCpuCount is not null ? $"-maxcpucount:{settings.MaxCpuCount}" :
-				msbuildSettings is not null ? "-maxcpucount" : null;
-
-			string? GetBuildNumberArg()
-			{
-				var buildNumberValue = buildNumberOption!.Value ??
-					Environment.GetEnvironmentVariable("APPVEYOR_BUILD_NUMBER") ??
-					Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
-				return buildNumberValue is null ? null : $"-p:BuildNumber={buildNumberValue}";
-			}
-
-			IEnumerable<string> GetExtraProperties(string target)
-			{
-				var pairs = settings!.ExtraProperties?.Invoke(target!);
-				if (pairs is not null)
-				{
-					foreach (var (key, value) in pairs)
-						yield return $"-p:{key}={value}";
+					yield return $"--properties:Configuration={GetConfiguration(settings)}";
+					yield return GetPlatform(settings) is string platform ? $"--properties:Platform={platform}" : null;
 				}
 			}
 
 			void MSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments!);
+		}
 
-			string GetVerbosity()
+		/// <summary>
+		/// Gets the configuration.
+		/// </summary>
+		public static string GetConfiguration(DotNetBuildSettings settings) =>
+			settings!.BuildOptions!.ConfigurationOption!.Value!;
+
+		/// <summary>
+		/// Gets the MSBuild-style argument that specifies the configuration.
+		/// </summary>
+		public static string GetConfigurationArg(DotNetBuildSettings settings) => $"-p:Configuration={GetConfiguration(settings)}";
+
+		/// <summary>
+		/// Gets the platform, if any.
+		/// </summary>
+		public static string? GetPlatform(DotNetBuildSettings settings) =>
+			settings.BuildOptions!.PlatformOption!.Value ?? settings.SolutionPlatform;
+
+		/// <summary>
+		/// Gets the argument that specifies the platform, if needed.
+		/// </summary>
+		public static string? GetPlatformArg(DotNetBuildSettings settings) =>
+			GetPlatform(settings) is string platform ? $"-p:Platform={platform}" : null;
+
+		/// <summary>
+		/// Gets the argument that specifies the maximum CPU count.
+		/// </summary>
+		public static string GetMaxCpuCountArg(DotNetBuildSettings settings) =>
+			settings.MaxCpuCount is not null ? $"-maxcpucount:{settings.MaxCpuCount}" : "-maxcpucount";
+
+		/// <summary>
+		/// Gets the argument that specifies the verbosity.
+		/// </summary>
+		/// <remarks>Defaults to minimal.</remarks>
+		public static string GetVerbosityArg(DotNetBuildSettings settings)
+		{
+			var verbosity = settings.BuildOptions!.VerbosityOption!.Value?.ToLowerInvariant() switch
 			{
-				var verbosity = verbosityOption!.Value?.ToLowerInvariant() switch
-				{
-					"q" => DotNetBuildVerbosity.Quiet,
-					"quiet" => DotNetBuildVerbosity.Quiet,
-					"m" => DotNetBuildVerbosity.Minimal,
-					"minimal" => DotNetBuildVerbosity.Minimal,
-					"n" => DotNetBuildVerbosity.Normal,
-					"normal" => DotNetBuildVerbosity.Normal,
-					"d" => DotNetBuildVerbosity.Detailed,
-					"detailed" => DotNetBuildVerbosity.Detailed,
-					"diag" => DotNetBuildVerbosity.Diagnostic,
-					"diagnostic" => DotNetBuildVerbosity.Diagnostic,
-					null => settings!.Verbosity ?? DotNetBuildVerbosity.Minimal,
-					_ => throw new BuildException($"Unexpected verbosity option: {verbosityOption.Value}"),
-				};
+				"q" => DotNetBuildVerbosity.Quiet,
+				"quiet" => DotNetBuildVerbosity.Quiet,
+				"m" => DotNetBuildVerbosity.Minimal,
+				"minimal" => DotNetBuildVerbosity.Minimal,
+				"n" => DotNetBuildVerbosity.Normal,
+				"normal" => DotNetBuildVerbosity.Normal,
+				"d" => DotNetBuildVerbosity.Detailed,
+				"detailed" => DotNetBuildVerbosity.Detailed,
+				"diag" => DotNetBuildVerbosity.Diagnostic,
+				"diagnostic" => DotNetBuildVerbosity.Diagnostic,
+				null => settings!.Verbosity ?? DotNetBuildVerbosity.Minimal,
+				_ => throw new BuildException($"Unexpected verbosity option: {settings.BuildOptions.VerbosityOption.Value}"),
+			};
 
-				return verbosity switch
-				{
-					DotNetBuildVerbosity.Quiet => "quiet",
-					DotNetBuildVerbosity.Minimal => "minimal",
-					DotNetBuildVerbosity.Normal => "normal",
-					DotNetBuildVerbosity.Detailed => "detailed",
-					DotNetBuildVerbosity.Diagnostic => "diagnostic",
-					_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {settings!.Verbosity}"),
-				};
+			var argument = verbosity switch
+			{
+				DotNetBuildVerbosity.Quiet => "quiet",
+				DotNetBuildVerbosity.Minimal => "minimal",
+				DotNetBuildVerbosity.Normal => "normal",
+				DotNetBuildVerbosity.Detailed => "detailed",
+				DotNetBuildVerbosity.Diagnostic => "diagnostic",
+				_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {verbosity}"),
+			};
+
+			return $"-v:{argument}";
+		}
+
+		/// <summary>
+		/// Gets the build number, if any.
+		/// </summary>
+		public static string? GetBuildNumber(DotNetBuildSettings settings)
+		{
+			var buildNumberOption = settings.BuildOptions!.BuildNumberOption;
+			return buildNumberOption!.Value ??
+				Environment.GetEnvironmentVariable("APPVEYOR_BUILD_NUMBER") ??
+				Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
+		}
+
+		/// <summary>
+		/// Gets the argument that specifies the build number.
+		/// </summary>
+		public static string? GetBuildNumberArg(DotNetBuildSettings settings) =>
+			GetBuildNumber(settings) is string buildNumber ? $"-p:BuildNumber={buildNumber}" : null;
+
+		/// <summary>
+		/// Gets extra properties for the specified target.
+		/// </summary>
+		public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings)
+		{
+			var pairs = settings.ExtraProperties?.Invoke(target);
+			if (pairs is not null)
+			{
+				foreach (var (key, value) in pairs)
+					yield return $"-p:{key}={value}";
 			}
 		}
 
