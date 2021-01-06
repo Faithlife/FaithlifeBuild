@@ -139,7 +139,7 @@ namespace Faithlife.Build
 				});
 
 			build.Target("package")
-				.DependsOn("clean", "test")
+				.DependsOn("test")
 				.Describe("Builds NuGet packages")
 				.Does(() =>
 				{
