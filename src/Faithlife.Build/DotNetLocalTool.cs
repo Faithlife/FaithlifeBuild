@@ -97,7 +97,8 @@ namespace Faithlife.Build
 
 			settings = settings.Clone();
 			settings.Arguments = new[] { "tool", "run", m_name, "--" }.Concat(settings.Arguments ?? Enumerable.Empty<string>());
-			settings.WorkingDirectory = m_directory;
+			if (m_directory != ".")
+				settings.WorkingDirectory = m_directory;
 
 			return RunDotNet(settings);
 		}
