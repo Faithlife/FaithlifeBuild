@@ -357,28 +357,28 @@ namespace Faithlife.Build
 							}
 
 							var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
-							foreach (var projectName in packagePaths.Select(x => GetPackageInfo(x).Name).Where(projectHasDocs))
+							foreach (var project in packagePaths.Select(GetPackageInfo).Where(x => projectHasDocs(x.Name)))
 							{
 								var assemblyPaths = new List<string>();
 								if (docsSettings.FindAssemblies is not null)
 								{
-									assemblyPaths.AddRange(docsSettings.FindAssemblies(projectName));
+									assemblyPaths.AddRange(docsSettings.FindAssemblies(project.Name));
 								}
 								else if (docsSettings.FindAssembly is not null)
 								{
-									var assemblyPath = docsSettings.FindAssembly(projectName);
+									var assemblyPath = docsSettings.FindAssembly(project.Name);
 									if (assemblyPath is not null)
 										assemblyPaths.Add(assemblyPath);
 								}
 								else if (xmlDocGenPath is not null)
 								{
-									assemblyPaths.Add(projectName);
+									assemblyPaths.Add(project.Name);
 								}
 								else
 								{
 									var assemblyPath =
-										FindFiles($"tools/XmlDocTarget/bin/**/{projectName}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
-										FindFiles($"src/{projectName}/bin/**/{projectName}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+										FindFiles($"tools/XmlDocTarget/bin/**/{project.Name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
+										FindFiles($"src/{project.Name}/bin/**/{project.Name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
 									if (assemblyPath is not null)
 										assemblyPaths.Add(assemblyPath);
 								}
@@ -408,11 +408,11 @@ namespace Faithlife.Build
 								}
 								else
 								{
-									Console.WriteLine($"Documentation not generated for {projectName}; assembly not found.");
+									Console.WriteLine($"Documentation not generated for {project.Name}; assembly not found.");
 								}
 
 								string?[] GetXmlDocArgs(string input) =>
-									new[] { input, docsPath, "--source", $"{docsSettings!.SourceCodeUrl}/{projectName}", "--newline", "lf", "--clean" };
+									new[] { input, docsPath, "--source", $"{docsSettings!.SourceCodeUrl}/{project.Name}", "--newline", "lf", "--clean", string.IsNullOrEmpty(project.Suffix) ? null : "--dryrun" };
 							}
 
 							shouldPushDocs = repository.RetrieveStatus().IsDirty;
@@ -696,7 +696,7 @@ namespace Faithlife.Build
 				.OrderByDescending(x => x.Version.Major)
 				.ThenByDescending(x => x.Version.Minor)
 				.ThenByDescending(x => x.Version.Patch)
-				.ThenByDescending(x => x.Version.Suffix is null)
+				.ThenByDescending(x => string.IsNullOrEmpty(x.Version.Suffix))
 				.ThenByDescending(x => x.Version.Suffix, StringComparer.Ordinal)
 				.Select(x => x.Tag)
 				.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
