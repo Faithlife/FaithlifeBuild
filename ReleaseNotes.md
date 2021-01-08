@@ -1,5 +1,13 @@
 # Release Notes
 
+## 5.5.0
+
+* Don't generate documentation for prerelease packages.
+* Don't unnecessarily 'clean' before 'package'.
+* Add `DeleteDirectory` to `BuildUtility`.
+* Add static methods to `DotNetBuild` to help with standard build options.
+* Improve exception handling during build script initialization.
+
 ## 5.4.1
 
 * Fix bug when using `XmlDocGen`.
