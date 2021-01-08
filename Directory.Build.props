@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <VersionPrefix>5.5.0</VersionPrefix>
-    <VersionSuffix>beta.2</VersionSuffix>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
