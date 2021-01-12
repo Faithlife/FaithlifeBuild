@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.6.0
+
+* Suppress .NET build summary of warnings and errors. (Use `DotNetBuildSettings.ShowSummary` to restore it.)
+* Update `Bullseye` and `McMaster.Extensions.CommandLineUtils`.
+
 ## 5.5.0
 
 * Don't generate documentation for prerelease packages.
