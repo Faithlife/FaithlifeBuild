@@ -89,9 +89,9 @@ namespace Faithlife.Build
 				{
 					var extraProperties = GetExtraPropertyArgs("build", settings);
 					if (msbuildSettings is null)
-						RunDotNet(new[] { "build", solutionName, "-c", GetConfiguration(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), "--no-restore", GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
+						RunDotNet(new[] { "build", solutionName, "-c", GetConfiguration(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), "--no-restore", GetVerbosityArg(settings), GetMaxCpuCountArg(settings), GetBuildSummaryArg(settings) }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, GetConfigurationArg(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, GetConfigurationArg(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings), GetBuildSummaryArg(settings) }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -655,6 +655,11 @@ namespace Faithlife.Build
 		/// </summary>
 		public static string? GetBuildNumberArg(DotNetBuildSettings settings) =>
 			GetBuildNumber(settings) is string buildNumber ? $"-p:BuildNumber={buildNumber}" : null;
+
+		/// <summary>
+		/// Gets the argument that specifies whether a build summary should be output.
+		/// </summary>
+		public static string GetBuildSummaryArg(DotNetBuildSettings settings) => settings.ShowSummary.GetValueOrDefault() ? "-clp:Summary" : "-clp:NoSummary";
 
 		/// <summary>
 		/// Gets extra properties for the specified target.

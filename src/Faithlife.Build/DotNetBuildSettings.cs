@@ -87,6 +87,14 @@ namespace Faithlife.Build
 		public DotNetBuildVerbosity? Verbosity { get; set; }
 
 		/// <summary>
+		/// True if a build summary should be displayed. (Default false.)
+		/// </summary>
+		/// <remarks>The build summary repeats any build warnings and errors, which can seem repetitive,
+		/// especially with minimal verbosity, and can confuse tools that extract and summarize build warnings
+		/// and errors.</remarks>
+		public bool? ShowSummary { get; set; }
+
+		/// <summary>
 		/// The SourceLink settings. Must be set to test SourceLink URLs.
 		/// </summary>
 		[Obsolete("Support for sourcelink test was removed.")]
