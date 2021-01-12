@@ -20,6 +20,7 @@ public sealed class DotNetBuildSettings
 | [NuGetApiKey](DotNetBuildSettings/NuGetApiKey.md) { get; set; } | The NuGet API key with which to push packages. |
 | [NuGetSource](DotNetBuildSettings/NuGetSource.md) { get; set; } | The NuGet source to which to push packages. The standard public NuGet source if omitted. |
 | [PackageSettings](DotNetBuildSettings/PackageSettings.md) { get; set; } | Settings for creating NuGet packages. |
+| [ShowSummary](DotNetBuildSettings/ShowSummary.md) { get; set; } | True if a build summary should be displayed. (Default false.) |
 | [SolutionName](DotNetBuildSettings/SolutionName.md) { get; set; } | The name of the solution file. Optional if there is only one solution in the working directory. |
 | [SolutionPlatform](DotNetBuildSettings/SolutionPlatform.md) { get; set; } | The default solution platform to build (optional). |
 | [TestSettings](DotNetBuildSettings/TestSettings.md) { get; set; } | Settings for running unit tests. |

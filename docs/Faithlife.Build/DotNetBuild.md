@@ -13,6 +13,7 @@ public static class DotNetBuild
 | static [AddDotNetTargets](DotNetBuild/AddDotNetTargets.md)(…) | Adds the standard .NET targets to the build. |
 | static [GetBuildNumber](DotNetBuild/GetBuildNumber.md)(…) | Gets the build number, if any. |
 | static [GetBuildNumberArg](DotNetBuild/GetBuildNumberArg.md)(…) | Gets the argument that specifies the build number. |
+| static [GetBuildSummaryArg](DotNetBuild/GetBuildSummaryArg.md)(…) | Gets the argument that specifies whether a build summary should be output. |
 | static [GetConfiguration](DotNetBuild/GetConfiguration.md)(…) | Gets the configuration. |
 | static [GetConfigurationArg](DotNetBuild/GetConfigurationArg.md)(…) | Gets the MSBuild-style argument that specifies the configuration. |
 | static [GetExtraPropertyArgs](DotNetBuild/GetExtraPropertyArgs.md)(…) | Gets extra properties for the specified target. |
