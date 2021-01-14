@@ -106,10 +106,14 @@ namespace Faithlife.Build
 					else
 					{
 						var extraProperties = settings.GetExtraPropertyArgs("test").ToList();
-						var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
-						if (findTestAssemblies is not null)
+						var findAssemblies = settings.TestSettings?.FindAssemblies;
+#pragma warning disable 618
+						if (findAssemblies is null && settings.TestSettings?.FindTestAssemblies is not null)
+							findAssemblies = _ => settings.TestSettings.FindTestAssemblies();
+#pragma warning restore 618
+						if (findAssemblies is not null)
 						{
-							foreach (var testAssembly in findTestAssemblies())
+							foreach (var testAssembly in findAssemblies(settings))
 							{
 								if (settings.TestSettings?.RunTests is not null)
 									settings.TestSettings.RunTests(testAssembly);

@@ -16,6 +16,12 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Called to find the test assemblies.
 		/// </summary>
+		public Func<DotNetBuildSettings, IReadOnlyList<string>>? FindAssemblies { get; set; }
+
+		/// <summary>
+		/// Called to find the test assemblies.
+		/// </summary>
+		[Obsolete("Use FindAssemblies.")]
 		public Func<IReadOnlyList<string>>? FindTestAssemblies { get; set; }
 
 		/// <summary>
