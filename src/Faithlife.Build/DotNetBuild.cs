@@ -61,22 +61,22 @@ namespace Faithlife.Build
 					foreach (var directoryToDelete in findDirectoriesToDelete())
 						DeleteDirectory(directoryToDelete);
 
-					var extraProperties = GetExtraPropertyArgs("clean", settings);
+					var extraProperties = settings.GetExtraPropertyArgs("clean");
 					if (msbuildSettings is null)
-						RunDotNet(new[] { "clean", solutionName, "-c", GetConfiguration(settings), GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
+						RunDotNet(new[] { "clean", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, "-t:Clean", GetConfigurationArg(settings), GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, "-t:Clean", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 				});
 
 			build.Target("restore")
 				.Describe("Restores NuGet packages")
 				.Does(() =>
 				{
-					var extraProperties = GetExtraPropertyArgs("restore", settings);
+					var extraProperties = settings.GetExtraPropertyArgs("restore");
 					if (msbuildSettings is null)
-						RunDotNet(new[] { "restore", solutionName, GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
+						RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, "-t:Restore", GetConfigurationArg(settings), GetPlatformArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings) }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, "-t:Restore", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 
 					if (DotNetLocalTool.Any())
 						RunDotNet("tool", "restore");
@@ -87,11 +87,11 @@ namespace Faithlife.Build
 				.Describe("Builds the solution")
 				.Does(() =>
 				{
-					var extraProperties = GetExtraPropertyArgs("build", settings);
+					var extraProperties = settings.GetExtraPropertyArgs("build");
 					if (msbuildSettings is null)
-						RunDotNet(new[] { "build", solutionName, "-c", GetConfiguration(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), "--no-restore", GetVerbosityArg(settings), GetMaxCpuCountArg(settings), GetBuildSummaryArg(settings) }.Concat(extraProperties));
+						RunDotNet(new[] { "build", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), "--no-restore", settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg() }.Concat(extraProperties));
 					else
-						MSBuild(new[] { solutionName, GetConfigurationArg(settings), GetPlatformArg(settings), GetBuildNumberArg(settings), GetVerbosityArg(settings), GetMaxCpuCountArg(settings), GetBuildSummaryArg(settings) }.Concat(extraProperties));
+						MSBuild(new[] { solutionName, settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg() }.Concat(extraProperties));
 				});
 
 			build.Target("test")
@@ -105,7 +105,7 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						var extraProperties = GetExtraPropertyArgs("test", settings).ToList();
+						var extraProperties = settings.GetExtraPropertyArgs("test").ToList();
 						var findTestAssemblies = settings.TestSettings?.FindTestAssemblies;
 						if (findTestAssemblies is not null)
 						{
@@ -132,7 +132,7 @@ namespace Faithlife.Build
 								if (settings.TestSettings?.RunTests is not null)
 									settings.TestSettings.RunTests(testProject);
 								else
-									RunDotNet(new[] { "test", testProject, "-c", GetConfiguration(settings), GetPlatformArg(settings), "--no-build", GetMaxCpuCountArg(settings) }.Concat(extraProperties));
+									RunDotNet(new[] { "test", testProject, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), "--no-build", settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 							}
 						}
 					}
@@ -184,7 +184,7 @@ namespace Faithlife.Build
 				else
 					packageProjects.Add(solutionName);
 
-				var extraProperties = GetExtraPropertyArgs("package", settings).ToList();
+				var extraProperties = settings.GetExtraPropertyArgs("package").ToList();
 				foreach (var packageProject in packageProjects)
 				{
 					if (msbuildSettings is null)
@@ -192,12 +192,12 @@ namespace Faithlife.Build
 						RunDotNet(new[]
 						{
 							"pack", packageProject,
-							"-c", GetConfiguration(settings),
-							GetPlatformArg(settings),
+							"-c", settings.GetConfiguration(),
+							settings.GetPlatformArg(),
 							"--no-build",
 							"--output", tempOutputPath,
 							versionSuffix is not null ? "--version-suffix" : null, versionSuffix,
-							GetMaxCpuCountArg(settings),
+							settings.GetMaxCpuCountArg(),
 						}.Concat(extraProperties));
 					}
 					else
@@ -205,13 +205,13 @@ namespace Faithlife.Build
 						MSBuild(new[]
 						{
 							packageProject, "-t:Pack",
-							GetConfigurationArg(settings),
-							GetPlatformArg(settings),
+							settings.GetConfigurationArg(),
+							settings.GetPlatformArg(),
 							"-p:NoBuild=true",
 							$"-p:PackageOutputPath={tempOutputPath}",
 							versionSuffix is not null ? $"-p:VersionSuffix={versionSuffix}" : null,
-							GetVerbosityArg(settings),
-							GetMaxCpuCountArg(settings),
+							settings.GetVerbosityArg(),
+							settings.GetMaxCpuCountArg(),
 						}.Concat(extraProperties));
 					}
 				}
@@ -505,7 +505,7 @@ namespace Faithlife.Build
 					.Describe("Fixes coding style with dotnet-format")
 					.Does(() =>
 					{
-						dotnetFormat.Run(GetVerbosityArg(settings));
+						dotnetFormat.Run(settings.GetVerbosityArg());
 					});
 			}
 
@@ -567,8 +567,8 @@ namespace Faithlife.Build
 
 				IEnumerable<string?> GetJetBrainsProperties()
 				{
-					yield return $"--properties:Configuration={GetConfiguration(settings)}";
-					yield return GetPlatform(settings) is string platform ? $"--properties:Platform={platform}" : null;
+					yield return $"--properties:Configuration={settings.GetConfiguration()}";
+					yield return settings.GetPlatform() is string platform ? $"--properties:Platform={platform}" : null;
 				}
 			}
 
@@ -578,39 +578,38 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Gets the configuration.
 		/// </summary>
-		public static string GetConfiguration(DotNetBuildSettings settings) =>
+		public static string GetConfiguration(this DotNetBuildSettings settings) =>
 			settings!.BuildOptions!.ConfigurationOption!.Value!;
 
 		/// <summary>
 		/// Gets the MSBuild-style argument that specifies the configuration.
 		/// </summary>
-		public static string GetConfigurationArg(DotNetBuildSettings settings) => $"-p:Configuration={GetConfiguration(settings)}";
+		public static string GetConfigurationArg(this DotNetBuildSettings settings) => $"-p:Configuration={settings.GetConfiguration()}";
 
 		/// <summary>
 		/// Gets the platform, if any.
 		/// </summary>
-		public static string? GetPlatform(DotNetBuildSettings settings) =>
+		public static string? GetPlatform(this DotNetBuildSettings settings) =>
 			settings.BuildOptions!.PlatformOption!.Value ?? settings.SolutionPlatform;
 
 		/// <summary>
 		/// Gets the argument that specifies the platform, if needed.
 		/// </summary>
-		public static string? GetPlatformArg(DotNetBuildSettings settings) =>
-			GetPlatform(settings) is string platform ? $"-p:Platform={platform}" : null;
+		public static string? GetPlatformArg(this DotNetBuildSettings settings) =>
+			settings.GetPlatform() is string platform ? $"-p:Platform={platform}" : null;
 
 		/// <summary>
 		/// Gets the argument that specifies the maximum CPU count.
 		/// </summary>
-		public static string GetMaxCpuCountArg(DotNetBuildSettings settings) =>
+		public static string GetMaxCpuCountArg(this DotNetBuildSettings settings) =>
 			settings.MaxCpuCount is not null ? $"-maxcpucount:{settings.MaxCpuCount}" : "-maxcpucount";
 
 		/// <summary>
-		/// Gets the argument that specifies the verbosity.
+		/// Gets the build verbosity.
 		/// </summary>
 		/// <remarks>Defaults to minimal.</remarks>
-		public static string GetVerbosityArg(DotNetBuildSettings settings)
-		{
-			var verbosity = settings.BuildOptions!.VerbosityOption!.Value?.ToLowerInvariant() switch
+		public static DotNetBuildVerbosity GetVerbosity(this DotNetBuildSettings settings) =>
+			settings.BuildOptions!.VerbosityOption!.Value?.ToLowerInvariant() switch
 			{
 				"q" => DotNetBuildVerbosity.Quiet,
 				"quiet" => DotNetBuildVerbosity.Quiet,
@@ -625,6 +624,14 @@ namespace Faithlife.Build
 				null => settings!.Verbosity ?? DotNetBuildVerbosity.Minimal,
 				_ => throw new BuildException($"Unexpected verbosity option: {settings.BuildOptions.VerbosityOption.Value}"),
 			};
+
+		/// <summary>
+		/// Gets the argument that specifies the verbosity.
+		/// </summary>
+		/// <remarks>Defaults to minimal.</remarks>
+		public static string GetVerbosityArg(this DotNetBuildSettings settings)
+		{
+			var verbosity = settings.GetVerbosity();
 
 			var argument = verbosity switch
 			{
@@ -642,7 +649,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Gets the build number, if any.
 		/// </summary>
-		public static string? GetBuildNumber(DotNetBuildSettings settings)
+		public static string? GetBuildNumber(this DotNetBuildSettings settings)
 		{
 			var buildNumberOption = settings.BuildOptions!.BuildNumberOption;
 			return buildNumberOption!.Value ??
@@ -653,18 +660,18 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Gets the argument that specifies the build number.
 		/// </summary>
-		public static string? GetBuildNumberArg(DotNetBuildSettings settings) =>
-			GetBuildNumber(settings) is string buildNumber ? $"-p:BuildNumber={buildNumber}" : null;
+		public static string? GetBuildNumberArg(this DotNetBuildSettings settings) =>
+			settings.GetBuildNumber() is string buildNumber ? $"-p:BuildNumber={buildNumber}" : null;
 
 		/// <summary>
 		/// Gets the argument that specifies whether a build summary should be output.
 		/// </summary>
-		public static string GetBuildSummaryArg(DotNetBuildSettings settings) => settings.ShowSummary.GetValueOrDefault() ? "-clp:Summary" : "-clp:NoSummary";
+		public static string GetBuildSummaryArg(this DotNetBuildSettings settings) => settings.ShowSummary.GetValueOrDefault() ? "-clp:Summary" : "-clp:NoSummary";
 
 		/// <summary>
 		/// Gets extra properties for the specified target.
 		/// </summary>
-		public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings)
+		public static IEnumerable<string> GetExtraPropertyArgs(this DotNetBuildSettings settings, string target)
 		{
 			var pairs = settings.ExtraProperties?.Invoke(target);
 			if (pairs is not null)
@@ -673,6 +680,12 @@ namespace Faithlife.Build
 					yield return $"-p:{key}={value}";
 			}
 		}
+
+		/// <summary>
+		/// Gets extra properties for the specified target.
+		/// </summary>
+		[Obsolete("Use other overload.")]
+		public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings) => settings.GetExtraPropertyArgs(target);
 
 		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)
 		{
