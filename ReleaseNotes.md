@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.7.0-beta.1
+
+* Replace `FindTestAssemblies` with `FindAssemblies` in `DotNetTestSettings`.
+* Make `DotNetBuildSettings` helper methods extension methods.
+
 ## 5.6.0
 
 * Suppress .NET build summary of warnings and errors. (Use `DotNetBuildSettings.ShowSummary` to restore it.)
