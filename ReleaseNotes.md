@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.7.0-beta.1
+## 5.7.0
 
 * Replace `FindTestAssemblies` with `FindAssemblies` in `DotNetTestSettings`.
 * Make `DotNetBuildSettings` helper methods extension methods.
