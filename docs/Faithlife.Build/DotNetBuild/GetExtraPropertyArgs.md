@@ -3,7 +3,8 @@
 Gets extra properties for the specified target.
 
 ```csharp
-public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings)
+public static IEnumerable<string> GetExtraPropertyArgs(this DotNetBuildSettings settings, 
+    string target)
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 Gets the MSBuild-style argument that specifies the configuration.
 
 ```csharp
-public static string GetConfigurationArg(DotNetBuildSettings settings)
+public static string GetConfigurationArg(this DotNetBuildSettings settings)
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 Gets the configuration.
 
 ```csharp
-public static string GetConfiguration(DotNetBuildSettings settings)
+public static string GetConfiguration(this DotNetBuildSettings settings)
 ```
 
 ## See Also

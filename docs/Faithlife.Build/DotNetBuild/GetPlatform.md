@@ -3,7 +3,7 @@
 Gets the platform, if any.
 
 ```csharp
-public static string GetPlatform(DotNetBuildSettings settings)
+public static string GetPlatform(this DotNetBuildSettings settings)
 ```
 
 ## See Also

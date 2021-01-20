@@ -3,7 +3,7 @@
 Gets the argument that specifies whether a build summary should be output.
 
 ```csharp
-public static string GetBuildSummaryArg(DotNetBuildSettings settings)
+public static string GetBuildSummaryArg(this DotNetBuildSettings settings)
 ```
 
 ## See Also

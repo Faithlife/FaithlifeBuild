@@ -1,13 +1,14 @@
-# DotNetTestSettings.FindTestAssemblies property
+# DotNetTestSettings.FindAssemblies property
 
 Called to find the test assemblies.
 
 ```csharp
-public Func<IReadOnlyList<string>> FindTestAssemblies { get; set; }
+public Func<DotNetBuildSettings, IReadOnlyList<string>> FindAssemblies { get; set; }
 ```
 
 ## See Also
 
+* class [DotNetBuildSettings](../DotNetBuildSettings.md)
 * class [DotNetTestSettings](../DotNetTestSettings.md)
 * namespace [Faithlife.Build](../../Faithlife.Build.md)
 

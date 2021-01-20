@@ -3,7 +3,7 @@
 Gets the argument that specifies the verbosity.
 
 ```csharp
-public static string GetVerbosityArg(DotNetBuildSettings settings)
+public static string GetVerbosityArg(this DotNetBuildSettings settings)
 ```
 
 ## Remarks

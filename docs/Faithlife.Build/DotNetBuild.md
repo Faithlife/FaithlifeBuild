@@ -20,6 +20,7 @@ public static class DotNetBuild
 | static [GetMaxCpuCountArg](DotNetBuild/GetMaxCpuCountArg.md)(…) | Gets the argument that specifies the maximum CPU count. |
 | static [GetPlatform](DotNetBuild/GetPlatform.md)(…) | Gets the platform, if any. |
 | static [GetPlatformArg](DotNetBuild/GetPlatformArg.md)(…) | Gets the argument that specifies the platform, if needed. |
+| static [GetVerbosity](DotNetBuild/GetVerbosity.md)(…) | Gets the build verbosity. |
 | static [GetVerbosityArg](DotNetBuild/GetVerbosityArg.md)(…) | Gets the argument that specifies the verbosity. |
 
 ## See Also

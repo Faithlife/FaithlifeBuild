@@ -3,7 +3,7 @@
 Gets the argument that specifies the build number.
 
 ```csharp
-public static string GetBuildNumberArg(DotNetBuildSettings settings)
+public static string GetBuildNumberArg(this DotNetBuildSettings settings)
 ```
 
 ## See Also

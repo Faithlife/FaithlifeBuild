@@ -1,13 +1,18 @@
-# DotNetBuild.GetMaxCpuCountArg method
+# DotNetBuild.GetVerbosity method
 
-Gets the argument that specifies the maximum CPU count.
+Gets the build verbosity.
 
 ```csharp
-public static string GetMaxCpuCountArg(this DotNetBuildSettings settings)
+public static DotNetBuildVerbosity GetVerbosity(this DotNetBuildSettings settings)
 ```
+
+## Remarks
+
+Defaults to minimal.
 
 ## See Also
 
+* enum [DotNetBuildVerbosity](../DotNetBuildVerbosity.md)
 * class [DotNetBuildSettings](../DotNetBuildSettings.md)
 * class [DotNetBuild](../DotNetBuild.md)
 * namespace [Faithlife.Build](../../Faithlife.Build.md)
