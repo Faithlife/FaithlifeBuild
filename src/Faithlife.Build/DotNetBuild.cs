@@ -653,13 +653,14 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Gets the build number, if any.
 		/// </summary>
-		public static string? GetBuildNumber(this DotNetBuildSettings settings)
-		{
-			var buildNumberOption = settings.BuildOptions!.BuildNumberOption;
-			return buildNumberOption!.Value ??
-				Environment.GetEnvironmentVariable("APPVEYOR_BUILD_NUMBER") ??
-				Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
-		}
+		/// <remarks>If not specified on the command line or in the settings, the environment
+		/// variables used by Appveyor, GitHub Actions, and Jenkins will be used, if set.</remarks>
+		public static string? GetBuildNumber(this DotNetBuildSettings settings) =>
+			settings.BuildOptions!.BuildNumberOption!.Value ??
+			settings.BuildNumber ??
+			Environment.GetEnvironmentVariable("APPVEYOR_BUILD_NUMBER") ??
+			Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER") ??
+			Environment.GetEnvironmentVariable("BUILD_NUMBER");
 
 		/// <summary>
 		/// Gets the argument that specifies the build number.

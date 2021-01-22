@@ -95,6 +95,13 @@ namespace Faithlife.Build
 		public bool? ShowSummary { get; set; }
 
 		/// <summary>
+		/// The build number, if not specified on the command line. (Optional.)
+		/// </summary>
+		/// <remarks>If not specified here or on the command line, the environment variables
+		/// used by Appveyor, GitHub Actions, and Jenkins will be used, if set.</remarks>
+		public string? BuildNumber { get; set; }
+
+		/// <summary>
 		/// The SourceLink settings. Must be set to test SourceLink URLs.
 		/// </summary>
 		[Obsolete("Support for sourcelink test was removed.")]

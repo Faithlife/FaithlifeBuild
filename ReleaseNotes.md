@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.8.0
+
+* Add `BuildNumber` to `DotNetBuildSettings`.
+* Support build number environment variable used by Jenkins.
+
 ## 5.7.0
 
 * Replace `FindTestAssemblies` with `FindAssemblies` in `DotNetTestSettings`.
