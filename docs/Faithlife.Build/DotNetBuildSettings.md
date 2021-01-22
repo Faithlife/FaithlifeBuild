@@ -11,6 +11,7 @@ public sealed class DotNetBuildSettings
 | name | description |
 | --- | --- |
 | [DotNetBuildSettings](DotNetBuildSettings/DotNetBuildSettings.md)() | The default constructor. |
+| [BuildNumber](DotNetBuildSettings/BuildNumber.md) { get; set; } | The build number, if not specified on the command line. (Optional.) |
 | [BuildOptions](DotNetBuildSettings/BuildOptions.md) { get; set; } | The options and flags used by [`DotNetBuild`](DotNetBuild.md). |
 | [CleanSettings](DotNetBuildSettings/CleanSettings.md) { get; set; } | Settings for cleaning projects. |
 | [DocsSettings](DotNetBuildSettings/DocsSettings.md) { get; set; } | Used to generate Markdown documentation from XML comments. |

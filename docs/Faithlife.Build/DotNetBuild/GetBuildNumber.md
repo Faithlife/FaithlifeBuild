@@ -6,6 +6,10 @@ Gets the build number, if any.
 public static string GetBuildNumber(this DotNetBuildSettings settings)
 ```
 
+## Remarks
+
+If not specified on the command line or in the settings, the environment variables used by Appveyor, GitHub Actions, and Jenkins will be used, if set.
+
 ## See Also
 
 * class [DotNetBuildSettings](../DotNetBuildSettings.md)
