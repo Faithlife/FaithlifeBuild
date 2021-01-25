@@ -3,7 +3,7 @@
 The configuration to build.
 
 ```csharp
-public BuildOption ConfigurationOption { get; set; }
+public BuildOption? ConfigurationOption { get; set; }
 ```
 
 ## See Also

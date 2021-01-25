@@ -3,7 +3,7 @@
 Credentials used to push to git.
 
 ```csharp
-public GitLoginInfo GitLogin { get; set; }
+public GitLoginInfo? GitLogin { get; set; }
 ```
 
 ## See Also

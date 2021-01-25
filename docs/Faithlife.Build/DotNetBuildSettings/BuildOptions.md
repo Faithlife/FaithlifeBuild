@@ -3,7 +3,7 @@
 The options and flags used by [`DotNetBuild`](../DotNetBuild.md).
 
 ```csharp
-public DotNetBuildOptions BuildOptions { get; set; }
+public DotNetBuildOptions? BuildOptions { get; set; }
 ```
 
 ## Remarks

@@ -3,7 +3,7 @@
 Called to find the projects to test.
 
 ```csharp
-public Func<IReadOnlyList<string>> FindProjects { get; set; }
+public Func<IReadOnlyList<string>>? FindProjects { get; set; }
 ```
 
 ## See Also

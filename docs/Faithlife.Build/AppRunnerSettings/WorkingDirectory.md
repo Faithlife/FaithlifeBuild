@@ -3,7 +3,7 @@
 The working directory from which to run the app.
 
 ```csharp
-public string WorkingDirectory { get; set; }
+public string? WorkingDirectory { get; set; }
 ```
 
 ## See Also

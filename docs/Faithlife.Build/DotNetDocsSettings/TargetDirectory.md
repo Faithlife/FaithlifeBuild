@@ -3,7 +3,7 @@
 The target directory for generated documentation, relative to the root of the repository; defaults to `"docs"`.
 
 ```csharp
-public string TargetDirectory { get; set; }
+public string? TargetDirectory { get; set; }
 ```
 
 ## See Also

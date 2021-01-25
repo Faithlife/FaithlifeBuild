@@ -3,7 +3,7 @@
 Called to run tests on the specified solution, project, or assembly.
 
 ```csharp
-public Action<string> RunTests { get; set; }
+public Action<string?>? RunTests { get; set; }
 ```
 
 ## See Also

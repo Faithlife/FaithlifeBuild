@@ -3,7 +3,7 @@
 The build number, if not specified on the command line. (Optional.)
 
 ```csharp
-public string BuildNumber { get; set; }
+public string? BuildNumber { get; set; }
 ```
 
 ## Remarks

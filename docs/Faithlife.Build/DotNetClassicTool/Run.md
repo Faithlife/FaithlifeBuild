@@ -23,7 +23,7 @@ public int Run(AppRunnerSettings settings)
 Runs the tool with the specified arguments.
 
 ```csharp
-public void Run(IEnumerable<string> args)
+public void Run(IEnumerable<string?> args)
 ```
 
 | parameter | description |
@@ -42,7 +42,7 @@ public void Run(IEnumerable<string> args)
 Runs the tool with the specified arguments.
 
 ```csharp
-public void Run(params string[] args)
+public void Run(params string?[] args)
 ```
 
 | parameter | description |

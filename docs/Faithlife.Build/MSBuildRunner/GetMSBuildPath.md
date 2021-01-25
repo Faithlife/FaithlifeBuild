@@ -3,7 +3,7 @@
 Gets the path of MSBuild for the specified version.
 
 ```csharp
-public static string GetMSBuildPath(MSBuildSettings settings)
+public static string GetMSBuildPath(MSBuildSettings? settings)
 ```
 
 ## See Also

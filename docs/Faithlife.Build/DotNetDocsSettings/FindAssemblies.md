@@ -3,7 +3,7 @@
 Called to find multiple assemblies for the specified project.
 
 ```csharp
-public Func<string, IReadOnlyList<string>> FindAssemblies { get; set; }
+public Func<string, IReadOnlyList<string>>? FindAssemblies { get; set; }
 ```
 
 ## See Also

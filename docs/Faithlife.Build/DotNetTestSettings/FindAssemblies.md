@@ -3,7 +3,7 @@
 Called to find the test assemblies.
 
 ```csharp
-public Func<DotNetBuildSettings, IReadOnlyList<string>> FindAssemblies { get; set; }
+public Func<DotNetBuildSettings, IReadOnlyList<string>>? FindAssemblies { get; set; }
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 The default solution platform to build (optional).
 
 ```csharp
-public string SolutionPlatform { get; set; }
+public string? SolutionPlatform { get; set; }
 ```
 
 ## See Also

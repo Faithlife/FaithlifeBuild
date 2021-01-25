@@ -3,7 +3,7 @@
 Commit author used to push to git.
 
 ```csharp
-public GitAuthorInfo GitAuthor { get; set; }
+public GitAuthorInfo? GitAuthor { get; set; }
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 The automated build number.
 
 ```csharp
-public BuildOption BuildNumberOption { get; set; }
+public BuildOption? BuildNumberOption { get; set; }
 ```
 
 ## See Also

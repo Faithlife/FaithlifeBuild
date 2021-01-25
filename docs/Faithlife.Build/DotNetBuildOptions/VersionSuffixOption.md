@@ -3,7 +3,7 @@
 Generates a prerelease package.
 
 ```csharp
-public BuildOption VersionSuffixOption { get; set; }
+public BuildOption? VersionSuffixOption { get; set; }
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 The name of the solution file. Optional if there is only one solution in the working directory.
 
 ```csharp
-public string SolutionName { get; set; }
+public string? SolutionName { get; set; }
 ```
 
 ## See Also

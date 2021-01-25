@@ -3,7 +3,7 @@
 Adds support for a single-value command-line option.
 
 ```csharp
-public BuildOption AddOption(string template, string description, string defaultValue = null)
+public BuildOption AddOption(string template, string description, string? defaultValue = null)
 ```
 
 | parameter | description |

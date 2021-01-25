@@ -3,7 +3,7 @@
 The git branch or tag that triggered the build.
 
 ```csharp
-public BuildOption TriggerOption { get; set; }
+public BuildOption? TriggerOption { get; set; }
 ```
 
 ## See Also

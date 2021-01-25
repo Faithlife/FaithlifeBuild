@@ -3,7 +3,7 @@
 The GitHub URL of the directory containing the source code.
 
 ```csharp
-public string SourceCodeUrl { get; set; }
+public string? SourceCodeUrl { get; set; }
 ```
 
 ## See Also

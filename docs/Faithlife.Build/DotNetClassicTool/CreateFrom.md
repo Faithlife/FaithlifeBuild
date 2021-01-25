@@ -4,7 +4,7 @@ Accesses a classic NuGet packaged tool using the specified project.
 
 ```csharp
 public static DotNetClassicTool CreateFrom(string projectPath, string packageName, 
-    string toolName = null)
+    string? toolName = null)
 ```
 
 | parameter | description |

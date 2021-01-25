@@ -3,7 +3,7 @@
 Runs MSBuild with the specified settings.
 
 ```csharp
-public static int RunMSBuild(MSBuildSettings settings, AppRunnerSettings runnerSettings)
+public static int RunMSBuild(MSBuildSettings? settings, AppRunnerSettings runnerSettings)
 ```
 
 | parameter | description |
@@ -25,7 +25,7 @@ public static int RunMSBuild(MSBuildSettings settings, AppRunnerSettings runnerS
 Runs MSBuild with the specified arguments.
 
 ```csharp
-public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args)
+public static void RunMSBuild(MSBuildSettings? settings, IEnumerable<string?> args)
 ```
 
 | parameter | description |
@@ -46,7 +46,7 @@ public static void RunMSBuild(MSBuildSettings settings, IEnumerable<string> args
 Runs MSBuild with the specified arguments.
 
 ```csharp
-public static void RunMSBuild(MSBuildSettings settings, params string[] args)
+public static void RunMSBuild(MSBuildSettings? settings, params string?[] args)
 ```
 
 | parameter | description |

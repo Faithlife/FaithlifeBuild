@@ -3,7 +3,7 @@
 Settings for cleaning projects.
 
 ```csharp
-public DotNetCleanSettings CleanSettings { get; set; }
+public DotNetCleanSettings? CleanSettings { get; set; }
 ```
 
 ## See Also

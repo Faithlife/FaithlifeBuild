@@ -3,7 +3,7 @@
 The path of MSBuild. Used to override the default.
 
 ```csharp
-public string MSBuildPath { get; set; }
+public string? MSBuildPath { get; set; }
 ```
 
 ## See Also

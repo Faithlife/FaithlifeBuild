@@ -3,7 +3,7 @@
 A function that returns any extra properties for the specified build target.
 
 ```csharp
-public Func<string, IEnumerable<ValueTuple<string, string>>> ExtraProperties { get; set; }
+public Func<string, IEnumerable<(string Key, string Value)>>? ExtraProperties { get; set; }
 ```
 
 ## Remarks

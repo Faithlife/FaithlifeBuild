@@ -3,7 +3,7 @@
 A function that returns true if documentation should be generated for the project.
 
 ```csharp
-public Func<string, bool> ProjectHasDocs { get; set; }
+public Func<string, bool>? ProjectHasDocs { get; set; }
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 The platform to build.
 
 ```csharp
-public BuildOption PlatformOption { get; set; }
+public BuildOption? PlatformOption { get; set; }
 ```
 
 ## See Also

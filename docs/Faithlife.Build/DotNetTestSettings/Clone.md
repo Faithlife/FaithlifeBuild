@@ -3,7 +3,7 @@
 Clones the settings.
 
 ```csharp
-public DotNetTestSettings Clone()
+public DotNetTestSettings? Clone()
 ```
 
 ## See Also

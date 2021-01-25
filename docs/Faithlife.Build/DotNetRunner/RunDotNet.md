@@ -23,7 +23,7 @@ public static int RunDotNet(AppRunnerSettings settings)
 Runs `dotnet` with the specified arguments.
 
 ```csharp
-public static void RunDotNet(IEnumerable<string> args)
+public static void RunDotNet(IEnumerable<string?> args)
 ```
 
 | parameter | description |
@@ -42,7 +42,7 @@ public static void RunDotNet(IEnumerable<string> args)
 Runs `dotnet` with the specified arguments.
 
 ```csharp
-public static void RunDotNet(params string[] args)
+public static void RunDotNet(params string?[] args)
 ```
 
 | parameter | description |

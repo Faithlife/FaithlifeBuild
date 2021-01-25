@@ -3,7 +3,7 @@
 Directory for generated package.
 
 ```csharp
-public BuildOption NuGetOutputOption { get; set; }
+public BuildOption? NuGetOutputOption { get; set; }
 ```
 
 ## See Also

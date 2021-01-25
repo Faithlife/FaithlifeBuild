@@ -3,7 +3,7 @@
 Set to use `MSBuild` instead of `dotnet` to build the solution.
 
 ```csharp
-public MSBuildSettings MSBuildSettings { get; set; }
+public MSBuildSettings? MSBuildSettings { get; set; }
 ```
 
 ## See Also

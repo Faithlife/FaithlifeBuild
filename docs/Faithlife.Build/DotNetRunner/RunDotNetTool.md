@@ -24,7 +24,7 @@ public static int RunDotNetTool(string name, AppRunnerSettings settings)
 Runs the specified .NET tool with the specified arguments.
 
 ```csharp
-public static void RunDotNetTool(string name, IEnumerable<string> args)
+public static void RunDotNetTool(string name, IEnumerable<string?> args)
 ```
 
 | parameter | description |
@@ -44,7 +44,7 @@ public static void RunDotNetTool(string name, IEnumerable<string> args)
 Runs the specified .NET tool with the specified arguments.
 
 ```csharp
-public static void RunDotNetTool(string name, params string[] args)
+public static void RunDotNetTool(string name, params string?[] args)
 ```
 
 | parameter | description |

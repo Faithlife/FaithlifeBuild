@@ -3,7 +3,7 @@
 The name of the git branch where documentation is generated.
 
 ```csharp
-public string GitBranchName { get; set; }
+public string? GitBranchName { get; set; }
 ```
 
 ## See Also

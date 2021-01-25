@@ -3,7 +3,7 @@
 Called to determine if the exit code is successful; it if isn't, an exception is thrown.
 
 ```csharp
-public Func<int, bool> IsExitCodeSuccess { get; set; }
+public Func<int, bool>? IsExitCodeSuccess { get; set; }
 ```
 
 ## See Also

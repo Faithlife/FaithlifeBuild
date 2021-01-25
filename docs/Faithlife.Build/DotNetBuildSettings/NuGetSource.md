@@ -3,7 +3,7 @@
 The NuGet source to which to push packages. The standard public NuGet source if omitted.
 
 ```csharp
-public string NuGetSource { get; set; }
+public string? NuGetSource { get; set; }
 ```
 
 ## See Also

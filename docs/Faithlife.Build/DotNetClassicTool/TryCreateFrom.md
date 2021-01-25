@@ -3,8 +3,8 @@
 Accesses a classic NuGet packaged tool using the specified project.
 
 ```csharp
-public static DotNetClassicTool TryCreateFrom(string projectPath, string packageName, 
-    string toolName = null)
+public static DotNetClassicTool? TryCreateFrom(string projectPath, string packageName, 
+    string? toolName = null)
 ```
 
 | parameter | description |

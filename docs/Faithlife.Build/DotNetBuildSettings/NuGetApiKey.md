@@ -3,7 +3,7 @@
 The NuGet API key with which to push packages.
 
 ```csharp
-public string NuGetApiKey { get; set; }
+public string? NuGetApiKey { get; set; }
 ```
 
 ## See Also

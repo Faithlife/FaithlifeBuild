@@ -3,7 +3,7 @@
 Clones the settings.
 
 ```csharp
-public DotNetDocsSettings Clone()
+public DotNetDocsSettings? Clone()
 ```
 
 ## See Also

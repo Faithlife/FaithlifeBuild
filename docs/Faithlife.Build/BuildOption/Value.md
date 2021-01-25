@@ -3,7 +3,7 @@
 The option value, or `null` if the option was not specified.
 
 ```csharp
-public string Value { get; }
+public string? Value { get; }
 ```
 
 ## Remarks

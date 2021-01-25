@@ -3,7 +3,7 @@
 Accesses a classic NuGet packaged tool using the standard Build project.
 
 ```csharp
-public static DotNetClassicTool Create(string packageName, string toolName = null)
+public static DotNetClassicTool Create(string packageName, string? toolName = null)
 ```
 
 | parameter | description |

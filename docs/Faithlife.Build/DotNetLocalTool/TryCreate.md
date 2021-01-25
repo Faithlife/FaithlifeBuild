@@ -3,7 +3,7 @@
 Accesses a .NET local tool at the current directory.
 
 ```csharp
-public static DotNetLocalTool TryCreate(string name)
+public static DotNetLocalTool? TryCreate(string name)
 ```
 
 | parameter | description |

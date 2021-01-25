@@ -3,7 +3,7 @@
 Used to generate Markdown documentation from XML comments.
 
 ```csharp
-public DotNetDocsSettings DocsSettings { get; set; }
+public DotNetDocsSettings? DocsSettings { get; set; }
 ```
 
 ## See Also

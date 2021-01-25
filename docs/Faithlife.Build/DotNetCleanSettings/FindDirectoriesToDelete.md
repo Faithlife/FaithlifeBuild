@@ -3,7 +3,7 @@
 Called to find the directories to delete.
 
 ```csharp
-public Func<IReadOnlyList<string>> FindDirectoriesToDelete { get; set; }
+public Func<IReadOnlyList<string>>? FindDirectoriesToDelete { get; set; }
 ```
 
 ## See Also

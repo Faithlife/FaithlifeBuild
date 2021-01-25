@@ -3,7 +3,7 @@
 The URL of the git repository where documentation is generated.
 
 ```csharp
-public string GitRepositoryUrl { get; set; }
+public string? GitRepositoryUrl { get; set; }
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 The build verbosity.
 
 ```csharp
-public BuildOption VerbosityOption { get; set; }
+public BuildOption? VerbosityOption { get; set; }
 ```
 
 ## See Also

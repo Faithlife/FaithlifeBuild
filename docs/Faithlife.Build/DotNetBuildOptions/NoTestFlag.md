@@ -3,7 +3,7 @@
 The "no test" flag.
 
 ```csharp
-public BuildFlag NoTestFlag { get; set; }
+public BuildFlag? NoTestFlag { get; set; }
 ```
 
 ## See Also

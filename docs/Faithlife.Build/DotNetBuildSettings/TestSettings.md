@@ -3,7 +3,7 @@
 Settings for running unit tests.
 
 ```csharp
-public DotNetTestSettings TestSettings { get; set; }
+public DotNetTestSettings? TestSettings { get; set; }
 ```
 
 ## See Also

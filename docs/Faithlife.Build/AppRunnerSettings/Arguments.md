@@ -3,7 +3,7 @@
 The arguments to pass to the app.
 
 ```csharp
-public IEnumerable<string> Arguments { get; set; }
+public IEnumerable<string?>? Arguments { get; set; }
 ```
 
 ## See Also

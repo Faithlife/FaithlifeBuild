@@ -3,7 +3,7 @@
 Settings for creating NuGet packages.
 
 ```csharp
-public DotNetPackageSettings PackageSettings { get; set; }
+public DotNetPackageSettings? PackageSettings { get; set; }
 ```
 
 ## See Also

@@ -3,7 +3,7 @@
 Called to find the assembly for the specified project.
 
 ```csharp
-public Func<string, string> FindAssembly { get; set; }
+public Func<string, string?>? FindAssembly { get; set; }
 ```
 
 ## See Also

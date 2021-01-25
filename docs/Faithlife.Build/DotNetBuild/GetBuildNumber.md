@@ -3,7 +3,7 @@
 Gets the build number, if any.
 
 ```csharp
-public static string GetBuildNumber(this DotNetBuildSettings settings)
+public static string? GetBuildNumber(this DotNetBuildSettings settings)
 ```
 
 ## Remarks

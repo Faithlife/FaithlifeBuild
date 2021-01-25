@@ -3,7 +3,7 @@
 Adds the standard .NET targets to the build.
 
 ```csharp
-public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings settings = null)
+public static void AddDotNetTargets(this BuildApp build, DotNetBuildSettings? settings = null)
 ```
 
 | parameter | description |
