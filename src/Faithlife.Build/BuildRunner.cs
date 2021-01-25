@@ -57,7 +57,7 @@ namespace Faithlife.Build
 
 			var bullseyeTargets = new Targets();
 			foreach (var target in buildApp.Targets)
-				bullseyeTargets.Add(target.Name, target.Dependencies, target.RunAsync);
+				bullseyeTargets.Add(name: target.Name, description: target.Description, dependsOn: target.Dependencies, action: target.RunAsync);
 
 			commandLineApp.OnExecuteAsync(async _ =>
 			{
