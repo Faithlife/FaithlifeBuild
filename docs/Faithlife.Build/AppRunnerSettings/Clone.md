@@ -3,7 +3,7 @@
 Clones the settings.
 
 ```csharp
-public AppRunnerSettings? Clone()
+public AppRunnerSettings Clone()
 ```
 
 ## See Also

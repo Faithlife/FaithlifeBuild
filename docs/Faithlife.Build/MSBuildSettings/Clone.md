@@ -3,7 +3,7 @@
 Clones the settings.
 
 ```csharp
-public MSBuildSettings? Clone()
+public MSBuildSettings Clone()
 ```
 
 ## See Also
