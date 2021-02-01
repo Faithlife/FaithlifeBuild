@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.9.0-beta.1
+
+* Support `XmlDocGen` as .NET Framework app.
+
 ## 5.8.0
 
 * Add `BuildNumber` to `DotNetBuildSettings`.
