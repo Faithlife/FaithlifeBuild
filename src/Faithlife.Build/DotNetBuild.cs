@@ -356,8 +356,17 @@ namespace Faithlife.Build
 							var xmlDocGenProject = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
 							if (xmlDocGenProject is not null)
 							{
-								RunDotNet("publish", xmlDocGenProject, "--output", Path.Combine("tools", "bin", "XmlDocGen"), "--nologo", "--verbosity", "quiet");
+								RunDotNet("publish", xmlDocGenProject,
+									"-c", settings.GetConfiguration(),
+									settings.GetPlatformArg(),
+									"--nologo",
+									"--verbosity", "quiet",
+									"--output", Path.Combine("tools", "bin", "XmlDocGen"));
 								xmlDocGenPath = Path.Combine("tools", "bin", "XmlDocGen", "XmlDocGen.dll");
+								if (!File.Exists(xmlDocGenPath))
+									xmlDocGenPath = Path.Combine("tools", "bin", "XmlDocGen", "XmlDocGen.exe");
+								if (!File.Exists(xmlDocGenPath))
+									throw new BuildException("Failed to build XmlDocGen.");
 							}
 
 							var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
@@ -391,8 +400,14 @@ namespace Faithlife.Build
 								{
 									if (xmlDocGenPath is not null)
 									{
+										var isDotNetApp = string.Equals(Path.GetExtension(xmlDocGenPath), ".dll", StringComparison.OrdinalIgnoreCase);
 										foreach (var assemblyPath in assemblyPaths)
-											RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
+										{
+											if (isDotNetApp)
+												RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
+											else
+												RunApp(xmlDocGenPath, new AppRunnerSettings { Arguments = GetXmlDocArgs(assemblyPath), IsFrameworkApp = true });
+										}
 									}
 									else if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
 									{
