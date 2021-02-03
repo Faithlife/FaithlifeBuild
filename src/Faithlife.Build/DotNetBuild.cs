@@ -105,40 +105,21 @@ namespace Faithlife.Build
 					}
 					else
 					{
-						var extraProperties = settings.GetExtraPropertyArgs("test").ToList();
-						var findAssemblies = settings.TestSettings?.FindAssemblies;
+						IReadOnlyList<string?> testPaths;
+
+						if (settings.TestSettings?.FindAssemblies is var findAssemblies and not null)
+							testPaths = findAssemblies(settings);
 #pragma warning disable 618
-						if (findAssemblies is null && settings.TestSettings?.FindTestAssemblies is not null)
-							findAssemblies = _ => settings.TestSettings.FindTestAssemblies();
+						else if (settings.TestSettings?.FindTestAssemblies is var findTestAssemblies and not null)
+							testPaths = findTestAssemblies();
 #pragma warning restore 618
-						if (findAssemblies is not null)
-						{
-							foreach (var testAssembly in findAssemblies(settings))
-							{
-								if (settings.TestSettings?.RunTests is not null)
-									settings.TestSettings.RunTests(testAssembly);
-								else
-									RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(testAssembly) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(testAssembly) });
-							}
-						}
+						else if (settings.TestSettings?.FindProjects is var findTestProjects and not null)
+							testPaths = findTestProjects();
 						else
-						{
-							var testProjects = new List<string?>();
+							testPaths = new[] { solutionName };
 
-							var findTestProjects = settings.TestSettings?.FindProjects;
-							if (findTestProjects is not null)
-								testProjects.AddRange(findTestProjects());
-							else
-								testProjects.Add(solutionName);
-
-							foreach (var testProject in testProjects)
-							{
-								if (settings.TestSettings?.RunTests is not null)
-									settings.TestSettings.RunTests(testProject);
-								else
-									RunDotNet(new[] { "test", testProject, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), "--no-build", settings.GetMaxCpuCountArg() }.Concat(extraProperties));
-							}
-						}
+						foreach (var testPath in testPaths)
+							settings.RunTests(testPath);
 					}
 				});
 
@@ -698,6 +679,28 @@ namespace Faithlife.Build
 			{
 				foreach (var (key, value) in pairs)
 					yield return $"-p:{key}={value}";
+			}
+		}
+
+		/// <summary>
+		/// Runs tests on the specified path.
+		/// </summary>
+		/// <remarks>If null, runs all tests in the current solution. If an assembly, runs all tests in that assembly.
+		/// Otherwise, runs all tests in the specified project or solution.</remarks>
+		public static void RunTests(this DotNetBuildSettings settings, string? path)
+		{
+			if (settings.TestSettings?.RunTests is not null)
+			{
+				settings.TestSettings.RunTests(path);
+			}
+			else
+			{
+				var extraProperties = settings.GetExtraPropertyArgs("test").ToList();
+				var extension = Path.GetExtension(path).ToLowerInvariant();
+				if (extension == ".dll" || extension == ".exe")
+					RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(path) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(path) });
+				else
+					RunDotNet(new[] { "test", path, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), "--no-build", settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 			}
 		}
 
