@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.9.0
+
+* Fail if entry point returns void.
+
 ## 5.9.0-beta.2
 
 * Expose `RunTests` extension method on `DotNetBuildSettings`.
