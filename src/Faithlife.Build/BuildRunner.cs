@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Bullseye;
 using McMaster.Extensions.CommandLineUtils;
@@ -33,6 +34,12 @@ namespace Faithlife.Build
 				throw new ArgumentNullException(nameof(args));
 			if (initialize is null)
 				throw new ArgumentNullException(nameof(initialize));
+
+			if (Assembly.GetEntryAssembly()?.EntryPoint?.ReturnType == typeof(void))
+			{
+				Console.Error.WriteLine("Application entry point returns void; it should return the result of BuildRunner.Execute.");
+				return 2;
+			}
 
 			var commandLineApp = new CommandLineApplication();
 
