@@ -696,7 +696,7 @@ namespace Faithlife.Build
 			else
 			{
 				var extraProperties = settings.GetExtraPropertyArgs("test").ToList();
-				var extension = Path.GetExtension(path).ToLowerInvariant();
+				var extension = Path.GetExtension(path)?.ToLowerInvariant();
 				if (extension == ".dll" || extension == ".exe")
 					RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(path) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(path) });
 				else

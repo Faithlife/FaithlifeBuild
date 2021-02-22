@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.9.2
+
+* Fix crash when running tests.
+
 ## 5.9.1
 
 * `CopyFiles` and `CopyFilesExcept` should overwrite existing files.
