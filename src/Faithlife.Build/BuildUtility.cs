@@ -63,7 +63,7 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
-		/// Copies the files matching the specified globs from one directory to another, creating subdirectories as needed.
+		/// Copies the files matching the specified globs from one directory to another, creating subdirectories and overwriting existing files as needed.
 		/// </summary>
 		/// <param name="fromDirectory">The source directory.</param>
 		/// <param name="toDirectory">The target directory.</param>
@@ -81,7 +81,7 @@ namespace Faithlife.Build
 		}
 
 		/// <summary>
-		/// Copies all files except those matching the specified globs from one directory to another, creating subdirectories as needed.
+		/// Copies all files except those matching the specified globs from one directory to another, creating subdirectories and overwriting existing files as needed.
 		/// </summary>
 		/// <param name="fromDirectory">The source directory.</param>
 		/// <param name="toDirectory">The target directory.</param>
@@ -129,7 +129,7 @@ namespace Faithlife.Build
 				if (Path.GetDirectoryName(filePath) is string directoryName)
 					Directory.CreateDirectory(Path.Combine(toDirectory, directoryName));
 
-				File.Copy(Path.Combine(fromDirectory, filePath), Path.Combine(toDirectory, filePath));
+				File.Copy(Path.Combine(fromDirectory, filePath), Path.Combine(toDirectory, filePath), overwrite: true);
 			}
 		}
 
