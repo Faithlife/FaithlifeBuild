@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.9.1
+
+* `CopyFiles` and `CopyFilesExcept` should overwrite existing files.
+
 ## 5.9.0
 
 * Fail if entry point returns void.
