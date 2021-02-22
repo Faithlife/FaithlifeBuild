@@ -10,8 +10,8 @@ public static class BuildUtility
 
 | name | description |
 | --- | --- |
-| static [CopyFiles](BuildUtility/CopyFiles.md)(…) | Copies the files matching the specified globs from one directory to another, creating subdirectories as needed. |
-| static [CopyFilesExcept](BuildUtility/CopyFilesExcept.md)(…) | Copies all files except those matching the specified globs from one directory to another, creating subdirectories as needed. |
+| static [CopyFiles](BuildUtility/CopyFiles.md)(…) | Copies the files matching the specified globs from one directory to another, creating subdirectories and overwriting existing files as needed. |
+| static [CopyFilesExcept](BuildUtility/CopyFilesExcept.md)(…) | Copies all files except those matching the specified globs from one directory to another, creating subdirectories and overwriting existing files as needed. |
 | static [DeleteDirectory](BuildUtility/DeleteDirectory.md)(…) | Recursively deletes the specified directory. |
 | static [FindDirectories](BuildUtility/FindDirectories.md)(…) | Finds the directories matching the specified globs, from the current working directory. |
 | static [FindDirectoriesFrom](BuildUtility/FindDirectoriesFrom.md)(…) | Finds the directories matching the specified globs. |

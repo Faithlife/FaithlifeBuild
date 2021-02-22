@@ -1,6 +1,6 @@
 # BuildUtility.CopyFiles method
 
-Copies the files matching the specified globs from one directory to another, creating subdirectories as needed.
+Copies the files matching the specified globs from one directory to another, creating subdirectories and overwriting existing files as needed.
 
 ```csharp
 public static void CopyFiles(string fromDirectory, string toDirectory, params string[] globs)

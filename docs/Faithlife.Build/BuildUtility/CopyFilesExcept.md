@@ -1,6 +1,6 @@
 # BuildUtility.CopyFilesExcept method
 
-Copies all files except those matching the specified globs from one directory to another, creating subdirectories as needed.
+Copies all files except those matching the specified globs from one directory to another, creating subdirectories and overwriting existing files as needed.
 
 ```csharp
 public static void CopyFilesExcept(string fromDirectory, string toDirectory, params string[] globs)
