@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.9.3
+
+* Extra properties aren't allowed when testing an assembly.
+
 ## 5.9.2
 
 * Fix crash when running tests.

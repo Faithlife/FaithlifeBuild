@@ -695,12 +695,11 @@ namespace Faithlife.Build
 			}
 			else
 			{
-				var extraProperties = settings.GetExtraPropertyArgs("test").ToList();
 				var extension = Path.GetExtension(path)?.ToLowerInvariant();
 				if (extension == ".dll" || extension == ".exe")
-					RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(path) }.Concat(extraProperties), WorkingDirectory = Path.GetDirectoryName(path) });
+					RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(path) }, WorkingDirectory = Path.GetDirectoryName(path) });
 				else
-					RunDotNet(new[] { "test", path, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), "--no-build", settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "test", path, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), "--no-build", settings.GetMaxCpuCountArg() }.Concat(settings.GetExtraPropertyArgs("test")));
 			}
 		}
 
