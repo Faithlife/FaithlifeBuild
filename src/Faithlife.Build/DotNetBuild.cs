@@ -266,40 +266,41 @@ namespace Faithlife.Build
 					{
 						var docsSettings = settings.DocsSettings;
 						var shouldPushDocs = false;
-						string? cloneDirectory = null;
-						string? repoDirectory = null;
-						string? gitBranchName = null;
+						string? docsCloneDirectory = null;
+						string? docsRepoDirectory = null;
+						string? docsGitBranchName = null;
+						string? tagsCloneDirectory = null;
 
 						if (shouldPublishDocs && docsSettings is not null)
 						{
-							if ((docsSettings.GitLogin ?? settings.GitLogin) is null || docsSettings.GitAuthor is null)
+							if (docsSettings.GitLogin is null || docsSettings.GitAuthor is null)
 								throw new BuildException("GitLogin and GitAuthor must be set to publish documentation.");
 
 							var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
-							gitBranchName = docsSettings.GitBranchName;
+							docsGitBranchName = docsSettings.GitBranchName;
 
 							if (gitRepositoryUrl is not null)
 							{
-								cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
-								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: cloneDirectory,
-									options: new CloneOptions { BranchName = gitBranchName, CredentialsProvider = ProvideDocsCredentials });
-								repoDirectory = cloneDirectory;
+								docsCloneDirectory = "docs_repo_" + Path.GetRandomFileName();
+								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: docsCloneDirectory,
+									options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
+								docsRepoDirectory = docsCloneDirectory;
 							}
 							else
 							{
-								repoDirectory = ".";
+								docsRepoDirectory = ".";
 							}
 
-							using var repository = new Repository(repoDirectory);
+							using var repository = new Repository(docsRepoDirectory);
 							if (gitRepositoryUrl is not null)
 							{
-								gitBranchName ??= repository.Head.FriendlyName;
+								docsGitBranchName ??= repository.Head.FriendlyName;
 							}
-							else if (gitBranchName is not null)
+							else if (docsGitBranchName is not null)
 							{
-								if (gitBranchName != repository.Head.FriendlyName)
+								if (docsGitBranchName != repository.Head.FriendlyName)
 								{
-									var branch = repository.Branches[gitBranchName] ?? repository.CreateBranch(gitBranchName);
+									var branch = repository.Branches[docsGitBranchName] ?? repository.CreateBranch(docsGitBranchName);
 									Commands.Checkout(repository, branch);
 								}
 							}
@@ -328,10 +329,10 @@ namespace Faithlife.Build
 								}
 								if (branch is null)
 									throw new BuildException("Could not determine repository branch for publishing docs.");
-								gitBranchName = branch.FriendlyName;
+								docsGitBranchName = branch.FriendlyName;
 							}
 
-							var docsPath = Path.Combine(repoDirectory, docsSettings.TargetDirectory ?? "docs");
+							var docsPath = Path.Combine(docsRepoDirectory, docsSettings.TargetDirectory ?? "docs");
 
 							string? xmlDocGenPath = null;
 							var xmlDocGenProject = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
@@ -458,6 +459,7 @@ namespace Faithlife.Build
 							}
 
 							var tagsToPush = new HashSet<string>();
+							var packageSettings = settings.PackageSettings;
 
 							foreach (var packagePath in packagePaths)
 							{
@@ -483,7 +485,7 @@ namespace Faithlife.Build
 								});
 
 								if (!skippedDuplicate &&
-									settings.PackageSettings?.PushTagOnPublish is var getTag and not null &&
+									packageSettings?.PushTagOnPublish is var getTag and not null &&
 									getTag(GetPackageInfo(packagePath)) is string tag &&
 									tag.Length != 0)
 								{
@@ -493,54 +495,68 @@ namespace Faithlife.Build
 
 							if (tagsToPush.Count != 0)
 							{
-								if (settings.GitLogin is null)
+								if (packageSettings?.GitLogin is null)
 									throw new BuildException("GitLogin must be set to push tags.");
 
-								using var repository = new Repository(".");
+								var commitSha = GetGitCommitSha();
+
+								string tagsRepoDirectory = ".";
+								var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
+								if (gitRepositoryUrl is not null)
+								{
+									tagsCloneDirectory = "tags_repo_" + Path.GetRandomFileName();
+									Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
+										options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
+									tagsRepoDirectory = tagsCloneDirectory;
+								}
+
+								using var repository = new Repository(tagsRepoDirectory);
 								foreach (var tagToPush in tagsToPush)
 								{
-									Console.WriteLine($"Pushing git tag: {tagToPush}");
-									repository.ApplyTag(tagToPush);
+									Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha}.");
+									repository.ApplyTag(tagName: tagToPush, objectish: commitSha);
 									repository.Network.Push(
 										remote: repository.Network.Remotes["origin"],
 										pushRefSpec: $"refs/tags/{tagToPush}",
 										pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
 								}
 
-								Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types)
-								{
-									var gitLogin = settings.GitLogin!;
-									return new UsernamePasswordCredentials { Username = gitLogin.Username, Password = gitLogin.Password };
-								}
+								Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
+									new UsernamePasswordCredentials { Username = packageSettings!.GitLogin!.Username, Password = packageSettings!.GitLogin!.Password };
 							}
 						}
 
 						if (shouldPushDocs)
 						{
-							using var repository = new Repository(repoDirectory);
+							using var repository = new Repository(docsRepoDirectory);
 							Console.WriteLine("Publishing documentation changes.");
 							Commands.Stage(repository, "*");
 							var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings!.GitAuthor!.Email, DateTimeOffset.Now);
 							repository.Commit("Documentation updated.", author, author, new CommitOptions());
 							repository.Network.Push(
 								remote: repository.Network.Remotes["origin"],
-								pushRefSpec: $"refs/heads/{gitBranchName}",
+								pushRefSpec: $"refs/heads/{docsGitBranchName}",
 								pushOptions: new PushOptions { CredentialsProvider = ProvideDocsCredentials });
 						}
 
-						if (cloneDirectory is not null)
+						if (docsCloneDirectory is not null)
 						{
 							// delete the cloned directory
-							foreach (var fileInfo in FindFiles(cloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
+							foreach (var fileInfo in FindFiles(docsCloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
 								fileInfo.IsReadOnly = false;
-							DeleteDirectory(cloneDirectory);
+							DeleteDirectory(docsCloneDirectory);
 						}
 
-						Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types)
+						if (tagsCloneDirectory is not null)
 						{
-							var gitLogin = docsSettings!.GitLogin ?? settings.GitLogin!;
-							return new UsernamePasswordCredentials { Username = gitLogin?.Username ?? "", Password = gitLogin?.Password ?? "" };
+							// delete the cloned directory
+							foreach (var fileInfo in FindFiles(tagsCloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
+								fileInfo.IsReadOnly = false;
+							DeleteDirectory(tagsCloneDirectory);
 						}
+
+						Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
+							new UsernamePasswordCredentials { Username = docsSettings!.GitLogin!.Username, Password = docsSettings!.GitLogin!.Password };
 					}
 					else
 					{
@@ -623,6 +639,12 @@ namespace Faithlife.Build
 			}
 
 			void MSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments!);
+
+			string GetGitCommitSha()
+			{
+				using var repository = new Repository(".");
+				return repository.Head.Tip.Sha;
+			}
 		}
 
 		/// <summary>

@@ -102,11 +102,6 @@ namespace Faithlife.Build
 		public string? BuildNumber { get; set; }
 
 		/// <summary>
-		/// Credentials used to push to git.
-		/// </summary>
-		public GitLoginInfo? GitLogin { get; set; }
-
-		/// <summary>
 		/// The SourceLink settings. Must be set to test SourceLink URLs.
 		/// </summary>
 		[Obsolete("Support for sourcelink test was removed.")]

@@ -21,6 +21,16 @@ namespace Faithlife.Build
 		public Func<DotNetPackageInfo, string?>? PushTagOnPublish { get; set; }
 
 		/// <summary>
+		/// Credentials used to push tags to git.
+		/// </summary>
+		public GitLoginInfo? GitLogin { get; set; }
+
+		/// <summary>
+		/// The URL of the git repository where tags are pushed.
+		/// </summary>
+		public string? GitRepositoryUrl { get; set; }
+
+		/// <summary>
 		/// Clones the settings.
 		/// </summary>
 		public DotNetPackageSettings Clone() => (DotNetPackageSettings) MemberwiseClone();
