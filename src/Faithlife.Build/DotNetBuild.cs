@@ -500,10 +500,10 @@ namespace Faithlife.Build
 								foreach (var tagToPush in tagsToPush)
 								{
 									Console.WriteLine($"Pushing git tag: {tagToPush}");
+									repository.ApplyTag(tagToPush);
 									repository.Network.Push(
 										remote: repository.Network.Remotes["origin"],
-										objectish: repository.Head.Tip.Sha,
-										destinationSpec: $"refs/tags/{tagToPush}",
+										pushRefSpec: $"refs/tags/{tagToPush}",
 										pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
 								}
 
