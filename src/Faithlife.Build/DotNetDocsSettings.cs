@@ -21,7 +21,6 @@ namespace Faithlife.Build
 		/// <summary>
 		/// Credentials used to push to git.
 		/// </summary>
-		/// <remarks>If not specified, <see cref="DotNetBuildSettings.GitLogin" /> is used.</remarks>
 		public GitLoginInfo? GitLogin { get; set; }
 
 		/// <summary>
