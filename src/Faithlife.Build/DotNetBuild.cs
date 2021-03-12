@@ -272,8 +272,8 @@ namespace Faithlife.Build
 
 						if (shouldPublishDocs && docsSettings is not null)
 						{
-							if (docsSettings.GitLogin is null || docsSettings.GitAuthor is null)
-								throw new BuildException("GitLogin and GitAuthor must be set on DocsSettings.");
+							if ((docsSettings.GitLogin ?? settings.GitLogin) is null || docsSettings.GitAuthor is null)
+								throw new BuildException("GitLogin and GitAuthor must be set to publish documentation.");
 
 							var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
 							gitBranchName = docsSettings.GitBranchName;
@@ -282,7 +282,7 @@ namespace Faithlife.Build
 							{
 								cloneDirectory = "docs_repo_" + Path.GetRandomFileName();
 								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: cloneDirectory,
-									options: new CloneOptions { BranchName = gitBranchName, CredentialsProvider = ProvideCredentials });
+									options: new CloneOptions { BranchName = gitBranchName, CredentialsProvider = ProvideDocsCredentials });
 								repoDirectory = cloneDirectory;
 							}
 							else
@@ -437,8 +437,8 @@ namespace Faithlife.Build
 								var alreadyPushedPackages = new List<string>();
 								foreach (var packagePath in packagePaths.ToList())
 								{
-									var (packageName, packageVersion, _) = GetPackageInfo(packagePath);
-									var package = new PackageIdentity(packageName, NuGetVersion.Parse(packageVersion));
+									var packageInfo = GetPackageInfo(packagePath);
+									var package = new PackageIdentity(packageInfo.Name, NuGetVersion.Parse(packageInfo.Version));
 
 									foreach (var nugetRepository in nugetRepositories)
 									{
@@ -446,7 +446,7 @@ namespace Faithlife.Build
 											sourceCacheContext, NullLogger.Instance, CancellationToken.None).GetAwaiter().GetResult();
 										if (dependencyInfo is not null)
 										{
-											Console.WriteLine($"Package already pushed: {packageName} {packageVersion}");
+											Console.WriteLine($"Package already pushed: {packageInfo.Name} {packageInfo.Version}");
 											alreadyPushedPackages.Add(packagePath);
 											break;
 										}
@@ -457,12 +457,61 @@ namespace Faithlife.Build
 									packagePaths = packagePaths.Except(alreadyPushedPackages).ToList();
 							}
 
+							var tagsToPush = new HashSet<string>();
+
 							foreach (var packagePath in packagePaths)
 							{
-								RunDotNet("nuget", "push", packagePath,
+								var pushArgs = new[]
+								{
+									"nuget", "push", packagePath,
 									"--source", nugetSource,
 									"--api-key", nugetApiKey,
-									shouldSkipDuplicates ? "--skip-duplicate" : null);
+									shouldSkipDuplicates ? "--skip-duplicate" : null,
+								};
+
+								var skippedDuplicate = false;
+
+								RunDotNet(new AppRunnerSettings
+								{
+									Arguments = pushArgs,
+									HandleOutputLine = line =>
+									{
+										Console.WriteLine(line);
+										if (line.TrimStart().StartsWith("Conflict", StringComparison.Ordinal))
+											skippedDuplicate = true;
+									},
+								});
+
+								if (!skippedDuplicate &&
+									settings.PackageSettings?.PushTagOnPublish is var getTag and not null &&
+									getTag(GetPackageInfo(packagePath)) is string tag &&
+									tag.Length != 0)
+								{
+									tagsToPush.Add(tag);
+								}
+							}
+
+							if (tagsToPush.Count != 0)
+							{
+								if (settings.GitLogin is null)
+									throw new BuildException("GitLogin must be set to push tags.");
+
+								using var repository = new Repository(".");
+								foreach (var tagToPush in tagsToPush)
+								{
+									Console.WriteLine($"Pushing git tag: {tagToPush}");
+									repository.Network.Push(
+										remote: repository.Network.Remotes["origin"],
+										objectish: repository.Head.Tip.Sha,
+										destinationSpec: $"refs/tags/{tagToPush}",
+										pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
+								}
+
+								Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types)
+								{
+									var gitLogin = settings.GitLogin!;
+									return new UsernamePasswordCredentials { Username = gitLogin.Username, Password = gitLogin.Password };
+								}
 							}
 						}
 
@@ -473,8 +522,10 @@ namespace Faithlife.Build
 							Commands.Stage(repository, "*");
 							var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings!.GitAuthor!.Email, DateTimeOffset.Now);
 							repository.Commit("Documentation updated.", author, author, new CommitOptions());
-							repository.Network.Push(repository.Network.Remotes["origin"],
-								$"refs/heads/{gitBranchName}", new PushOptions { CredentialsProvider = ProvideCredentials });
+							repository.Network.Push(
+								remote: repository.Network.Remotes["origin"],
+								pushRefSpec: $"refs/heads/{gitBranchName}",
+								pushOptions: new PushOptions { CredentialsProvider = ProvideDocsCredentials });
 						}
 
 						if (cloneDirectory is not null)
@@ -485,12 +536,11 @@ namespace Faithlife.Build
 							DeleteDirectory(cloneDirectory);
 						}
 
-						Credentials ProvideCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
-							new UsernamePasswordCredentials
-							{
-								Username = docsSettings!.GitLogin?.Username ?? throw new BuildException("GitLogin has a null Username."),
-								Password = docsSettings!.GitLogin!.Password ?? throw new BuildException("GitLogin has a null Password."),
-							};
+						Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types)
+						{
+							var gitLogin = docsSettings!.GitLogin ?? settings.GitLogin!;
+							return new UsernamePasswordCredentials { Username = gitLogin?.Username ?? "", Password = gitLogin?.Password ?? "" };
+						}
 					}
 					else
 					{
@@ -709,10 +759,10 @@ namespace Faithlife.Build
 		[Obsolete("Use other overload.")]
 		public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings) => settings.GetExtraPropertyArgs(target);
 
-		private static (string Name, string Version, string Suffix) GetPackageInfo(string path)
+		private static DotNetPackageInfo GetPackageInfo(string path)
 		{
 			var match = Regex.Match(path, @"[/\\](?<name>[^/\\]+)\.(?<version>[0-9]+\.[0-9]+\.[0-9]+(-(?<suffix>.+))?)\.nupkg$", RegexOptions.ExplicitCapture);
-			return (match.Groups["name"].Value, match.Groups["version"].Value, match.Groups["suffix"].Value);
+			return new DotNetPackageInfo(name: match.Groups["name"].Value, version: match.Groups["version"].Value, suffix: match.Groups["suffix"].Value);
 		}
 
 		private static string? GetVersionFromTrigger(string trigger)

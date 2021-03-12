@@ -53,7 +53,7 @@ namespace Faithlife.Build
 		public DotNetTestSettings? TestSettings { get; set; }
 
 		/// <summary>
-		/// Settings for creating NuGet packages.
+		/// Settings for creating and publishing NuGet packages.
 		/// </summary>
 		public DotNetPackageSettings? PackageSettings { get; set; }
 
@@ -100,6 +100,11 @@ namespace Faithlife.Build
 		/// <remarks>If not specified here or on the command line, the environment variables
 		/// used by Appveyor, GitHub Actions, and Jenkins will be used, if set.</remarks>
 		public string? BuildNumber { get; set; }
+
+		/// <summary>
+		/// Credentials used to push to git.
+		/// </summary>
+		public GitLoginInfo? GitLogin { get; set; }
 
 		/// <summary>
 		/// The SourceLink settings. Must be set to test SourceLink URLs.
