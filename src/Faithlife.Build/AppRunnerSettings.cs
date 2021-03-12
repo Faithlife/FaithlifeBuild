@@ -40,6 +40,16 @@ namespace Faithlife.Build
 		public bool UseCmdOnWindows { get; set; }
 
 		/// <summary>
+		/// If set, each line of standard output is sent to the delegate, not to the console.
+		/// </summary>
+		public Action<string>? HandleOutputLine { get; set; }
+
+		/// <summary>
+		/// If set, each line of standard error is sent to the delegate, not to the console.
+		/// </summary>
+		public Action<string>? HandleErrorLine { get; set; }
+
+		/// <summary>
 		/// Clones the settings.
 		/// </summary>
 		public AppRunnerSettings Clone()

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
-using SimpleExec;
 
 namespace Faithlife.Build
 {
@@ -130,15 +130,55 @@ namespace Faithlife.Build
 				argsString = ArgumentEscaper.EscapeAndConcatenate(arguments);
 			}
 
-			var exitCode = 0;
-			try
+			var handleOutputLine = settings.HandleOutputLine;
+			var handleErrorLine = settings.HandleErrorLine;
+
+			using var process = new Process
 			{
-				Command.Run(name: commandPath, args: argsString, workingDirectory: settings.WorkingDirectory, noEcho: settings.NoEcho);
-			}
-			catch (NonZeroExitCodeException exception)
+				StartInfo = new ProcessStartInfo
+				{
+					FileName = commandPath,
+					Arguments = argsString,
+					WorkingDirectory = settings.WorkingDirectory,
+					UseShellExecute = false,
+					RedirectStandardOutput = handleOutputLine is not null,
+					RedirectStandardError = handleErrorLine is not null,
+					CreateNoWindow = false,
+				},
+			};
+
+			if (!settings.NoEcho)
+				Console.Error.WriteLine($"{settings.WorkingDirectory}>> {ArgumentEscaper.EscapeAndConcatenate(new[] { commandPath })} {argsString}");
+
+			if (handleOutputLine is not null)
 			{
-				exitCode = exception.ExitCode;
+				process.OutputDataReceived += (_, e) =>
+				{
+					if (e.Data is not null)
+						handleOutputLine(e.Data);
+				};
 			}
+
+			if (handleErrorLine is not null)
+			{
+				process.ErrorDataReceived += (_, e) =>
+				{
+					if (e.Data is not null)
+						handleErrorLine(e.Data);
+				};
+			}
+
+			process.Start();
+
+			if (handleOutputLine is not null)
+				process.BeginOutputReadLine();
+
+			if (handleErrorLine is not null)
+				process.BeginErrorReadLine();
+
+			process.WaitForExit();
+
+			var exitCode = process.ExitCode;
 
 			var isExitCodeSuccess = settings.IsExitCodeSuccess ?? (x => x == 0);
 			if (!isExitCodeSuccess(exitCode))
