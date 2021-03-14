@@ -22,7 +22,8 @@
 | class [DotNetCleanSettings](Faithlife.Build/DotNetCleanSettings.md) | Settings for cleaning projects. |
 | class [DotNetDocsSettings](Faithlife.Build/DotNetDocsSettings.md) | Used to generate Markdown documentation from XML comments. |
 | class [DotNetLocalTool](Faithlife.Build/DotNetLocalTool.md) | Provides access to a .NET local tool. |
-| class [DotNetPackageSettings](Faithlife.Build/DotNetPackageSettings.md) | Settings for creating NuGet packages. |
+| class [DotNetPackageInfo](Faithlife.Build/DotNetPackageInfo.md) | Information about a NuGet package. |
+| class [DotNetPackageSettings](Faithlife.Build/DotNetPackageSettings.md) | Settings for creating and publishing NuGet packages. |
 | static class [DotNetRunner](Faithlife.Build/DotNetRunner.md) | Runs `dotnet` commands. |
 | class [DotNetTestSettings](Faithlife.Build/DotNetTestSettings.md) | Settings for running .NET tests. |
 | class [GitAuthorInfo](Faithlife.Build/GitAuthorInfo.md) | Information about a git commit author. |

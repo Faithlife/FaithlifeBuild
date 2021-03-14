@@ -1,6 +1,6 @@
 # DotNetPackageSettings class
 
-Settings for creating NuGet packages.
+Settings for creating and publishing NuGet packages.
 
 ```csharp
 public sealed class DotNetPackageSettings
@@ -12,6 +12,9 @@ public sealed class DotNetPackageSettings
 | --- | --- |
 | [DotNetPackageSettings](DotNetPackageSettings/DotNetPackageSettings.md)() | The default constructor. |
 | [FindProjects](DotNetPackageSettings/FindProjects.md) { get; set; } | Called to find the projects to package. |
+| [GitLogin](DotNetPackageSettings/GitLogin.md) { get; set; } | Credentials used to push tags to git. |
+| [GitRepositoryUrl](DotNetPackageSettings/GitRepositoryUrl.md) { get; set; } | The URL of the git repository where tags are pushed. |
+| [PushTagOnPublish](DotNetPackageSettings/PushTagOnPublish.md) { get; set; } | Set if a git tag should be pushed when a NuGet package is published. |
 | [Clone](DotNetPackageSettings/Clone.md)() | Clones the settings. |
 
 ## See Also
