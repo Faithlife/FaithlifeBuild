@@ -1,15 +1,24 @@
 using System;
 using Faithlife.Build;
 
-return BuildRunner.Execute(args, build => build.AddDotNetTargets(
-	new DotNetBuildSettings
-	{
-		NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
-		GitLogin = new GitLoginInfo("faithlifebuildbot", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD") ?? ""),
-		PackageSettings = new DotNetPackageSettings { PushTagOnPublish = x => $"v{x.Version}" },
-		DocsSettings = new DotNetDocsSettings
+return BuildRunner.Execute(args, build =>
+{
+	var gitLogin = new GitLoginInfo("faithlifebuildbot", Environment.GetEnvironmentVariable("BUILD_BOT_PASSWORD") ?? "");
+
+	build.AddDotNetTargets(
+		new DotNetBuildSettings
 		{
-			GitAuthor = new GitAuthorInfo("Faithlife Build Bot", "faithlifebuildbot@users.noreply.github.com"),
-			SourceCodeUrl = "https://github.com/Faithlife/FaithlifeBuild/tree/master/src",
-		},
-	}));
+			NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
+			PackageSettings = new DotNetPackageSettings
+			{
+				GitLogin = gitLogin,
+				PushTagOnPublish = x => $"v{x.Version}",
+			},
+			DocsSettings = new DotNetDocsSettings
+			{
+				GitLogin = gitLogin,
+				GitAuthor = new GitAuthorInfo("Faithlife Build Bot", "faithlifebuildbot@users.noreply.github.com"),
+				SourceCodeUrl = "https://github.com/Faithlife/FaithlifeBuild/tree/master/src",
+			},
+		});
+});

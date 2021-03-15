@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Faithlife.Build
@@ -150,12 +151,17 @@ namespace Faithlife.Build
 			if (!settings.NoEcho)
 				Console.Error.WriteLine($"{settings.WorkingDirectory}>> {ArgumentEscaper.EscapeAndConcatenate(new[] { commandPath })} {argsString}");
 
+			using var outputDone = handleOutputLine is not null ? new AutoResetEvent(initialState: false) : null;
+			using var errorDone = handleErrorLine is not null ? new AutoResetEvent(initialState: false) : null;
+
 			if (handleOutputLine is not null)
 			{
 				process.OutputDataReceived += (_, e) =>
 				{
 					if (e.Data is not null)
 						handleOutputLine(e.Data);
+					else
+						outputDone!.Set();
 				};
 			}
 
@@ -165,6 +171,8 @@ namespace Faithlife.Build
 				{
 					if (e.Data is not null)
 						handleErrorLine(e.Data);
+					else
+						errorDone!.Set();
 				};
 			}
 
@@ -177,6 +185,12 @@ namespace Faithlife.Build
 				process.BeginErrorReadLine();
 
 			process.WaitForExit();
+
+			if (handleOutputLine is not null)
+				outputDone!.WaitOne();
+
+			if (handleErrorLine is not null)
+				errorDone!.WaitOne();
 
 			var exitCode = process.ExitCode;
 

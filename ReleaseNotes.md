@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.10.2
+
+* Don't return from running an app before all output/error lines are read.
+
 ## 5.10.1
 
 * Don't publish documentation until the NuGet package is published.
