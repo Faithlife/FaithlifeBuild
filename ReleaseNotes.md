@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.10.1
+
+* Don't publish documentation until the NuGet package is published.
+
 ## 5.10.0
 
 * Support capturing application output.

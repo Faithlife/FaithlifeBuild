@@ -460,6 +460,7 @@ namespace Faithlife.Build
 
 							var tagsToPush = new HashSet<string>();
 							var packageSettings = settings.PackageSettings;
+							var pushSuccess = false;
 
 							foreach (var packagePath in packagePaths)
 							{
@@ -484,12 +485,16 @@ namespace Faithlife.Build
 									},
 								});
 
-								if (!skippedDuplicate &&
-									packageSettings?.PushTagOnPublish is var getTag and not null &&
-									getTag(GetPackageInfo(packagePath)) is string tag &&
-									tag.Length != 0)
+								if (!skippedDuplicate)
 								{
-									tagsToPush.Add(tag);
+									pushSuccess = true;
+
+									if (packageSettings?.PushTagOnPublish is var getTag and not null &&
+										getTag(GetPackageInfo(packagePath)) is string tag &&
+										tag.Length != 0)
+									{
+										tagsToPush.Add(tag);
+									}
 								}
 							}
 
@@ -524,6 +529,10 @@ namespace Faithlife.Build
 								Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 									new UsernamePasswordCredentials { Username = packageSettings!.GitLogin!.Username, Password = packageSettings!.GitLogin!.Password };
 							}
+
+							// don't push documentation if the packages have already been published
+							if (!pushSuccess)
+								shouldPushDocs = false;
 						}
 
 						if (shouldPushDocs)
