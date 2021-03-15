@@ -2,7 +2,10 @@
 
 ## 5.10.0
 
-* Extra properties aren't allowed when testing an assembly.
+* Support capturing application output.
+* Change application echo formatting.
+* SimpleExec is no longer used.
+* Support pushing git tag on successful publish of NuGet package.
 
 ## 5.9.3
 
