@@ -9,16 +9,16 @@ return BuildRunner.Execute(args, build =>
 		new DotNetBuildSettings
 		{
 			NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
-			PackageSettings = new DotNetPackageSettings
-			{
-				GitLogin = gitLogin,
-				PushTagOnPublish = x => $"v{x.Version}",
-			},
 			DocsSettings = new DotNetDocsSettings
 			{
 				GitLogin = gitLogin,
 				GitAuthor = new GitAuthorInfo("Faithlife Build Bot", "faithlifebuildbot@users.noreply.github.com"),
-				SourceCodeUrl = "https://github.com/Faithlife/FaithlifeBuild/tree/master/src",
+				SourceCodeUrl = "https://github.com/Faithlife/RepoName/tree/master/src",
+			},
+			PackageSettings = new DotNetPackageSettings
+			{
+				GitLogin = gitLogin,
+				PushTagOnPublish = x => $"v{x.Version}",
 			},
 		});
 });
