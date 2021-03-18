@@ -186,7 +186,9 @@ namespace Faithlife.Build
 		private static string? ExtractPackageVersion(ref string package)
 		{
 			string? version = null;
+#pragma warning disable CA1307 // Specify StringComparison for clarity
 			var slashIndex = package.IndexOf('/');
+#pragma warning restore CA1307 // Specify StringComparison for clarity
 			if (slashIndex != -1)
 			{
 				version = package.Substring(slashIndex + 1);

@@ -259,7 +259,9 @@ namespace Faithlife.Build
 							throw new BuildException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
 
 						shouldPublishPackages = true;
-						shouldPublishDocs = triggerVersion.IndexOf('-') == -1;
+#pragma warning disable CA1307 // Specify StringComparison for clarity
+						shouldPublishDocs = !triggerVersion.Contains('-');
+#pragma warning restore CA1307 // Specify StringComparison for clarity
 					}
 
 					if (shouldPublishPackages || shouldPublishDocs)
@@ -549,23 +551,32 @@ namespace Faithlife.Build
 						}
 
 						if (docsCloneDirectory is not null)
-						{
-							// delete the cloned directory
-							foreach (var fileInfo in FindFiles(docsCloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
-								fileInfo.IsReadOnly = false;
-							DeleteDirectory(docsCloneDirectory);
-						}
+							ForceDeleteDirectory(docsCloneDirectory);
 
 						if (tagsCloneDirectory is not null)
-						{
-							// delete the cloned directory
-							foreach (var fileInfo in FindFiles(tagsCloneDirectory, "**").Select(x => new FileInfo(x)).Where(x => x.IsReadOnly))
-								fileInfo.IsReadOnly = false;
-							DeleteDirectory(tagsCloneDirectory);
-						}
+							ForceDeleteDirectory(tagsCloneDirectory);
 
 						Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 							new UsernamePasswordCredentials { Username = docsSettings!.GitLogin!.Username, Password = docsSettings!.GitLogin!.Password };
+
+						static void ForceDeleteDirectory(string path)
+						{
+							try
+							{
+								DeleteDirectory(path);
+							}
+							catch (UnauthorizedAccessException)
+							{
+#if NETSTANDARD2_0
+								var options = SearchOption.AllDirectories;
+#else
+								var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+#endif
+								foreach (var fileInfo in new DirectoryInfo(path).EnumerateFiles("*", options).Where(x => x.IsReadOnly))
+									fileInfo.IsReadOnly = false;
+								DeleteDirectory(path);
+							}
+						}
 					}
 					else
 					{

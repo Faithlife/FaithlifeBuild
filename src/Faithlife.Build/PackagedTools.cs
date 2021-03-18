@@ -34,7 +34,9 @@ namespace Faithlife.Build
 		/// <returns>The path to the installed tool.</returns>
 		public string GetToolPath(string package, string? name = null)
 		{
+#pragma warning disable CA1307 // Specify StringComparison for clarity
 			var slashIndex = package.IndexOf('/');
+#pragma warning restore CA1307 // Specify StringComparison for clarity
 			if (slashIndex == -1)
 				throw new ArgumentException("The package version must be specified after a slash.", nameof(package));
 			var version = package.Substring(slashIndex + 1);

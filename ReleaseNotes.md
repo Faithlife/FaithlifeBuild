@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.10.3
+
+* Avoid symlinks when recursively scanning cloned directory, in case of symlink cycle.
+
 ## 5.10.2
 
 * Don't return from running an app before all output/error lines are read.
