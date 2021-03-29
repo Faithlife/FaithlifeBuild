@@ -3,7 +3,7 @@
 True to run tests on multiple projects or assemblies in parallel.
 
 ```csharp
-public bool UseParallel { get; set; }
+public bool? UseParallel { get; set; }
 ```
 
 ## See Also
