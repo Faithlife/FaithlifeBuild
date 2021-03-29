@@ -119,16 +119,7 @@ namespace Faithlife.Build
 						else
 							testPaths = new[] { solutionName };
 
-						if (testPaths.Count > 1 && settings.TestSettings?.UseParallel == true)
-						{
-							Parallel.ForEach(testPaths,
-								testPath => settings.RunTests(testPath));
-						}
-						else
-						{
-							foreach (var testPath in testPaths)
-								settings.RunTests(testPath);
-						}
+						settings.RunTests(testPaths);
 					}
 				});
 
@@ -780,6 +771,24 @@ namespace Faithlife.Build
 			{
 				foreach (var (key, value) in pairs)
 					yield return $"-p:{key}={value}";
+			}
+		}
+
+		/// <summary>
+		/// Runs tests on the specified paths.
+		/// </summary>
+		/// <remarks>Calls <c>RunTests</c> on each path, in parallel if <c>UseParallel</c> is true.</remarks>
+		public static void RunTests(this DotNetBuildSettings settings, IEnumerable<string?> paths)
+		{
+			if (settings.TestSettings?.UseParallel == true)
+			{
+				Parallel.ForEach(paths,
+					path => settings.RunTests(path));
+			}
+			else
+			{
+				foreach (var path in paths)
+					settings.RunTests(path);
 			}
 		}
 
