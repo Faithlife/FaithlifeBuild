@@ -14,6 +14,7 @@ public sealed class DotNetTestSettings
 | [FindAssemblies](DotNetTestSettings/FindAssemblies.md) { get; set; } | Called to find the test assemblies. |
 | [FindProjects](DotNetTestSettings/FindProjects.md) { get; set; } | Called to find the projects to test. |
 | [RunTests](DotNetTestSettings/RunTests.md) { get; set; } | Called to run tests on the specified solution, project, or assembly. |
+| [UseParallel](DotNetTestSettings/UseParallel.md) { get; set; } | True to run tests on multiple projects or assemblies in parallel. |
 | [Clone](DotNetTestSettings/Clone.md)() | Clones the settings. |
 
 ## See Also
