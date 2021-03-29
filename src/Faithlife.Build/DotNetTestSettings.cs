@@ -30,6 +30,11 @@ namespace Faithlife.Build
 		public Action<string?>? RunTests { get; set; }
 
 		/// <summary>
+		/// True to run tests on multiple projects or assemblies in parallel.
+		/// </summary>
+		public bool UseParallel { get; set; }
+
+		/// <summary>
 		/// Clones the settings.
 		/// </summary>
 		public DotNetTestSettings Clone() => (DotNetTestSettings) MemberwiseClone();

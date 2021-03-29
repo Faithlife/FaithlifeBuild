@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using LibGit2Sharp;
@@ -118,8 +119,16 @@ namespace Faithlife.Build
 						else
 							testPaths = new[] { solutionName };
 
-						foreach (var testPath in testPaths)
-							settings.RunTests(testPath);
+						if (testPaths.Count > 1 && settings.TestSettings?.UseParallel == true)
+						{
+							Parallel.ForEach(testPaths,
+								testPath => settings.RunTests(testPath));
+						}
+						else
+						{
+							foreach (var testPath in testPaths)
+								settings.RunTests(testPath);
+						}
 					}
 				});
 

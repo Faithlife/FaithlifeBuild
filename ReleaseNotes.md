@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.11.0
+
+* Support running multiple test projects in parallel.
+
 ## 5.10.3
 
 * Avoid symlinks when recursively scanning cloned directory, in case of symlink cycle.
