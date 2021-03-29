@@ -1,4 +1,24 @@
-# DotNetBuild.RunTests method
+# DotNetBuild.RunTests method (1 of 2)
+
+Runs tests on the specified paths.
+
+```csharp
+public static void RunTests(this DotNetBuildSettings settings, IEnumerable<string?> paths)
+```
+
+## Remarks
+
+Calls `RunTests` on each path, in parallel if `UseParallel` is true.
+
+## See Also
+
+* class [DotNetBuildSettings](../DotNetBuildSettings.md)
+* class [DotNetBuild](../DotNetBuild.md)
+* namespace [Faithlife.Build](../../Faithlife.Build.md)
+
+---
+
+# DotNetBuild.RunTests method (2 of 2)
 
 Runs tests on the specified path.
 

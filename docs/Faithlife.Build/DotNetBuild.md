@@ -22,7 +22,7 @@ public static class DotNetBuild
 | static [GetPlatformArg](DotNetBuild/GetPlatformArg.md)(…) | Gets the argument that specifies the platform, if needed. |
 | static [GetVerbosity](DotNetBuild/GetVerbosity.md)(…) | Gets the build verbosity. |
 | static [GetVerbosityArg](DotNetBuild/GetVerbosityArg.md)(…) | Gets the argument that specifies the verbosity. |
-| static [RunTests](DotNetBuild/RunTests.md)(…) | Runs tests on the specified path. |
+| static [RunTests](DotNetBuild/RunTests.md)(…) | Runs tests on the specified paths. (2 methods) |
 
 ## See Also
 
