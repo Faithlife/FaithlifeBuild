@@ -32,7 +32,7 @@ namespace Faithlife.Build
 		/// <summary>
 		/// True to run tests on multiple projects or assemblies in parallel.
 		/// </summary>
-		public bool UseParallel { get; set; }
+		public bool? UseParallel { get; set; }
 
 		/// <summary>
 		/// Clones the settings.

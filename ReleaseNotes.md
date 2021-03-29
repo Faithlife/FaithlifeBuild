@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.11.0–5.11.1
+## 5.11.0–5.11.2
 
 * Support running multiple test projects in parallel.
 
