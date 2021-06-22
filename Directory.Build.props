@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <VersionPrefix>5.11.2</VersionPrefix>
+    <VersionPrefix>5.11.3</VersionPrefix>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

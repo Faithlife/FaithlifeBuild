@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.11.3
+
+* Use latest `LibGit2Sharp` for issue with latest .NET 5 SDK.
+
 ## 5.11.0–5.11.2
 
 * Support running multiple test projects in parallel.
