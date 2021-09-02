@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.11.4
+
+* Use latest `Bullseye`.
+
 ## 5.11.3
 
 * Use latest `LibGit2Sharp` for issue with latest .NET 5 SDK.
