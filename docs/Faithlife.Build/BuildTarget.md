@@ -15,7 +15,7 @@ public sealed class BuildTarget
 | [Name](BuildTarget/Name.md) { get; } | The target name. |
 | [ClearActions](BuildTarget/ClearActions.md)() | Clears the actions on the target. |
 | [DependsOn](BuildTarget/DependsOn.md)(…) | Adds a target dependency by name. |
-| [Describe](BuildTarget/Describe.md)(…) | Sets the target [`Description`](BuildTarget/Description.md). |
+| [Describe](BuildTarget/Describe.md)(…) | Sets the target [`Description`](./BuildTarget/Description.md). |
 | [Does](BuildTarget/Does.md)(…) | Adds an action to the target. (2 methods) |
 | [Run](BuildTarget/Run.md)() | Runs the target action, if any. |
 | [RunAsync](BuildTarget/RunAsync.md)() | Runs the target action, if any. |

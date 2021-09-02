@@ -1,6 +1,6 @@
 # BuildApp.Options property
 
-The options previously added to the build via [`AddOption`](AddOption.md).
+The options previously added to the build via [`AddOption`](./AddOption.md).
 
 ```csharp
 public IReadOnlyList<BuildOption> Options { get; }

@@ -1,6 +1,6 @@
 # BuildApp.Flags property
 
-The flags previously added to the build via [`AddFlag`](AddFlag.md).
+The flags previously added to the build via [`AddFlag`](./AddFlag.md).
 
 ```csharp
 public IReadOnlyList<BuildFlag> Flags { get; }

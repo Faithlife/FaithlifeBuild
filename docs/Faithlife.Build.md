@@ -4,33 +4,33 @@
 
 | public type | description |
 | --- | --- |
-| static class [AppRunner](Faithlife.Build/AppRunner.md) | Runs command-line apps. |
-| class [AppRunnerSettings](Faithlife.Build/AppRunnerSettings.md) | Settings for running apps. |
-| class [BuildApp](Faithlife.Build/BuildApp.md) | Represents the command-line application for the build. |
-| static class [BuildEnvironment](Faithlife.Build/BuildEnvironment.md) | Information about the build environment. |
-| class [BuildException](Faithlife.Build/BuildException.md) | A build exception. |
-| class [BuildFlag](Faithlife.Build/BuildFlag.md) | A no-value command-line flag for the build. |
-| class [BuildOption](Faithlife.Build/BuildOption.md) | A single-value command-line option for the build. |
-| static class [BuildRunner](Faithlife.Build/BuildRunner.md) | Used to execute an automated build. |
-| class [BuildTarget](Faithlife.Build/BuildTarget.md) | A build target. |
-| static class [BuildUtility](Faithlife.Build/BuildUtility.md) | Helper methods for build scripts. |
-| static class [DotNetBuild](Faithlife.Build/DotNetBuild.md) | Supports .NET builds. |
-| class [DotNetBuildOptions](Faithlife.Build/DotNetBuildOptions.md) | The options and flags used by [`DotNetBuild`](Faithlife.Build/DotNetBuild.md). |
-| class [DotNetBuildSettings](Faithlife.Build/DotNetBuildSettings.md) | Settings for a .NET build; see [`DotNetBuild`](Faithlife.Build/DotNetBuild.md). |
-| enum [DotNetBuildVerbosity](Faithlife.Build/DotNetBuildVerbosity.md) | The build verbosity. |
-| class [DotNetClassicTool](Faithlife.Build/DotNetClassicTool.md) | Provides access to a classic NuGet packaged tool. |
-| class [DotNetCleanSettings](Faithlife.Build/DotNetCleanSettings.md) | Settings for cleaning projects. |
-| class [DotNetDocsSettings](Faithlife.Build/DotNetDocsSettings.md) | Used to generate Markdown documentation from XML comments. |
-| class [DotNetLocalTool](Faithlife.Build/DotNetLocalTool.md) | Provides access to a .NET local tool. |
-| class [DotNetPackageInfo](Faithlife.Build/DotNetPackageInfo.md) | Information about a NuGet package. |
-| class [DotNetPackageSettings](Faithlife.Build/DotNetPackageSettings.md) | Settings for creating and publishing NuGet packages. |
-| static class [DotNetRunner](Faithlife.Build/DotNetRunner.md) | Runs `dotnet` commands. |
-| class [DotNetTestSettings](Faithlife.Build/DotNetTestSettings.md) | Settings for running .NET tests. |
-| class [GitAuthorInfo](Faithlife.Build/GitAuthorInfo.md) | Information about a git commit author. |
-| class [GitLoginInfo](Faithlife.Build/GitLoginInfo.md) | Information used to login to git. |
-| enum [MSBuildPlatform](Faithlife.Build/MSBuildPlatform.md) | The platform of MSBuild to run. |
-| static class [MSBuildRunner](Faithlife.Build/MSBuildRunner.md) | Runs MSBuild. |
-| class [MSBuildSettings](Faithlife.Build/MSBuildSettings.md) | The settings to use when running MSBuild. |
-| enum [MSBuildVersion](Faithlife.Build/MSBuildVersion.md) | The version of MSBuild to run. |
+| static class [AppRunner](./Faithlife.Build/AppRunner.md) | Runs command-line apps. |
+| class [AppRunnerSettings](./Faithlife.Build/AppRunnerSettings.md) | Settings for running apps. |
+| class [BuildApp](./Faithlife.Build/BuildApp.md) | Represents the command-line application for the build. |
+| static class [BuildEnvironment](./Faithlife.Build/BuildEnvironment.md) | Information about the build environment. |
+| class [BuildException](./Faithlife.Build/BuildException.md) | A build exception. |
+| class [BuildFlag](./Faithlife.Build/BuildFlag.md) | A no-value command-line flag for the build. |
+| class [BuildOption](./Faithlife.Build/BuildOption.md) | A single-value command-line option for the build. |
+| static class [BuildRunner](./Faithlife.Build/BuildRunner.md) | Used to execute an automated build. |
+| class [BuildTarget](./Faithlife.Build/BuildTarget.md) | A build target. |
+| static class [BuildUtility](./Faithlife.Build/BuildUtility.md) | Helper methods for build scripts. |
+| static class [DotNetBuild](./Faithlife.Build/DotNetBuild.md) | Supports .NET builds. |
+| class [DotNetBuildOptions](./Faithlife.Build/DotNetBuildOptions.md) | The options and flags used by [`DotNetBuild`](./Faithlife.Build/DotNetBuild.md). |
+| class [DotNetBuildSettings](./Faithlife.Build/DotNetBuildSettings.md) | Settings for a .NET build; see [`DotNetBuild`](./Faithlife.Build/DotNetBuild.md). |
+| enum [DotNetBuildVerbosity](./Faithlife.Build/DotNetBuildVerbosity.md) | The build verbosity. |
+| class [DotNetClassicTool](./Faithlife.Build/DotNetClassicTool.md) | Provides access to a classic NuGet packaged tool. |
+| class [DotNetCleanSettings](./Faithlife.Build/DotNetCleanSettings.md) | Settings for cleaning projects. |
+| class [DotNetDocsSettings](./Faithlife.Build/DotNetDocsSettings.md) | Used to generate Markdown documentation from XML comments. |
+| class [DotNetLocalTool](./Faithlife.Build/DotNetLocalTool.md) | Provides access to a .NET local tool. |
+| class [DotNetPackageInfo](./Faithlife.Build/DotNetPackageInfo.md) | Information about a NuGet package. |
+| class [DotNetPackageSettings](./Faithlife.Build/DotNetPackageSettings.md) | Settings for creating and publishing NuGet packages. |
+| static class [DotNetRunner](./Faithlife.Build/DotNetRunner.md) | Runs `dotnet` commands. |
+| class [DotNetTestSettings](./Faithlife.Build/DotNetTestSettings.md) | Settings for running .NET tests. |
+| class [GitAuthorInfo](./Faithlife.Build/GitAuthorInfo.md) | Information about a git commit author. |
+| class [GitLoginInfo](./Faithlife.Build/GitLoginInfo.md) | Information used to login to git. |
+| enum [MSBuildPlatform](./Faithlife.Build/MSBuildPlatform.md) | The platform of MSBuild to run. |
+| static class [MSBuildRunner](./Faithlife.Build/MSBuildRunner.md) | Runs MSBuild. |
+| class [MSBuildSettings](./Faithlife.Build/MSBuildSettings.md) | The settings to use when running MSBuild. |
+| enum [MSBuildVersion](./Faithlife.Build/MSBuildVersion.md) | The version of MSBuild to run. |
 
 <!-- DO NOT EDIT: generated by xmldocmd for Faithlife.Build.dll -->

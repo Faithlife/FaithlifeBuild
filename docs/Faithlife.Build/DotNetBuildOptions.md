@@ -1,6 +1,6 @@
 # DotNetBuildOptions class
 
-The options and flags used by [`DotNetBuild`](DotNetBuild.md).
+The options and flags used by [`DotNetBuild`](./DotNetBuild.md).
 
 ```csharp
 public sealed class DotNetBuildOptions

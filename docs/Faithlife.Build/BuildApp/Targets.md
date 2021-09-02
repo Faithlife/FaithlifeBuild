@@ -1,6 +1,6 @@
 # BuildApp.Targets property
 
-The targets previously added to the build via [`Target`](Target.md).
+The targets previously added to the build via [`Target`](./Target.md).
 
 ```csharp
 public IReadOnlyList<BuildTarget> Targets { get; }

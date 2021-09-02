@@ -1,6 +1,6 @@
 # BuildTarget.Describe method
 
-Sets the target [`Description`](Description.md).
+Sets the target [`Description`](./Description.md).
 
 ```csharp
 public BuildTarget Describe(string description)
