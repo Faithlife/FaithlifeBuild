@@ -8,4 +8,3 @@ updates:
   - dependency-name: Bullseye
   - dependency-name: Glob
   - dependency-name: SimpleExec
-  - dependency-name: XmlDocMarkdown.Core
