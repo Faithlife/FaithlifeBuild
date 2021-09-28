@@ -283,7 +283,7 @@ namespace Faithlife.Build
 
 							if (gitRepositoryUrl is not null)
 							{
-								docsCloneDirectory = "docs_repo_" + Path.GetRandomFileName();
+								docsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: docsCloneDirectory,
 									options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
 								docsRepoDirectory = docsCloneDirectory;
@@ -511,7 +511,7 @@ namespace Faithlife.Build
 								var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
 								if (gitRepositoryUrl is not null)
 								{
-									tagsCloneDirectory = "tags_repo_" + Path.GetRandomFileName();
+									tagsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 									Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
 										options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
 									tagsRepoDirectory = tagsCloneDirectory;

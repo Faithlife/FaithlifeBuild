@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.11.5-beta.1
+
+* Use standard temp path when cloning repositories to avoid path-too-long issues with `LibGit2Sharp`.
+
 ## 5.11.4
 
 * Use latest `Bullseye`.
