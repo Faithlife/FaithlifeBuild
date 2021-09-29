@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.11.5-beta.1
+## 5.11.5
 
 * Use standard temp path when cloning repositories to avoid path-too-long issues with `LibGit2Sharp`.
 
