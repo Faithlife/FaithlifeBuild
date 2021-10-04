@@ -336,21 +336,36 @@ namespace Faithlife.Build
 
 							var docsPath = Path.Combine(docsRepoDirectory, docsSettings.TargetDirectory ?? "docs");
 
-							string? xmlDocGenPath = null;
-							var xmlDocGenProject = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
-							if (xmlDocGenProject is not null)
+							var xmlDocGenPaths = new List<string>();
+							var xmlDocGenProjectPath = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
+							if (xmlDocGenProjectPath is not null)
 							{
-								RunDotNet("publish", xmlDocGenProject,
-									"-c", settings.GetConfiguration(),
-									settings.GetPlatformArg(),
-									"--nologo",
-									"--verbosity", "quiet",
-									"--output", Path.Combine("tools", "bin", "XmlDocGen"));
-								xmlDocGenPath = Path.Combine("tools", "bin", "XmlDocGen", "XmlDocGen.dll");
-								if (!File.Exists(xmlDocGenPath))
-									xmlDocGenPath = Path.Combine("tools", "bin", "XmlDocGen", "XmlDocGen.exe");
-								if (!File.Exists(xmlDocGenPath))
-									throw new BuildException("Failed to build XmlDocGen.");
+								var xmlDocGenProjectDocument = XDocument.Load(xmlDocGenProjectPath);
+								var xmlDocGenFrameworks = GetTargetFrameworks();
+								foreach (var framework in xmlDocGenFrameworks)
+								{
+									RunDotNet("publish", xmlDocGenProjectPath,
+										framework.Length != 0 ? "--framework" : null, framework.Length != 0 ? framework : null,
+										"-c", settings.GetConfiguration(),
+										settings.GetPlatformArg(),
+										"--nologo",
+										"--verbosity", "quiet",
+										"--output", Path.Combine("tools", "bin", framework, "XmlDocGen"));
+									var xmlDocGenPath = Path.Combine("tools", "bin", framework, "XmlDocGen", "XmlDocGen.dll");
+									if (!File.Exists(xmlDocGenPath))
+										xmlDocGenPath = Path.Combine("tools", "bin", framework, "XmlDocGen", "XmlDocGen.exe");
+									if (!File.Exists(xmlDocGenPath))
+										throw new BuildException($"Failed to build XmlDocGen{(framework.Length == 0 ? "" : $" ({framework})")}.");
+									xmlDocGenPaths.Add(xmlDocGenPath);
+								}
+
+								string[] GetTargetFrameworks()
+								{
+									// return single empty framework unless there are more than one
+									var text = xmlDocGenProjectDocument.XPathSelectElements("Project/PropertyGroup/TargetFrameworks").FirstOrDefault()?.Value;
+									var values = text is null ? Array.Empty<string>() : text.Split(';').Select(x => x.Trim()).Where(x => x.Length != 0).ToArray();
+									return values.Length > 1 ? values : new[] { "" };
+								}
 							}
 
 							var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
@@ -367,7 +382,7 @@ namespace Faithlife.Build
 									if (assemblyPath is not null)
 										assemblyPaths.Add(assemblyPath);
 								}
-								else if (xmlDocGenPath is not null)
+								else if (xmlDocGenPaths.Count != 0)
 								{
 									assemblyPaths.Add(project.Name);
 								}
@@ -382,15 +397,27 @@ namespace Faithlife.Build
 
 								if (assemblyPaths.Count != 0)
 								{
-									if (xmlDocGenPath is not null)
+									if (xmlDocGenPaths.Count != 0)
 									{
-										var isDotNetApp = string.Equals(Path.GetExtension(xmlDocGenPath), ".dll", StringComparison.OrdinalIgnoreCase);
-										foreach (var assemblyPath in assemblyPaths)
+										foreach (var xmlDocGenPath in xmlDocGenPaths)
 										{
-											if (isDotNetApp)
-												RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
-											else
-												RunApp(xmlDocGenPath, new AppRunnerSettings { Arguments = GetXmlDocArgs(assemblyPath), IsFrameworkApp = true });
+											var isDotNetApp = string.Equals(Path.GetExtension(xmlDocGenPath), ".dll", StringComparison.OrdinalIgnoreCase);
+											foreach (var assemblyPath in assemblyPaths)
+											{
+												var actualAssemblyPath = Path.Combine(Path.GetDirectoryName(xmlDocGenPath)!, assemblyPath + ".dll");
+												if (File.Exists(actualAssemblyPath))
+												{
+													if (isDotNetApp)
+														RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
+													else
+														RunApp(xmlDocGenPath, new AppRunnerSettings { Arguments = GetXmlDocArgs(assemblyPath), IsFrameworkApp = true });
+												}
+												else if (xmlDocGenPaths.Count == 1)
+												{
+													// if XmlDocGen has only one framework, this is probably an error
+													Console.WriteLine($"Project {project.Name} missing from XmlDocGen: {actualAssemblyPath}");
+												}
+											}
 										}
 									}
 									else if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
