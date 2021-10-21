@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.12.0-beta.1
+## 5.12.0
 
 * Support multiple target frameworks for `XmlDocGen`.
 
