@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Faithlife.Build
 	/// <summary>
 	/// Used to execute an automated build.
 	/// </summary>
+	[SuppressMessage("Performance", "CA1849:Call async methods when in an async method", Justification = "Console.WriteLine.")]
 	public static class BuildRunner
 	{
 		/// <summary>
