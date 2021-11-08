@@ -39,21 +39,22 @@ namespace Faithlife.Build
 				var version = settings?.Version ?? MSBuildVersion.VS2017;
 				var platform = settings?.Platform ?? (BuildEnvironment.Is64Bit() ? MSBuildPlatform.X64 : MSBuildPlatform.X32);
 
-				var (pathYear, pathVersion) = GetPathParts();
+				var (specialFolder, pathYear, pathVersion) = GetPathParts();
 				foreach (var edition in new[] { "Enterprise", "Professional", "Community", "BuildTools", "Preview" })
 				{
-					var msbuildPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+					var msbuildPath = Path.Combine(Environment.GetFolderPath(specialFolder),
 						"Microsoft Visual Studio", pathYear, edition, "MSBuild", pathVersion, "Bin", platform == MSBuildPlatform.X64 ? "amd64" : "", "MSBuild.exe");
 					if (File.Exists(msbuildPath))
 						return msbuildPath;
 				}
 
-				(string Year, string Version) GetPathParts()
+				(Environment.SpecialFolder Folder, string Year, string Version) GetPathParts()
 				{
 					return version switch
 					{
-						MSBuildVersion.VS2017 => ("2017", "15.0"),
-						MSBuildVersion.VS2019 => ("2019", "Current"),
+						MSBuildVersion.VS2017 => (Environment.SpecialFolder.ProgramFilesX86, "2017", "15.0"),
+						MSBuildVersion.VS2019 => (Environment.SpecialFolder.ProgramFilesX86, "2019", "Current"),
+						MSBuildVersion.VS2022 => (Environment.SpecialFolder.ProgramFiles, "2022", "Current"),
 						_ => throw new BuildException($"Unexpected MSBuildVersion: {version}"),
 					};
 				}
