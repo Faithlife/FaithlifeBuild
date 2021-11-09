@@ -12,6 +12,7 @@ public enum MSBuildVersion
 | --- | --- | --- |
 | VS2017 | `0` | Visual Studio 2017. |
 | VS2019 | `1` | Visual Studio 2019. |
+| VS2022 | `2` | Visual Studio 2022. |
 
 ## See Also
 
