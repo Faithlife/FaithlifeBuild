@@ -14,5 +14,10 @@ namespace Faithlife.Build
 		/// Visual Studio 2019.
 		/// </summary>
 		VS2019,
+
+		/// <summary>
+		/// Visual Studio 2022.
+		/// </summary>
+		VS2022,
 	}
 }

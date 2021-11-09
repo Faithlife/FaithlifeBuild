@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.13.0
+
+* Support Visual Studio 2022.
+
 ## 5.12.0
 
 * Support multiple target frameworks for `XmlDocGen`.
