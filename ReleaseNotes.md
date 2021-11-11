@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.13.1
+
+* Support Visual Studio 2022 Build Tools.
+
 ## 5.13.0
 
 * Support Visual Studio 2022.
