@@ -1,0 +1,11 @@
+<Project>
+
+  <ItemGroup Condition=" '$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable' ">
+    <Using Include="Faithlife.Build" />
+    <Using Include="Faithlife.Build.AppRunner" Static="True" />
+    <Using Include="Faithlife.Build.BuildUtility" Static="True" />
+    <Using Include="Faithlife.Build.DotNetRunner" Static="True" />
+    <Using Include="Faithlife.Build.MSBuildRunner" Static="True" />
+  </ItemGroup>
+
+</Project>

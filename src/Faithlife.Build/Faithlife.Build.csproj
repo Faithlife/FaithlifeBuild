@@ -20,4 +20,8 @@
     <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Faithlife.Build.props" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
 </Project>
