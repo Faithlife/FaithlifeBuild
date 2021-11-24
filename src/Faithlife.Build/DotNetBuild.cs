@@ -825,11 +825,35 @@ public static class DotNetBuild
 		}
 		else
 		{
-			var extension = Path.GetExtension(path)?.ToLowerInvariant();
-			if (extension == ".dll" || extension == ".exe")
-				RunDotNet(new AppRunnerSettings { Arguments = new[] { "test", Path.GetFileName(path) }, WorkingDirectory = Path.GetDirectoryName(path) });
+			if (Path.GetExtension(path)?.ToLowerInvariant() is ".dll" or ".exe")
+			{
+				RunDotNet(new AppRunnerSettings
+				{
+					Arguments = new[]
+					{
+						"test",
+						Path.GetFileName(path),
+						"--",
+						"RunConfiguration.TreatNoTestsAsError=true",
+					},
+					WorkingDirectory = Path.GetDirectoryName(path),
+				});
+			}
 			else
-				RunDotNet(new[] { "test", path, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), "--no-build", settings.GetMaxCpuCountArg() }.Concat(settings.GetExtraPropertyArgs("test")));
+			{
+				RunDotNet(new[]
+				{
+					"test",
+					path,
+					"-c",
+					settings.GetConfiguration(),
+					settings.GetPlatformArg(),
+					"--no-build",
+					settings.GetMaxCpuCountArg(),
+					"--",
+					"RunConfiguration.TreatNoTestsAsError=true",
+				}.Concat(settings.GetExtraPropertyArgs("test")));
+			}
 		}
 	}
 
