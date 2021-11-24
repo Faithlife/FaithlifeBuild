@@ -40,7 +40,7 @@ internal static class Build
 }
 ```
 
-Perform the build by running the `Build` project. This can be done directly via `dotnet run`, e.g. `dotnet run --project tools/Build -- test`, but builds are more easily run from a simple bootstrapper, usually named [`build.ps1`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.ps1), [`build.cmd`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.cmd), and/or [`build.sh`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.sh).
+Perform the build by running the `Build` project. This can be done directly via `dotnet run`, e.g. `dotnet run --project tools/Build -- test`, but builds are more easily run from a simple bootstrapper, usually named [`build.ps1`](https://github.com/Faithlife/FaithlifeBuild/blob/master/build.ps1), [`build.cmd`](https://github.com/Faithlife/FaithlifeBuild/blob/22189540b89844326abbcb85b9d28487cceb90ac/build.cmd), and/or [`build.sh`](https://github.com/Faithlife/FaithlifeBuild/blob/08acb5f3a38e37a55716281efe4520fc76a89917/build.sh).
 
 Specify the desired targets on the command line, e.g. `./build.sh package`. Use `--help` to list the available build targets and command-line options. These command-line arguments are always supported:
 
