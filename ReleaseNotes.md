@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.14.0
+
+* Treat no tests as error.
+* Add [implicit usings](./src/Faithlife.Build/Faithlife.Build.props) for consumers.
+
 ## 5.13.1
 
 * Support Visual Studio 2022 Build Tools.
