@@ -94,7 +94,7 @@ public static class DotNetBuild
 			.Describe("Runs the unit tests")
 			.Does(() =>
 			{
-				if (buildOptions.NoTestFlag!.Value)
+				if (buildOptions.NoTestFlag.Value)
 				{
 					Console.WriteLine("Skipping unit tests due to --no-test.");
 				}
@@ -127,7 +127,7 @@ public static class DotNetBuild
 
 		(string? Trigger, bool AutoDetected) GetTrigger()
 		{
-			var trigger = buildOptions.TriggerOption!.Value;
+			var trigger = buildOptions.TriggerOption.Value;
 
 			if (trigger == "detect")
 			{
@@ -148,11 +148,11 @@ public static class DotNetBuild
 		{
 			var (trigger, _) = GetTrigger();
 
-			var versionSuffix = buildOptions.VersionSuffixOption!.Value;
+			var versionSuffix = buildOptions.VersionSuffixOption.Value;
 			if (versionSuffix is null && trigger is not null)
-				versionSuffix = GetVersionFromTrigger(trigger) is string triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
+				versionSuffix = GetVersionFromTrigger(trigger) is { } triggerVersion ? SplitVersion(triggerVersion).Suffix : null;
 
-			var nugetOutputPath = Path.GetFullPath(buildOptions.NuGetOutputOption!.Value!);
+			var nugetOutputPath = Path.GetFullPath(buildOptions.NuGetOutputOption.Value!);
 			var tempOutputPath = Path.Combine(nugetOutputPath, Path.GetRandomFileName());
 
 			var packageProjects = new List<string?>();
@@ -414,7 +414,7 @@ public static class DotNetBuild
 										}
 									}
 								}
-								else if (DotNetLocalTool.TryCreate("xmldocmd") is DotNetLocalTool xmldocmd)
+								else if (DotNetLocalTool.TryCreate("xmldocmd") is { } xmldocmd)
 								{
 									foreach (var assemblyPath in assemblyPaths)
 										xmldocmd.Run(GetXmlDocArgs(assemblyPath));
@@ -436,7 +436,7 @@ public static class DotNetBuild
 							}
 
 							string?[] GetXmlDocArgs(string input) =>
-								new[] { input, docsPath, "--source", $"{docsSettings!.SourceCodeUrl}/{project.Name}", "--newline", "lf", "--clean", string.IsNullOrEmpty(project.Suffix) ? null : "--dryrun" };
+								new[] { input, docsPath, "--source", $"{docsSettings.SourceCodeUrl}/{project.Name}", "--newline", "lf", "--clean", string.IsNullOrEmpty(project.Suffix) ? null : "--dryrun" };
 						}
 
 						shouldPushDocs = repository.RetrieveStatus().IsDirty;
@@ -513,7 +513,7 @@ public static class DotNetBuild
 								pushSuccess = true;
 
 								if (packageSettings?.PushTagOnPublish is var getTag and not null &&
-									getTag(GetPackageInfo(packagePath)) is string tag &&
+									getTag(GetPackageInfo(packagePath)) is { } tag &&
 									tag.Length != 0)
 								{
 									tagsToPush.Add(tag);
@@ -528,7 +528,7 @@ public static class DotNetBuild
 
 							var commitSha = GetGitCommitSha();
 
-							string tagsRepoDirectory = ".";
+							var tagsRepoDirectory = ".";
 							var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
 							if (gitRepositoryUrl is not null)
 							{
@@ -550,7 +550,7 @@ public static class DotNetBuild
 							}
 
 							Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
-								new UsernamePasswordCredentials { Username = packageSettings!.GitLogin!.Username, Password = packageSettings!.GitLogin!.Password };
+								new UsernamePasswordCredentials { Username = packageSettings.GitLogin!.Username, Password = packageSettings.GitLogin!.Password };
 						}
 
 						// don't push documentation if the packages have already been published
@@ -563,7 +563,7 @@ public static class DotNetBuild
 						using var repository = new Repository(docsRepoDirectory);
 						Console.WriteLine("Publishing documentation changes.");
 						Commands.Stage(repository, "*");
-						var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings!.GitAuthor!.Email, DateTimeOffset.Now);
+						var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings.GitAuthor!.Email, DateTimeOffset.Now);
 						repository.Commit("Documentation updated.", author, author, new CommitOptions());
 						repository.Network.Push(
 							remote: repository.Network.Remotes["origin"],
@@ -578,7 +578,7 @@ public static class DotNetBuild
 						ForceDeleteDirectory(tagsCloneDirectory);
 
 					Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
-						new UsernamePasswordCredentials { Username = docsSettings!.GitLogin!.Username, Password = docsSettings!.GitLogin!.Password };
+						new UsernamePasswordCredentials { Username = docsSettings.GitLogin!.Username, Password = docsSettings.GitLogin!.Password };
 
 					static void ForceDeleteDirectory(string path)
 					{
@@ -605,7 +605,7 @@ public static class DotNetBuild
 				}
 			});
 
-		if (DotNetLocalTool.TryCreate("dotnet-format") is DotNetLocalTool dotnetFormat)
+		if (DotNetLocalTool.TryCreate("dotnet-format") is { } dotnetFormat)
 		{
 			build.Target("format")
 				.DependsOn("restore")
@@ -616,7 +616,7 @@ public static class DotNetBuild
 				});
 		}
 
-		if (DotNetLocalTool.TryCreate("jetbrains.resharper.globaltools") is DotNetLocalTool jb)
+		if (DotNetLocalTool.TryCreate("jetbrains.resharper.globaltools") is { } jb)
 		{
 			build.Target("cleanup")
 				.DependsOn("restore")
@@ -675,11 +675,11 @@ public static class DotNetBuild
 			IEnumerable<string?> GetJetBrainsProperties()
 			{
 				yield return $"--properties:Configuration={settings.GetConfiguration()}";
-				yield return settings.GetPlatform() is string platform ? $"--properties:Platform={platform}" : null;
+				yield return settings.GetPlatform() is { } platform ? $"--properties:Platform={platform}" : null;
 			}
 		}
 
-		void MSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments!);
+		void MSBuild(IEnumerable<string?> arguments) => RunMSBuild(msbuildSettings, arguments);
 
 		string GetGitCommitSha()
 		{
@@ -692,7 +692,7 @@ public static class DotNetBuild
 	/// Gets the configuration.
 	/// </summary>
 	public static string GetConfiguration(this DotNetBuildSettings settings) =>
-		settings!.BuildOptions!.ConfigurationOption!.Value!;
+		settings.BuildOptions!.ConfigurationOption!.Value!;
 
 	/// <summary>
 	/// Gets the MSBuild-style argument that specifies the configuration.
@@ -709,7 +709,7 @@ public static class DotNetBuild
 	/// Gets the argument that specifies the platform, if needed.
 	/// </summary>
 	public static string? GetPlatformArg(this DotNetBuildSettings settings) =>
-		settings.GetPlatform() is string platform ? $"-p:Platform={platform}" : null;
+		settings.GetPlatform() is { } platform ? $"-p:Platform={platform}" : null;
 
 	/// <summary>
 	/// Gets the argument that specifies the maximum CPU count.
@@ -734,7 +734,7 @@ public static class DotNetBuild
 			"detailed" => DotNetBuildVerbosity.Detailed,
 			"diag" => DotNetBuildVerbosity.Diagnostic,
 			"diagnostic" => DotNetBuildVerbosity.Diagnostic,
-			null => settings!.Verbosity ?? DotNetBuildVerbosity.Minimal,
+			null => settings.Verbosity ?? DotNetBuildVerbosity.Minimal,
 			_ => throw new BuildException($"Unexpected verbosity option: {settings.BuildOptions.VerbosityOption.Value}"),
 		};
 
@@ -775,7 +775,7 @@ public static class DotNetBuild
 	/// Gets the argument that specifies the build number.
 	/// </summary>
 	public static string? GetBuildNumberArg(this DotNetBuildSettings settings) =>
-		settings.GetBuildNumber() is string buildNumber ? $"-p:BuildNumber={buildNumber}" : null;
+		settings.GetBuildNumber() is { } buildNumber ? $"-p:BuildNumber={buildNumber}" : null;
 
 	/// <summary>
 	/// Gets the argument that specifies whether a build summary should be output.
@@ -803,8 +803,7 @@ public static class DotNetBuild
 	{
 		if (settings.TestSettings?.UseParallel == true)
 		{
-			Parallel.ForEach(paths,
-				path => settings.RunTests(path));
+			Parallel.ForEach(paths, settings.RunTests);
 		}
 		else
 		{

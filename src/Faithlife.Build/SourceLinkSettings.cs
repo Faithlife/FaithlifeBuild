@@ -32,7 +32,7 @@ public sealed class SourceLinkSettings
 	/// <summary>
 	/// Returns the default settings.
 	/// </summary>
-	public static SourceLinkSettings Default => new SourceLinkSettings();
+	public static SourceLinkSettings Default => new();
 
 	/// <summary>
 	/// Clones the settings.

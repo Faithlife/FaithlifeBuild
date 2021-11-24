@@ -122,7 +122,7 @@ public static class BuildUtility
 	{
 		foreach (var filePath in filePaths)
 		{
-			if (Path.GetDirectoryName(filePath) is string directoryName)
+			if (Path.GetDirectoryName(filePath) is { } directoryName)
 				Directory.CreateDirectory(Path.Combine(toDirectory, directoryName));
 
 			File.Copy(Path.Combine(fromDirectory, filePath), Path.Combine(toDirectory, filePath), overwrite: true);

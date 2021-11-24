@@ -15,7 +15,7 @@ public static class MSBuildRunner
 	/// </summary>
 	public static string GetMSBuildPath(MSBuildSettings? settings)
 	{
-		if (settings?.MSBuildPath is string settingsPath)
+		if (settings?.MSBuildPath is { } settingsPath)
 			return settingsPath;
 
 		if (BuildEnvironment.IsMacOS())
