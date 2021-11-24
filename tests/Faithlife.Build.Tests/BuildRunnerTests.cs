@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 
 namespace Faithlife.Build.Tests

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using McMaster.Extensions.CommandLineUtils;
 using static Faithlife.Build.AppRunner;
 
