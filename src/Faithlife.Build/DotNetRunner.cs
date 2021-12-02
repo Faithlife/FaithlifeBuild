@@ -60,5 +60,5 @@ public static class DotNetRunner
 		return RunDotNet(settings);
 	}
 
-	private static string GetDotNetFullPath() => DotNetExe.FullPath ?? throw new BuildException("dotnet was not found.");
+	private static string GetDotNetFullPath() => DotNetExe.FullPathOrDefault();
 }

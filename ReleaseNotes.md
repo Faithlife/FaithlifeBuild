@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.14.1
+
+* Use `dotnet` if the full path can't be determined.
+
 ## 5.14.0
 
 * Treat no tests as error.
