@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <None Include="Faithlife.Build.props" Pack="true" PackagePath="build" />
+    <None Include="Faithlife.Build.props" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
 </Project>

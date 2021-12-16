@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.14.2
+
+* Make implicit usings transitive.
+
 ## 5.14.1
 
 * Use `dotnet` if the full path can't be determined.
