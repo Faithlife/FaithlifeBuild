@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.14.3
+
+* Send `BuildNumber` property for all dotnet/msbuild commands.
+
 ## 5.14.2
 
 * Make implicit usings transitive.
