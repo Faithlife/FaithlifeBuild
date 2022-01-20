@@ -58,9 +58,9 @@ public static class DotNetBuild
 
 				var extraProperties = settings.GetExtraPropertyArgs("clean");
 				if (msbuildSettings is null)
-					RunDotNet(new[] { "clean", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "clean", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 				else
-					MSBuild(new[] { solutionName, "-t:Clean", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					MSBuild(new[] { solutionName, "-t:Clean", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 			});
 
 		build.Target("restore")
@@ -69,9 +69,9 @@ public static class DotNetBuild
 			{
 				var extraProperties = settings.GetExtraPropertyArgs("restore");
 				if (msbuildSettings is null)
-					RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 				else
-					MSBuild(new[] { solutionName, "-t:Restore", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					MSBuild(new[] { solutionName, "-t:Restore", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 
 				if (DotNetLocalTool.Any())
 					RunDotNet("tool", "restore");
@@ -173,6 +173,7 @@ public static class DotNetBuild
 						"pack", packageProject,
 						"-c", settings.GetConfiguration(),
 						settings.GetPlatformArg(),
+						settings.GetBuildNumberArg(),
 						"--no-build",
 						"--output", tempOutputPath,
 						versionSuffix is not null ? "--version-suffix" : null, versionSuffix,
@@ -186,6 +187,7 @@ public static class DotNetBuild
 						packageProject, "-t:Pack",
 						settings.GetConfigurationArg(),
 						settings.GetPlatformArg(),
+						settings.GetBuildNumberArg(),
 						"-p:NoBuild=true",
 						$"-p:PackageOutputPath={tempOutputPath}",
 						versionSuffix is not null ? $"-p:VersionSuffix={versionSuffix}" : null,
@@ -342,6 +344,7 @@ public static class DotNetBuild
 									framework.Length != 0 ? "--framework" : null, framework.Length != 0 ? framework : null,
 									"-c", settings.GetConfiguration(),
 									settings.GetPlatformArg(),
+									settings.GetBuildNumberArg(),
 									"--nologo",
 									"--verbosity", "quiet",
 									"--output", Path.Combine("tools", "bin", framework, "XmlDocGen"));
@@ -848,6 +851,7 @@ public static class DotNetBuild
 					"-c",
 					settings.GetConfiguration(),
 					settings.GetPlatformArg(),
+					settings.GetBuildNumberArg(),
 					"--no-build",
 					settings.GetMaxCpuCountArg(),
 					"--",
