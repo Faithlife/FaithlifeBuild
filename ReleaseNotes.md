@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.14.4
+
+* Allow current directory to be a subdirectory of the git repository.
+
 ## 5.14.3
 
 * Send `BuildNumber` property for all dotnet/msbuild commands.
