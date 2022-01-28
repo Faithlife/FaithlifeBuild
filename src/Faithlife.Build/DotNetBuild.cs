@@ -131,7 +131,7 @@ public static class DotNetBuild
 
 			if (trigger == "detect")
 			{
-				using var repository = new Repository(".");
+				using var repository = OpenRepository(".");
 				var headSha = repository.Head.Tip.Sha;
 				var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
 				if (autoTrigger is not null)
@@ -289,7 +289,7 @@ public static class DotNetBuild
 							docsRepoDirectory = ".";
 						}
 
-						using var repository = new Repository(docsRepoDirectory);
+						using var repository = OpenRepository(docsRepoDirectory);
 						if (gitRepositoryUrl is not null)
 						{
 							docsGitBranchName ??= repository.Head.FriendlyName;
@@ -541,7 +541,7 @@ public static class DotNetBuild
 								tagsRepoDirectory = tagsCloneDirectory;
 							}
 
-							using var repository = new Repository(tagsRepoDirectory);
+							using var repository = OpenRepository(tagsRepoDirectory);
 							foreach (var tagToPush in tagsToPush)
 							{
 								Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha}.");
@@ -563,7 +563,7 @@ public static class DotNetBuild
 
 					if (shouldPushDocs)
 					{
-						using var repository = new Repository(docsRepoDirectory);
+						using var repository = OpenRepository(docsRepoDirectory!);
 						Console.WriteLine("Publishing documentation changes.");
 						Commands.Stage(repository, "*");
 						var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings.GitAuthor!.Email, DateTimeOffset.Now);
@@ -686,8 +686,25 @@ public static class DotNetBuild
 
 		string GetGitCommitSha()
 		{
-			using var repository = new Repository(".");
+			using var repository = OpenRepository(".");
 			return repository.Head.Tip.Sha;
+		}
+
+		Repository OpenRepository(string path)
+		{
+			if (path != ".")
+				return new Repository(path);
+
+			var fullPath = Path.GetFullPath(".");
+			while (fullPath is not null)
+			{
+				if (Repository.IsValid(fullPath))
+					return new Repository(fullPath);
+
+				fullPath = Path.GetDirectoryName(fullPath);
+			}
+
+			throw new BuildException("The current directory is not part of a valid git repository.");
 		}
 	}
 
