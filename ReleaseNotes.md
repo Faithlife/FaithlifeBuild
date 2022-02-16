@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.14.5
+## 5.14.5–5.14.6
 
 * Improve exception message for LibGit2Sharp errors.
 
