@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.14.5
+
+* Improve exception message for LibGit2Sharp errors.
+
 ## 5.14.4
 
 * Allow current directory to be a subdirectory of the git repository.
