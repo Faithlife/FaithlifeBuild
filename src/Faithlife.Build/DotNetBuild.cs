@@ -280,8 +280,15 @@ public static class DotNetBuild
 						if (gitRepositoryUrl is not null)
 						{
 							docsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-							Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: docsCloneDirectory,
-								options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
+							try
+							{
+								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: docsCloneDirectory,
+									options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
+							}
+							catch (LibGit2SharpException exception)
+							{
+								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {tagsCloneDirectory}: {exception.Message}");
+							}
 							docsRepoDirectory = docsCloneDirectory;
 						}
 						else
@@ -536,8 +543,15 @@ public static class DotNetBuild
 							if (gitRepositoryUrl is not null)
 							{
 								tagsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
-									options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
+								try
+								{
+									Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
+										options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
+								}
+								catch (LibGit2SharpException exception)
+								{
+									throw new BuildException($"Failed to clone {gitRepositoryUrl} to {tagsCloneDirectory}: {exception.Message}");
+								}
 								tagsRepoDirectory = tagsCloneDirectory;
 							}
 
@@ -546,10 +560,17 @@ public static class DotNetBuild
 							{
 								Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha}.");
 								repository.ApplyTag(tagName: tagToPush, objectish: commitSha);
-								repository.Network.Push(
-									remote: repository.Network.Remotes["origin"],
-									pushRefSpec: $"refs/tags/{tagToPush}",
-									pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
+								try
+								{
+									repository.Network.Push(
+										remote: repository.Network.Remotes["origin"],
+										pushRefSpec: $"refs/tags/{tagToPush}",
+										pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
+								}
+								catch (LibGit2SharpException exception)
+								{
+									throw new BuildException($"Failed to push tag {tagToPush} to {gitRepositoryUrl}: {exception.Message}");
+								}
 							}
 
 							Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
