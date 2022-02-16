@@ -287,7 +287,7 @@ public static class DotNetBuild
 							}
 							catch (LibGit2SharpException exception)
 							{
-								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {tagsCloneDirectory}: {exception.Message}");
+								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {tagsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
 							}
 							docsRepoDirectory = docsCloneDirectory;
 						}
@@ -550,7 +550,7 @@ public static class DotNetBuild
 								}
 								catch (LibGit2SharpException exception)
 								{
-									throw new BuildException($"Failed to clone {gitRepositoryUrl} to {tagsCloneDirectory}: {exception.Message}");
+									throw new BuildException($"Failed to clone {gitRepositoryUrl} to {tagsCloneDirectory}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
 								}
 								tagsRepoDirectory = tagsCloneDirectory;
 							}
@@ -569,7 +569,7 @@ public static class DotNetBuild
 								}
 								catch (LibGit2SharpException exception)
 								{
-									throw new BuildException($"Failed to push tag {tagToPush} to {gitRepositoryUrl}: {exception.Message}");
+									throw new BuildException($"Failed to push tag {tagToPush} to {gitRepositoryUrl}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
 								}
 							}
 
@@ -589,10 +589,17 @@ public static class DotNetBuild
 						Commands.Stage(repository, "*");
 						var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings.GitAuthor!.Email, DateTimeOffset.Now);
 						repository.Commit("Documentation updated.", author, author, new CommitOptions());
-						repository.Network.Push(
-							remote: repository.Network.Remotes["origin"],
-							pushRefSpec: $"refs/heads/{docsGitBranchName}",
-							pushOptions: new PushOptions { CredentialsProvider = ProvideDocsCredentials });
+						try
+						{
+							repository.Network.Push(
+								remote: repository.Network.Remotes["origin"],
+								pushRefSpec: $"refs/heads/{docsGitBranchName}",
+								pushOptions: new PushOptions { CredentialsProvider = ProvideDocsCredentials });
+						}
+						catch (LibGit2SharpException exception)
+						{
+							throw new BuildException($"Failed to push docs to branch {docsGitBranchName}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
+						}
 					}
 
 					if (docsCloneDirectory is not null)
@@ -937,4 +944,14 @@ public static class DotNetBuild
 			.Select(x => x.Tag)
 			.Concat(tags.Where(x => x.StartsWith("publish-", StringComparison.Ordinal)))
 			.FirstOrDefault();
+
+	private static string GetGitLoginErrorMessage(GitLoginInfo gitLogin)
+	{
+		var infos = new List<string>();
+		if (gitLogin.Username.Length == 0)
+			infos.Add("no username");
+		if (gitLogin.Password.Length == 0)
+			infos.Add("no password");
+		return infos.Count == 0 ? "" : $" ({string.Join(", ", infos)})";
+	}
 }
