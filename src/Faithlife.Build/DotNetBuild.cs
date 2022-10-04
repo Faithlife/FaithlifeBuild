@@ -924,7 +924,7 @@ public static class DotNetBuild
 		return version.Length != 0 ? version : null;
 	}
 
-	private static (int Major, int Minor, int Patch, string Suffix) SplitVersion(string version)
+	private static (int Major, int Minor, int Patch, string? Suffix) SplitVersion(string version)
 	{
 		var hyphenParts = version.Split(new[] { '-' }, 2);
 		var dotParts = hyphenParts[0].Split(new[] { '.' }, 3);
