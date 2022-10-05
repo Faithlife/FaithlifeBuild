@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.14.7
+
+* Use new `--build` option for InspectCode.
+* Update LibGit2Sharp.
+
 ## 5.14.5–5.14.6
 
 * Improve exception message for LibGit2Sharp errors.

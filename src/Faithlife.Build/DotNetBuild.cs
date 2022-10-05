@@ -675,6 +675,7 @@ public static class DotNetBuild
 						new[]
 						{
 							"inspectcode",
+							"--build",
 							"--severity=WARNING",
 							"--verbosity=ERROR",
 							"--format=Xml",
