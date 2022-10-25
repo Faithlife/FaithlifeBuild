@@ -55,6 +55,7 @@ public static class BuildRunner
 		var dryRunFlag = buildApp.AddFlag("-n|--dry-run", "Don't execute target actions");
 		var skipDependenciesFlag = buildApp.AddFlag("-s|--skip-dependencies", "Don't run any target dependencies");
 		var skipOption = buildApp.AddOption("--skip <targets>", "Skip the comma-delimited target dependencies");
+		var parallelFlag = buildApp.AddFlag("--parallel", "Run targets in parallel");
 		var noColorFlag = buildApp.AddFlag("--no-color", "Disable color output");
 		var showTreeFlag = buildApp.AddFlag("--show-tree", "Show the dependency tree");
 		var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
@@ -115,6 +116,8 @@ public static class BuildRunner
 					bullseyeArgs.Add("--list-tree");
 				if (dryRunFlag.Value)
 					bullseyeArgs.Add("--dry-run");
+				if (parallelFlag.Value)
+					bullseyeArgs.Add("--parallel");
 				bullseyeArgs.Add("--no-extended-chars");
 
 				try
