@@ -533,48 +533,7 @@ public static class DotNetBuild
 
 						if (tagsToPush.Count != 0)
 						{
-							if (packageSettings?.GitLogin is null)
-								throw new BuildException("GitLogin must be set to push tags.");
-
-							var commitSha = GetGitCommitSha();
-
-							var tagsRepoDirectory = ".";
-							var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
-							if (gitRepositoryUrl is not null)
-							{
-								tagsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-								try
-								{
-									Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
-										options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
-								}
-								catch (LibGit2SharpException exception)
-								{
-									throw new BuildException($"Failed to clone {gitRepositoryUrl} to {tagsCloneDirectory}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
-								}
-								tagsRepoDirectory = tagsCloneDirectory;
-							}
-
-							using var repository = OpenRepository(tagsRepoDirectory);
-							foreach (var tagToPush in tagsToPush)
-							{
-								Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha}.");
-								repository.ApplyTag(tagName: tagToPush, objectish: commitSha);
-								try
-								{
-									repository.Network.Push(
-										remote: repository.Network.Remotes["origin"],
-										pushRefSpec: $"refs/tags/{tagToPush}",
-										pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
-								}
-								catch (LibGit2SharpException exception)
-								{
-									throw new BuildException($"Failed to push tag {tagToPush} to {gitRepositoryUrl}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
-								}
-							}
-
-							Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
-								new UsernamePasswordCredentials { Username = packageSettings.GitLogin!.Username, Password = packageSettings.GitLogin!.Password };
+							PushTagsUsingLibGit2(packageSettings, tagsToPush, ref tagsCloneDirectory);
 						}
 
 						// don't push documentation if the packages have already been published
@@ -734,6 +693,52 @@ public static class DotNetBuild
 			}
 
 			throw new BuildException("The current directory is not part of a valid git repository.");
+		}
+
+		void PushTagsUsingLibGit2(DotNetPackageSettings? packageSettings, IEnumerable<string> tagsToPush, ref string? tagsCloneDirectory)
+		{
+			if (packageSettings?.GitLogin is null)
+				throw new BuildException("GitLogin must be set to push tags.");
+
+			var commitSha = GetGitCommitSha();
+
+			var tagsRepoDirectory = ".";
+			var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
+			if (gitRepositoryUrl is not null)
+			{
+				tagsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+				try
+				{
+					Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
+						options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
+				}
+				catch (LibGit2SharpException exception)
+				{
+					throw new BuildException($"Failed to clone {gitRepositoryUrl} to {tagsCloneDirectory}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
+				}
+				tagsRepoDirectory = tagsCloneDirectory;
+			}
+
+			using var repository = OpenRepository(tagsRepoDirectory);
+			foreach (var tagToPush in tagsToPush)
+			{
+				Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha}.");
+				repository.ApplyTag(tagName: tagToPush, objectish: commitSha);
+				try
+				{
+					repository.Network.Push(
+						remote: repository.Network.Remotes["origin"],
+						pushRefSpec: $"refs/tags/{tagToPush}",
+						pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
+				}
+				catch (LibGit2SharpException exception)
+				{
+					throw new BuildException($"Failed to push tag {tagToPush} to {gitRepositoryUrl}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
+				}
+			}
+
+			Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
+				new UsernamePasswordCredentials { Username = packageSettings.GitLogin!.Username, Password = packageSettings.GitLogin!.Password };
 		}
 	}
 
