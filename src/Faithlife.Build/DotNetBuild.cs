@@ -1,4 +1,8 @@
 using System.Globalization;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -267,7 +271,6 @@ public static class DotNetBuild
 					string? docsCloneDirectory = null;
 					string? docsRepoDirectory = null;
 					string? docsGitBranchName = null;
-					string? tagsCloneDirectory = null;
 
 					if (shouldPublishDocs && docsSettings is not null)
 					{
@@ -287,7 +290,7 @@ public static class DotNetBuild
 							}
 							catch (LibGit2SharpException exception)
 							{
-								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {tagsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
+								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {docsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
 							}
 							docsRepoDirectory = docsCloneDirectory;
 						}
@@ -533,48 +536,10 @@ public static class DotNetBuild
 
 						if (tagsToPush.Count != 0)
 						{
-							if (packageSettings?.GitLogin is null)
-								throw new BuildException("GitLogin must be set to push tags.");
-
-							var commitSha = GetGitCommitSha();
-
-							var tagsRepoDirectory = ".";
-							var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
-							if (gitRepositoryUrl is not null)
-							{
-								tagsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-								try
-								{
-									Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
-										options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
-								}
-								catch (LibGit2SharpException exception)
-								{
-									throw new BuildException($"Failed to clone {gitRepositoryUrl} to {tagsCloneDirectory}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
-								}
-								tagsRepoDirectory = tagsCloneDirectory;
-							}
-
-							using var repository = OpenRepository(tagsRepoDirectory);
-							foreach (var tagToPush in tagsToPush)
-							{
-								Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha}.");
-								repository.ApplyTag(tagName: tagToPush, objectish: commitSha);
-								try
-								{
-									repository.Network.Push(
-										remote: repository.Network.Remotes["origin"],
-										pushRefSpec: $"refs/tags/{tagToPush}",
-										pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
-								}
-								catch (LibGit2SharpException exception)
-								{
-									throw new BuildException($"Failed to push tag {tagToPush} to {gitRepositoryUrl}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
-								}
-							}
-
-							Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
-								new UsernamePasswordCredentials { Username = packageSettings.GitLogin!.Username, Password = packageSettings.GitLogin!.Password };
+							if (Environment.GetEnvironmentVariable("GITHUB_API_URL") is string githubApiUrl)
+								PushTagsUsingGitHubApi(packageSettings, tagsToPush, githubApiUrl);
+							else
+								PushTagsUsingLibGit2(packageSettings, tagsToPush);
 						}
 
 						// don't push documentation if the packages have already been published
@@ -605,30 +570,8 @@ public static class DotNetBuild
 					if (docsCloneDirectory is not null)
 						ForceDeleteDirectory(docsCloneDirectory);
 
-					if (tagsCloneDirectory is not null)
-						ForceDeleteDirectory(tagsCloneDirectory);
-
 					Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 						new UsernamePasswordCredentials { Username = docsSettings.GitLogin!.Username, Password = docsSettings.GitLogin!.Password };
-
-					static void ForceDeleteDirectory(string path)
-					{
-						try
-						{
-							DeleteDirectory(path);
-						}
-						catch (UnauthorizedAccessException)
-						{
-#if NETSTANDARD2_0
-							var options = SearchOption.AllDirectories;
-#else
-							var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
-#endif
-							foreach (var fileInfo in new DirectoryInfo(path).EnumerateFiles("*", options).Where(x => x.IsReadOnly))
-								fileInfo.IsReadOnly = false;
-							DeleteDirectory(path);
-						}
-					}
 				}
 				else
 				{
@@ -734,6 +677,154 @@ public static class DotNetBuild
 			}
 
 			throw new BuildException("The current directory is not part of a valid git repository.");
+		}
+
+		void PushTagsUsingGitHubApi(DotNetPackageSettings? packageSettings, IEnumerable<string> tagsToPush, string githubApiUrl)
+		{
+			// authenticate to API, preferring GITHUB_TOKEN environment variable; https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+			AuthenticationHeaderValue? authenticationHeader = null;
+			if (Environment.GetEnvironmentVariable("GITHUB_TOKEN") is string githubToken)
+			{
+				authenticationHeader = new AuthenticationHeaderValue("Bearer", githubToken);
+			}
+			else
+			{
+				if (packageSettings?.GitLogin is not { } gitLogin)
+					throw new BuildException("GITHUB_TOKEN or GitLogin must be set to push tags.");
+				var authenticationString = $"{gitLogin.Username}:{gitLogin.Password}";
+				authenticationHeader = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(authenticationString)));
+			}
+
+			// get the repository (in OWNER/REPO format) from GITHUB_REPOSITORY environment variable
+			if (Environment.GetEnvironmentVariable("GITHUB_REPOSITORY") is not string githubRepository)
+			{
+				// if the environment variable isn't set, assume it can be extracted from the URL
+				var url = packageSettings?.GitRepositoryUrl ?? throw new BuildException("GITHUB_REPOSITORY or GitRepositoryUrl must be set to push tags.");
+				githubRepository = new Uri(url).AbsolutePath.Substring(1);
+#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+				githubRepository = githubRepository.Replace(".git", "", StringComparison.Ordinal);
+#else
+				githubRepository = githubRepository.Replace(".git", "");
+#endif
+			}
+
+			// get SHA for workflow from environment, falling back to local repository
+			if (Environment.GetEnvironmentVariable("GITHUB_SHA") is not string commitSha)
+				commitSha = GetGitCommitSha();
+
+			// create HTTP client and authenticate to GitHub API
+			var httpClient = new HttpClient();
+			httpClient.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+			httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
+			httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"Faithlife.Build/{Assembly.GetExecutingAssembly().GetName().Version}");
+
+			// https://docs.github.com/en/rest/git/refs#create-a-reference
+			var apiUrl = new Uri($"{githubApiUrl}/repos/{githubRepository}/git/refs");
+
+			foreach (var tagToPush in tagsToPush)
+			{
+				string? message = null;
+				HttpResponseMessage? response = null;
+				try
+				{
+					Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha} (using GitHub API).");
+					var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
+					{
+						Content = new StringContent($"{{\"ref\":\"refs/tags/{tagToPush}\",\"sha\":\"{commitSha}\"}}", Encoding.UTF8, "application/json"),
+					};
+#if NET6_0_OR_GREATER
+					response = httpClient.Send(request);
+#else
+					response = httpClient.SendAsync(request).GetAwaiter().GetResult();
+#endif
+					if (response.StatusCode != HttpStatusCode.Created)
+					{
+#if NET6_0_OR_GREATER
+						using var stream = response.Content.ReadAsStream();
+#else
+						using var stream = response.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
+#endif
+						using var streamReader = new StreamReader(stream);
+						message = $"{response.StatusCode}: {streamReader.ReadToEnd()}";
+					}
+				}
+				catch (HttpRequestException ex)
+				{
+					message = ex.Message;
+				}
+
+				if (message is not null)
+					throw new BuildException($"Failed to push tag {tagToPush} to {apiUrl.AbsoluteUri}: {message}");
+			}
+		}
+
+		void PushTagsUsingLibGit2(DotNetPackageSettings? packageSettings, IEnumerable<string> tagsToPush)
+		{
+			if (packageSettings?.GitLogin is null)
+				throw new BuildException("GitLogin must be set to push tags.");
+
+			var commitSha = GetGitCommitSha();
+
+			string? tagsCloneDirectory = null;
+			var tagsRepoDirectory = ".";
+			var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
+			if (gitRepositoryUrl is not null)
+			{
+				tagsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+				try
+				{
+					Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
+						options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
+				}
+				catch (LibGit2SharpException exception)
+				{
+					throw new BuildException($"Failed to clone {gitRepositoryUrl} to {tagsCloneDirectory}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
+				}
+				tagsRepoDirectory = tagsCloneDirectory;
+			}
+
+			using var repository = OpenRepository(tagsRepoDirectory);
+			foreach (var tagToPush in tagsToPush)
+			{
+				Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha} (using LibGit2Sharp).");
+				repository.ApplyTag(tagName: tagToPush, objectish: commitSha);
+				try
+				{
+					repository.Network.Push(
+						remote: repository.Network.Remotes["origin"],
+						pushRefSpec: $"refs/tags/{tagToPush}",
+						pushOptions: new PushOptions { CredentialsProvider = ProvidePackageTagCredentials });
+				}
+				catch (LibGit2SharpException exception)
+				{
+					throw new BuildException($"Failed to push tag {tagToPush} to {gitRepositoryUrl}{GetGitLoginErrorMessage(packageSettings.GitLogin)}: {exception.Message}");
+				}
+			}
+
+			if (tagsCloneDirectory is not null)
+				ForceDeleteDirectory(tagsCloneDirectory);
+
+			Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
+				new UsernamePasswordCredentials { Username = packageSettings.GitLogin!.Username, Password = packageSettings.GitLogin!.Password };
+		}
+
+		static void ForceDeleteDirectory(string path)
+		{
+			try
+			{
+				DeleteDirectory(path);
+			}
+			catch (UnauthorizedAccessException)
+			{
+#if NETSTANDARD2_0
+				var options = SearchOption.AllDirectories;
+#else
+				var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+#endif
+				foreach (var fileInfo in new DirectoryInfo(path).EnumerateFiles("*", options).Where(x => x.IsReadOnly))
+					fileInfo.IsReadOnly = false;
+				DeleteDirectory(path);
+			}
 		}
 	}
 
