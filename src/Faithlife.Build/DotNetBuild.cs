@@ -727,6 +727,7 @@ public static class DotNetBuild
 				HttpResponseMessage? response = null;
 				try
 				{
+					Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha} (using GitHub API).");
 					var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
 					{
 						Content = new StringContent($"{{\"ref\":\"refs/tags/{tagToPush}\",\"sha\":\"{commitSha}\"}}", Encoding.UTF8, "application/json"),
@@ -785,7 +786,7 @@ public static class DotNetBuild
 			using var repository = OpenRepository(tagsRepoDirectory);
 			foreach (var tagToPush in tagsToPush)
 			{
-				Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha}.");
+				Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha} (using LibGit2Sharp).");
 				repository.ApplyTag(tagName: tagToPush, objectish: commitSha);
 				try
 				{
