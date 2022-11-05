@@ -267,7 +267,6 @@ public static class DotNetBuild
 					string? docsCloneDirectory = null;
 					string? docsRepoDirectory = null;
 					string? docsGitBranchName = null;
-					string? tagsCloneDirectory = null;
 
 					if (shouldPublishDocs && docsSettings is not null)
 					{
@@ -287,7 +286,7 @@ public static class DotNetBuild
 							}
 							catch (LibGit2SharpException exception)
 							{
-								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {tagsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
+								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {docsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
 							}
 							docsRepoDirectory = docsCloneDirectory;
 						}
@@ -533,7 +532,7 @@ public static class DotNetBuild
 
 						if (tagsToPush.Count != 0)
 						{
-							PushTagsUsingLibGit2(packageSettings, tagsToPush, ref tagsCloneDirectory);
+							PushTagsUsingLibGit2(packageSettings, tagsToPush);
 						}
 
 						// don't push documentation if the packages have already been published
@@ -564,30 +563,8 @@ public static class DotNetBuild
 					if (docsCloneDirectory is not null)
 						ForceDeleteDirectory(docsCloneDirectory);
 
-					if (tagsCloneDirectory is not null)
-						ForceDeleteDirectory(tagsCloneDirectory);
-
 					Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 						new UsernamePasswordCredentials { Username = docsSettings.GitLogin!.Username, Password = docsSettings.GitLogin!.Password };
-
-					static void ForceDeleteDirectory(string path)
-					{
-						try
-						{
-							DeleteDirectory(path);
-						}
-						catch (UnauthorizedAccessException)
-						{
-#if NETSTANDARD2_0
-							var options = SearchOption.AllDirectories;
-#else
-							var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
-#endif
-							foreach (var fileInfo in new DirectoryInfo(path).EnumerateFiles("*", options).Where(x => x.IsReadOnly))
-								fileInfo.IsReadOnly = false;
-							DeleteDirectory(path);
-						}
-					}
 				}
 				else
 				{
@@ -695,13 +672,14 @@ public static class DotNetBuild
 			throw new BuildException("The current directory is not part of a valid git repository.");
 		}
 
-		void PushTagsUsingLibGit2(DotNetPackageSettings? packageSettings, IEnumerable<string> tagsToPush, ref string? tagsCloneDirectory)
+		void PushTagsUsingLibGit2(DotNetPackageSettings? packageSettings, IEnumerable<string> tagsToPush)
 		{
 			if (packageSettings?.GitLogin is null)
 				throw new BuildException("GitLogin must be set to push tags.");
 
 			var commitSha = GetGitCommitSha();
 
+			string? tagsCloneDirectory = null;
 			var tagsRepoDirectory = ".";
 			var gitRepositoryUrl = packageSettings.GitRepositoryUrl;
 			if (gitRepositoryUrl is not null)
@@ -737,8 +715,30 @@ public static class DotNetBuild
 				}
 			}
 
+			if (tagsCloneDirectory is not null)
+				ForceDeleteDirectory(tagsCloneDirectory);
+
 			Credentials ProvidePackageTagCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
 				new UsernamePasswordCredentials { Username = packageSettings.GitLogin!.Username, Password = packageSettings.GitLogin!.Password };
+		}
+
+		static void ForceDeleteDirectory(string path)
+		{
+			try
+			{
+				DeleteDirectory(path);
+			}
+			catch (UnauthorizedAccessException)
+			{
+#if NETSTANDARD2_0
+				var options = SearchOption.AllDirectories;
+#else
+							var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
+#endif
+				foreach (var fileInfo in new DirectoryInfo(path).EnumerateFiles("*", options).Where(x => x.IsReadOnly))
+					fileInfo.IsReadOnly = false;
+				DeleteDirectory(path);
+			}
 		}
 	}
 
