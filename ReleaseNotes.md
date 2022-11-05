@@ -1,5 +1,13 @@
 # Release Notes
 
+## 5.15.0
+
+* Push git tags using the GitHub API: [#43](https://github.com/Faithlife/FaithlifeBuild/pull/43).
+  * This requires the `GITHUB_API_URL` environment variable to be present and specify the base address of the GitHub API.
+  * This environment variable is automatically supplied to GitHub Actions runners.
+* Add `--parallel` and `--verbose` flags: [#40](https://github.com/Faithlife/FaithlifeBuild/pull/40).
+* Update NuGet dependencies to address CVE-2022-41032.
+
 ## 5.14.7
 
 * Use new `--build` option for InspectCode.
