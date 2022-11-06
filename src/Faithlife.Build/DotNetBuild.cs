@@ -259,9 +259,7 @@ public static class DotNetBuild
 						throw new BuildException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
 
 					shouldPublishPackages = true;
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-					shouldPublishDocs = !triggerVersion.Contains('-');
-#pragma warning restore CA1307 // Specify StringComparison for clarity
+					shouldPublishDocs = !triggerVersion.Contains('-', StringComparison.Ordinal);
 				}
 
 				if (shouldPublishPackages || shouldPublishDocs)
@@ -323,8 +321,8 @@ public static class DotNetBuild
 								{
 									var gitRef = Environment.GetEnvironmentVariable("GITHUB_REF");
 									const string prefix = "refs/heads/";
-									if (gitRef is not null && gitRef.StartsWith(prefix, StringComparison.Ordinal))
-										autoBranchName = gitRef.Substring(prefix.Length);
+									if (gitRef?.StartsWith(prefix, StringComparison.Ordinal) is true)
+										autoBranchName = gitRef[prefix.Length..];
 								}
 
 								if (autoBranchName is not null)
@@ -525,9 +523,8 @@ public static class DotNetBuild
 							{
 								pushSuccess = true;
 
-								if (packageSettings?.PushTagOnPublish is var getTag and not null &&
-									getTag(GetPackageInfo(packagePath)) is { } tag &&
-									tag.Length != 0)
+								if (packageSettings?.PushTagOnPublish is { } getTag &&
+									getTag(GetPackageInfo(packagePath)) is { Length: not 0 } tag)
 								{
 									tagsToPush.Add(tag);
 								}
@@ -700,7 +697,7 @@ public static class DotNetBuild
 			{
 				// if the environment variable isn't set, assume it can be extracted from the URL
 				var url = packageSettings?.GitRepositoryUrl ?? throw new BuildException("GITHUB_REPOSITORY or GitRepositoryUrl must be set to push tags.");
-				githubRepository = new Uri(url).AbsolutePath.Substring(1).Replace(".git", "", StringComparison.Ordinal);
+				githubRepository = new Uri(url).AbsolutePath[1..].Replace(".git", "", StringComparison.Ordinal);
 			}
 
 			// get SHA for workflow from environment, falling back to local repository

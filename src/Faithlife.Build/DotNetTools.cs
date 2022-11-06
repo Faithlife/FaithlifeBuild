@@ -182,13 +182,10 @@ public sealed class DotNetTools
 	private static string? ExtractPackageVersion(ref string package)
 	{
 		string? version = null;
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-		var slashIndex = package.IndexOf('/');
-#pragma warning restore CA1307 // Specify StringComparison for clarity
-		if (slashIndex != -1)
+		if (package.IndexOf('/', StringComparison.Ordinal) is int slashIndex and not -1)
 		{
-			version = package.Substring(slashIndex + 1);
-			package = package.Substring(0, slashIndex);
+			version = package[(slashIndex + 1)..];
+			package = package[..slashIndex];
 		}
 
 		return version;
@@ -218,13 +215,13 @@ public sealed class DotNetTools
 			if (leftDotParts.Length != rightDotParts.Length)
 				return leftDotParts.Length.CompareTo(rightDotParts.Length);
 
-			var leftSuffix = leftHyphenParts.ElementAtOrDefault(1);
-			var rightSuffix = rightHyphenParts.ElementAtOrDefault(1);
-			if (leftSuffix is null)
-				return rightSuffix is null ? 0 : 1;
-			if (rightSuffix is null)
-				return -1;
-			return string.CompareOrdinal(leftSuffix, rightSuffix);
+			return (leftHyphenParts.ElementAtOrDefault(1), rightHyphenParts.ElementAtOrDefault(1)) switch
+			{
+				(null, null) => 0,
+				(null, _) => 1,
+				(_, null) => -1,
+				(string leftSuffix, string rightSuffix) => string.CompareOrdinal(leftSuffix, rightSuffix),
+			};
 		}
 	}
 

@@ -31,13 +31,11 @@ public sealed class PackagedTools
 	/// <returns>The path to the installed tool.</returns>
 	public string GetToolPath(string package, string? name = null)
 	{
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-		var slashIndex = package.IndexOf('/');
-#pragma warning restore CA1307 // Specify StringComparison for clarity
+		var slashIndex = package.IndexOf('/', StringComparison.Ordinal);
 		if (slashIndex == -1)
 			throw new ArgumentException("The package version must be specified after a slash.", nameof(package));
-		var version = package.Substring(slashIndex + 1);
-		package = package.Substring(0, slashIndex);
+		var version = package[(slashIndex + 1)..];
+		package = package[..slashIndex];
 
 		return Path.Combine(m_directory, package, version, "tools", name ?? package);
 	}
