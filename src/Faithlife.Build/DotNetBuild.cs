@@ -700,12 +700,7 @@ public static class DotNetBuild
 			{
 				// if the environment variable isn't set, assume it can be extracted from the URL
 				var url = packageSettings?.GitRepositoryUrl ?? throw new BuildException("GITHUB_REPOSITORY or GitRepositoryUrl must be set to push tags.");
-				githubRepository = new Uri(url).AbsolutePath.Substring(1);
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-				githubRepository = githubRepository.Replace(".git", "", StringComparison.Ordinal);
-#else
-				githubRepository = githubRepository.Replace(".git", "");
-#endif
+				githubRepository = new Uri(url).AbsolutePath.Substring(1).Replace(".git", "", StringComparison.Ordinal);
 			}
 
 			// get SHA for workflow from environment, falling back to local repository
@@ -732,18 +727,10 @@ public static class DotNetBuild
 					{
 						Content = new StringContent($"{{\"ref\":\"refs/tags/{tagToPush}\",\"sha\":\"{commitSha}\"}}", Encoding.UTF8, "application/json"),
 					};
-#if NET6_0_OR_GREATER
 					response = httpClient.Send(request);
-#else
-					response = httpClient.SendAsync(request).GetAwaiter().GetResult();
-#endif
 					if (response.StatusCode != HttpStatusCode.Created)
 					{
-#if NET6_0_OR_GREATER
 						using var stream = response.Content.ReadAsStream();
-#else
-						using var stream = response.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
-#endif
 						using var streamReader = new StreamReader(stream);
 						message = $"{response.StatusCode}: {streamReader.ReadToEnd()}";
 					}
@@ -816,11 +803,7 @@ public static class DotNetBuild
 			}
 			catch (UnauthorizedAccessException)
 			{
-#if NETSTANDARD2_0
-				var options = SearchOption.AllDirectories;
-#else
 				var options = new EnumerationOptions { RecurseSubdirectories = true, AttributesToSkip = FileAttributes.ReparsePoint };
-#endif
 				foreach (var fileInfo in new DirectoryInfo(path).EnumerateFiles("*", options).Where(x => x.IsReadOnly))
 					fileInfo.IsReadOnly = false;
 				DeleteDirectory(path);
