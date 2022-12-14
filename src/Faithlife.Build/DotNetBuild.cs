@@ -283,14 +283,48 @@ public static class DotNetBuild
 						if (gitRepositoryUrl is not null)
 						{
 							docsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+							var sourceUrl = gitRepositoryUrl;
 							try
 							{
-								Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: docsCloneDirectory,
+								// determine if the local working directory has the same 'origin' remote URL as the docs git repository; if so, clone from the local folder (which should be much faster)
+								string? localRepositorySource = null;
+								try
+								{
+									using (var localRepo = OpenRepository("."))
+									{
+										// allow the local repo to be cloned if it has the same remote URL (ignoring trailing .git) and branch (because it may be a shallow clone)
+										var originUrl = localRepo.Network.Remotes["origin"].Url;
+										var trimTrailingDotGit = new Regex(@"\.git$");
+										if (trimTrailingDotGit.Replace(originUrl, "") != trimTrailingDotGit.Replace(gitRepositoryUrl, ""))
+											Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same remote URL as the docs repository: {originUrl} != {gitRepositoryUrl}");
+										else if (localRepo.Head.FriendlyName != docsGitBranchName)
+											Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same branch as the docs repository: {localRepo.Head.FriendlyName} != {docsGitBranchName}");
+										else
+											localRepositorySource = localRepo.Info.WorkingDirectory;
+									}
+								}
+								catch (BuildException)
+								{
+								}
+
+								sourceUrl = localRepositorySource ?? gitRepositoryUrl;
+								Console.WriteLine($"Cloning documentation repository from {sourceUrl} to {docsCloneDirectory}");
+								Repository.Clone(sourceUrl: sourceUrl, workdirPath: docsCloneDirectory,
 									options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
+
+								if (localRepositorySource is not null)
+								{
+									// if the local repo was cloned, update the 'origin' remote so that changes are pushed to the correct remote
+									using (var clonedRepo = OpenRepository(docsCloneDirectory))
+									{
+										clonedRepo.Network.Remotes.Remove("origin");
+										clonedRepo.Network.Remotes.Add("origin", gitRepositoryUrl);
+									}
+								}
 							}
 							catch (LibGit2SharpException exception)
 							{
-								throw new BuildException($"Failed to clone {gitRepositoryUrl} branch {docsGitBranchName} to {docsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
+								throw new BuildException($"Failed to clone {sourceUrl} branch {docsGitBranchName} to {docsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
 							}
 							docsRepoDirectory = docsCloneDirectory;
 						}
