@@ -572,7 +572,7 @@ public static class DotNetBuild
 				}
 				else
 				{
-					Console.WriteLine("To publish to NuGet, push this tag: v" + GetPackageInfo(packagePaths[0]).Version);
+					Console.WriteLine($"To publish to NuGet, push this tag: v{GetPackageInfo(packagePaths[0]).Version}");
 				}
 			});
 
@@ -722,7 +722,7 @@ public static class DotNetBuild
 					Console.WriteLine($"Pushing git tag {tagToPush} at {commitSha} (using GitHub API).");
 					var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
 					{
-						Content = new StringContent($"{{\"ref\":\"refs/tags/{tagToPush}\",\"sha\":\"{commitSha}\"}}", Encoding.UTF8, "application/json"),
+						Content = new StringContent($$"""{"ref":"refs/tags/{{tagToPush}}","sha":"{{commitSha}}"}""", Encoding.UTF8, "application/json"),
 					};
 					response = httpClient.Send(request);
 					if (response.StatusCode != HttpStatusCode.Created)
@@ -862,22 +862,16 @@ public static class DotNetBuild
 	/// Gets the argument that specifies the verbosity.
 	/// </summary>
 	/// <remarks>Defaults to minimal.</remarks>
-	public static string GetVerbosityArg(this DotNetBuildSettings settings)
-	{
-		var verbosity = settings.GetVerbosity();
-
-		var argument = verbosity switch
+	public static string GetVerbosityArg(this DotNetBuildSettings settings) =>
+		$"-v{settings.GetVerbosity() switch
 		{
 			DotNetBuildVerbosity.Quiet => "quiet",
 			DotNetBuildVerbosity.Minimal => "minimal",
 			DotNetBuildVerbosity.Normal => "normal",
 			DotNetBuildVerbosity.Detailed => "detailed",
 			DotNetBuildVerbosity.Diagnostic => "diagnostic",
-			_ => throw new BuildException($"Unexpected DotNetBuildVerbosity: {verbosity}"),
-		};
-
-		return $"-v:{argument}";
-	}
+			{ } other => throw new BuildException($"Unexpected DotNetBuildVerbosity: {other}"),
+		}}";
 
 	/// <summary>
 	/// Gets the build number, if any.
@@ -907,8 +901,7 @@ public static class DotNetBuild
 	/// </summary>
 	public static IEnumerable<string> GetExtraPropertyArgs(this DotNetBuildSettings settings, string target)
 	{
-		var pairs = settings.ExtraProperties?.Invoke(target);
-		if (pairs is not null)
+		if (settings.ExtraProperties?.Invoke(target) is { } pairs)
 		{
 			foreach (var (key, value) in pairs)
 				yield return $"-p:{key}={value}";
