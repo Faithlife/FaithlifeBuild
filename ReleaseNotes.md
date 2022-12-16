@@ -1,5 +1,12 @@
 # Release Notes
 
+## 5.16.0
+
+* Remove netstandard2.x targets: [#42](https://github.com/Faithlife/FaithlifeBuild/issues/42).
+* Faithlife.Build now only targets `net6.0`.
+* Docs are cloned from the repo for the local working copy if possible.
+* Update Bullseye to 4.2.0.
+
 ## 5.15.0
 
 * Push git tags using the GitHub API: [#43](https://github.com/Faithlife/FaithlifeBuild/pull/43).
