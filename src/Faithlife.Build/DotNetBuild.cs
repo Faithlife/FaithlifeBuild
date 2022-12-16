@@ -897,7 +897,7 @@ public static class DotNetBuild
 	/// </summary>
 	/// <remarks>Defaults to minimal.</remarks>
 	public static string GetVerbosityArg(this DotNetBuildSettings settings) =>
-		$"-v{settings.GetVerbosity() switch
+		$"-v:{settings.GetVerbosity() switch
 		{
 			DotNetBuildVerbosity.Quiet => "quiet",
 			DotNetBuildVerbosity.Minimal => "minimal",

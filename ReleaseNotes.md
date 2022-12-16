@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.16.1
+
+* Fix syntax error in verbosity parameter passed to `dotnet`.
+
 ## 5.16.0
 
 * Remove netstandard2.x targets: [#42](https://github.com/Faithlife/FaithlifeBuild/issues/42).
