@@ -113,7 +113,7 @@ public static class AppRunner
 		if (settings.UseCmdOnWindows && BuildEnvironment.IsWindows())
 		{
 			commandPath = "cmd.exe";
-			argsString = "/S /C \"" + ArgumentEscaper.EscapeAndConcatenate(arguments.Prepend(path)) + "\"";
+			argsString = $"/S /C \"{ArgumentEscaper.EscapeAndConcatenate(arguments.Prepend(path))}\"";
 		}
 		else if (settings.IsFrameworkApp && BuildEnvironment.IsUnix())
 		{
