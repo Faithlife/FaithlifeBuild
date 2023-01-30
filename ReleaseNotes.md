@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.17.0
+
+* Add `publish-nuget-output` target.
+
 ## 5.16.1
 
 * Fix syntax error in verbosity parameter passed to `dotnet`.

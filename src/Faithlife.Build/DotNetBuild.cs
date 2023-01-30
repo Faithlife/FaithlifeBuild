@@ -221,6 +221,15 @@ public static class DotNetBuild
 			return createdPackagePaths;
 		}
 
+		build.Target("publish-nuget-output")
+			.Describe("Publishes all NuGet packages from --nuget-output. Useful for skipping all builds.")
+			.Does(() =>
+			{
+				var nugetOutputPath = Path.GetFullPath(buildOptions.NuGetOutputOption.Value!);
+				packagePaths = FindFilesFrom(nugetOutputPath, "*.nupkg");
+				DoPublish(canPublishDocs: false);
+			});
+
 		build.Target("publish")
 			.Describe("Publishes NuGet packages and documentation")
 			.DependsOn("package")
@@ -228,387 +237,391 @@ public static class DotNetBuild
 			{
 				// we must build the packages to identify them
 				packagePaths ??= BuildNuGetPackages();
+				DoPublish(canPublishDocs: true);
+			});
 
-				if (packagePaths.Count == 0)
-					throw new BuildException("No NuGet packages found.");
+		void DoPublish(bool canPublishDocs)
+		{
+			if (packagePaths.Count == 0)
+				throw new BuildException("No NuGet packages found.");
 
-				var (trigger, triggerAutoDetected) = GetTrigger();
+			var (trigger, triggerAutoDetected) = GetTrigger();
 
-				if (trigger is null)
+			if (trigger is null)
+			{
+				if (packagePaths.Any(x => GetPackageInfo(x).Version == "0.0.0"))
 				{
-					if (packagePaths.Any(x => GetPackageInfo(x).Version == "0.0.0"))
-					{
-						Console.WriteLine("Not publishing package with version 0.0.0. Change package version to publish.");
-						return;
-					}
-
-					trigger = "publish-all";
+					Console.WriteLine("Not publishing package with version 0.0.0. Change package version to publish.");
+					return;
 				}
 
-				var triggerParts = trigger.Split('-');
-				var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
-				var shouldPublishPackages = publishTrigger == "package" || publishTrigger == "packages" || publishTrigger == "all";
-				var shouldPublishDocs = publishTrigger == "docs" || publishTrigger == "all";
-				var shouldSkipDuplicates = publishTrigger == "all";
+				trigger = "publish-all";
+			}
 
-				var triggerVersion = GetVersionFromTrigger(trigger);
-				if (triggerVersion is not null)
+			var triggerParts = trigger.Split('-');
+			var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
+			var shouldPublishPackages = publishTrigger == "package" || publishTrigger == "packages" || publishTrigger == "all";
+			var shouldPublishDocs = canPublishDocs && (publishTrigger == "docs" || publishTrigger == "all");
+			var shouldSkipDuplicates = publishTrigger == "all";
+
+			var triggerVersion = GetVersionFromTrigger(trigger);
+			if (triggerVersion is not null)
+			{
+				var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
+				if (mismatches.Count != 0)
+					throw new BuildException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
+
+				shouldPublishPackages = true;
+				shouldPublishDocs = canPublishDocs && !triggerVersion.Contains('-', StringComparison.Ordinal);
+			}
+
+			if (shouldPublishPackages || shouldPublishDocs)
+			{
+				var docsSettings = settings.DocsSettings;
+				var shouldPushDocs = false;
+				string? docsCloneDirectory = null;
+				string? docsRepoDirectory = null;
+				string? docsGitBranchName = null;
+
+				if (shouldPublishDocs && docsSettings is not null)
 				{
-					var mismatches = packagePaths.Where(x => GetPackageInfo(x).Version != triggerVersion).ToList();
-					if (mismatches.Count != 0)
-						throw new BuildException($"Trigger '{trigger}' doesn't match package version: {string.Join(", ", mismatches.Select(Path.GetFileName))}");
+					if (docsSettings.GitLogin is null || docsSettings.GitAuthor is null)
+						throw new BuildException("GitLogin and GitAuthor must be set to publish documentation.");
 
-					shouldPublishPackages = true;
-					shouldPublishDocs = !triggerVersion.Contains('-', StringComparison.Ordinal);
-				}
+					var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
+					docsGitBranchName = docsSettings.GitBranchName;
 
-				if (shouldPublishPackages || shouldPublishDocs)
-				{
-					var docsSettings = settings.DocsSettings;
-					var shouldPushDocs = false;
-					string? docsCloneDirectory = null;
-					string? docsRepoDirectory = null;
-					string? docsGitBranchName = null;
-
-					if (shouldPublishDocs && docsSettings is not null)
+					if (gitRepositoryUrl is not null)
 					{
-						if (docsSettings.GitLogin is null || docsSettings.GitAuthor is null)
-							throw new BuildException("GitLogin and GitAuthor must be set to publish documentation.");
-
-						var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
-						docsGitBranchName = docsSettings.GitBranchName;
-
-						if (gitRepositoryUrl is not null)
-						{
-							docsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-							var sourceUrl = gitRepositoryUrl;
-							try
-							{
-								// determine if the local working directory has the same 'origin' remote URL as the docs git repository; if so, clone from the local folder (which should be much faster)
-								string? localRepositorySource = null;
-								try
-								{
-									using (var localRepo = OpenRepository("."))
-									{
-										// allow the local repo to be cloned if it has the same remote URL (ignoring trailing .git) and branch (because it may be a shallow clone)
-										var originUrl = localRepo.Network.Remotes["origin"].Url;
-										var trimTrailingDotGit = new Regex(@"\.git$");
-										if (trimTrailingDotGit.Replace(originUrl, "") != trimTrailingDotGit.Replace(gitRepositoryUrl, ""))
-											Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same remote URL as the docs repository: {originUrl} != {gitRepositoryUrl}");
-										else if (localRepo.Head.FriendlyName != docsGitBranchName)
-											Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same branch as the docs repository: {localRepo.Head.FriendlyName} != {docsGitBranchName}");
-										else
-											localRepositorySource = localRepo.Info.WorkingDirectory;
-									}
-								}
-								catch (BuildException)
-								{
-								}
-
-								sourceUrl = localRepositorySource ?? gitRepositoryUrl;
-								Console.WriteLine($"Cloning documentation repository from {sourceUrl} to {docsCloneDirectory}");
-								Repository.Clone(sourceUrl: sourceUrl, workdirPath: docsCloneDirectory,
-									options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
-
-								if (localRepositorySource is not null)
-								{
-									// if the local repo was cloned, update the 'origin' remote so that changes are pushed to the correct remote
-									using (var clonedRepo = OpenRepository(docsCloneDirectory))
-									{
-										clonedRepo.Network.Remotes.Remove("origin");
-										clonedRepo.Network.Remotes.Add("origin", gitRepositoryUrl);
-									}
-								}
-							}
-							catch (LibGit2SharpException exception)
-							{
-								throw new BuildException($"Failed to clone {sourceUrl} branch {docsGitBranchName} to {docsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
-							}
-							docsRepoDirectory = docsCloneDirectory;
-						}
-						else
-						{
-							docsRepoDirectory = ".";
-						}
-
-						using var repository = OpenRepository(docsRepoDirectory);
-						if (gitRepositoryUrl is not null)
-						{
-							docsGitBranchName ??= repository.Head.FriendlyName;
-						}
-						else if (docsGitBranchName is not null)
-						{
-							if (docsGitBranchName != repository.Head.FriendlyName)
-							{
-								var branch = repository.Branches[docsGitBranchName] ?? repository.CreateBranch(docsGitBranchName);
-								Commands.Checkout(repository, branch);
-							}
-						}
-						else
-						{
-							var branch = repository.Branches.FirstOrDefault(x => x.IsCurrentRepositoryHead);
-							if (branch is null)
-							{
-								var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
-
-								if (autoBranchName is null)
-								{
-									var gitRef = Environment.GetEnvironmentVariable("GITHUB_REF");
-									const string prefix = "refs/heads/";
-									if (gitRef?.StartsWith(prefix, StringComparison.Ordinal) is true)
-										autoBranchName = gitRef[prefix.Length..];
-								}
-
-								if (autoBranchName is not null)
-									branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
-								else
-									branch = repository.Branches.FirstOrDefault(x => x.Tip.Sha == repository.Head.Tip.Sha);
-
-								if (branch is not null)
-									Commands.Checkout(repository, branch);
-							}
-							if (branch is null)
-								throw new BuildException("Could not determine repository branch for publishing docs.");
-							docsGitBranchName = branch.FriendlyName;
-						}
-
-						var docsPath = Path.Combine(docsRepoDirectory, docsSettings.TargetDirectory ?? "docs");
-
-						var xmlDocGenPaths = new List<string>();
-						var xmlDocGenProjectPath = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
-						if (xmlDocGenProjectPath is not null)
-						{
-							var xmlDocGenProjectDocument = XDocument.Load(xmlDocGenProjectPath);
-							var xmlDocGenFrameworks = GetTargetFrameworks();
-							foreach (var framework in xmlDocGenFrameworks)
-							{
-								RunDotNet("publish", xmlDocGenProjectPath,
-									framework.Length != 0 ? "--framework" : null, framework.Length != 0 ? framework : null,
-									"-c", settings.GetConfiguration(),
-									settings.GetPlatformArg(),
-									settings.GetBuildNumberArg(),
-									"--nologo",
-									"--verbosity", "quiet",
-									"--output", Path.Combine("tools", "bin", framework, "XmlDocGen"));
-								var xmlDocGenPath = Path.Combine("tools", "bin", framework, "XmlDocGen", "XmlDocGen.dll");
-								if (!File.Exists(xmlDocGenPath))
-									xmlDocGenPath = Path.Combine("tools", "bin", framework, "XmlDocGen", "XmlDocGen.exe");
-								if (!File.Exists(xmlDocGenPath))
-									throw new BuildException($"Failed to build XmlDocGen{(framework.Length == 0 ? "" : $" ({framework})")}.");
-								xmlDocGenPaths.Add(xmlDocGenPath);
-							}
-
-							string[] GetTargetFrameworks()
-							{
-								// return single empty framework unless there are more than one
-								var text = xmlDocGenProjectDocument.XPathSelectElements("Project/PropertyGroup/TargetFrameworks").FirstOrDefault()?.Value;
-								var values = text is null ? Array.Empty<string>() : text.Split(';').Select(x => x.Trim()).Where(x => x.Length != 0).ToArray();
-								return values.Length > 1 ? values : new[] { "" };
-							}
-						}
-
-						var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
-						foreach (var project in packagePaths.Select(GetPackageInfo).Where(x => projectHasDocs(x.Name)))
-						{
-							var assemblyPaths = new List<string>();
-							if (docsSettings.FindAssemblies is not null)
-							{
-								assemblyPaths.AddRange(docsSettings.FindAssemblies(project.Name));
-							}
-							else if (docsSettings.FindAssembly is not null)
-							{
-								var assemblyPath = docsSettings.FindAssembly(project.Name);
-								if (assemblyPath is not null)
-									assemblyPaths.Add(assemblyPath);
-							}
-							else if (xmlDocGenPaths.Count != 0)
-							{
-								assemblyPaths.Add(project.Name);
-							}
-							else
-							{
-								var assemblyPath =
-									FindFiles($"tools/XmlDocTarget/bin/**/{project.Name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
-									FindFiles($"src/{project.Name}/bin/**/{project.Name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
-								if (assemblyPath is not null)
-									assemblyPaths.Add(assemblyPath);
-							}
-
-							if (assemblyPaths.Count != 0)
-							{
-								if (xmlDocGenPaths.Count != 0)
-								{
-									foreach (var xmlDocGenPath in xmlDocGenPaths)
-									{
-										var isDotNetApp = string.Equals(Path.GetExtension(xmlDocGenPath), ".dll", StringComparison.OrdinalIgnoreCase);
-										foreach (var assemblyPath in assemblyPaths)
-										{
-											var actualAssemblyPath = Path.Combine(Path.GetDirectoryName(xmlDocGenPath)!, assemblyPath + ".dll");
-											if (File.Exists(actualAssemblyPath))
-											{
-												if (isDotNetApp)
-													RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
-												else
-													RunApp(xmlDocGenPath, new AppRunnerSettings { Arguments = GetXmlDocArgs(assemblyPath), IsFrameworkApp = true });
-											}
-											else if (xmlDocGenPaths.Count == 1)
-											{
-												// if XmlDocGen has only one framework, this is probably an error
-												Console.WriteLine($"Project {project.Name} missing from XmlDocGen: {actualAssemblyPath}");
-											}
-										}
-									}
-								}
-								else if (DotNetLocalTool.TryCreate("xmldocmd") is { } xmldocmd)
-								{
-									foreach (var assemblyPath in assemblyPaths)
-										xmldocmd.Run(GetXmlDocArgs(assemblyPath));
-								}
-								else
-								{
-#pragma warning disable 618
-									var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
-									var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
-
-									foreach (var assemblyPath in assemblyPaths)
-										RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), GetXmlDocArgs(assemblyPath));
-#pragma warning restore 618
-								}
-							}
-							else
-							{
-								Console.WriteLine($"Documentation not generated for {project.Name}; assembly not found.");
-							}
-
-							string?[] GetXmlDocArgs(string input) =>
-								new[] { input, docsPath, "--source", $"{docsSettings.SourceCodeUrl}/{project.Name}", "--newline", "lf", "--clean", string.IsNullOrEmpty(project.Suffix) ? null : "--dryrun" };
-						}
-
-						shouldPushDocs = repository.RetrieveStatus().IsDirty;
-					}
-
-					if (shouldPublishPackages)
-					{
-						var nugetApiKey = settings.NuGetApiKey;
-						if (string.IsNullOrEmpty(nugetApiKey))
-							throw new BuildException("NuGetApiKey required to publish.");
-
-						if (triggerAutoDetected)
-						{
-							var nugetSettings = Settings.LoadDefaultSettings(root: null);
-							var packageSourceProvider = new PackageSourceProvider(nugetSettings);
-							var sourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, NuGet.Protocol.Core.Types.Repository.Provider.GetCoreV3());
-							using var sourceCacheContext = new SourceCacheContext();
-							var nugetRepositories = sourceRepositoryProvider.GetRepositories()
-								.Select(x => x.GetResourceAsync<DependencyInfoResource>().GetAwaiter().GetResult())
-								.ToList();
-
-							var alreadyPushedPackages = new List<string>();
-							foreach (var packagePath in packagePaths.ToList())
-							{
-								var packageInfo = GetPackageInfo(packagePath);
-								var package = new PackageIdentity(packageInfo.Name, NuGetVersion.Parse(packageInfo.Version));
-
-								foreach (var nugetRepository in nugetRepositories)
-								{
-									var dependencyInfo = nugetRepository.ResolvePackage(package, NuGetFramework.AnyFramework,
-										sourceCacheContext, NullLogger.Instance, CancellationToken.None).GetAwaiter().GetResult();
-									if (dependencyInfo is not null)
-									{
-										Console.WriteLine($"Package already pushed: {packageInfo.Name} {packageInfo.Version}");
-										alreadyPushedPackages.Add(packagePath);
-										break;
-									}
-								}
-							}
-
-							if (alreadyPushedPackages.Count != 0)
-								packagePaths = packagePaths.Except(alreadyPushedPackages).ToList();
-						}
-
-						var tagsToPush = new HashSet<string>();
-						var packageSettings = settings.PackageSettings;
-						var pushSuccess = false;
-
-						foreach (var packagePath in packagePaths)
-						{
-							var pushArgs = new[]
-							{
-								"nuget", "push", packagePath,
-								"--source", nugetSource,
-								"--api-key", nugetApiKey,
-								shouldSkipDuplicates ? "--skip-duplicate" : null,
-							};
-
-							var skippedDuplicate = false;
-
-							RunDotNet(new AppRunnerSettings
-							{
-								Arguments = pushArgs,
-								HandleOutputLine = line =>
-								{
-									Console.WriteLine(line);
-									if (line.TrimStart().StartsWith("Conflict", StringComparison.Ordinal))
-										skippedDuplicate = true;
-								},
-							});
-
-							if (!skippedDuplicate)
-							{
-								pushSuccess = true;
-
-								if (packageSettings?.PushTagOnPublish is { } getTag &&
-									getTag(GetPackageInfo(packagePath)) is { Length: not 0 } tag)
-								{
-									tagsToPush.Add(tag);
-								}
-							}
-						}
-
-						if (tagsToPush.Count != 0)
-						{
-							if (Environment.GetEnvironmentVariable("GITHUB_API_URL") is string githubApiUrl)
-								PushTagsUsingGitHubApi(packageSettings, tagsToPush, githubApiUrl);
-							else
-								PushTagsUsingLibGit2(packageSettings, tagsToPush);
-						}
-
-						// don't push documentation if the packages have already been published
-						if (!pushSuccess)
-							shouldPushDocs = false;
-					}
-
-					if (shouldPushDocs)
-					{
-						using var repository = OpenRepository(docsRepoDirectory!);
-						Console.WriteLine("Publishing documentation changes.");
-						Commands.Stage(repository, "*");
-						var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings.GitAuthor!.Email, DateTimeOffset.Now);
-						repository.Commit("Documentation updated.", author, author, new CommitOptions());
+						docsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+						var sourceUrl = gitRepositoryUrl;
 						try
 						{
-							repository.Network.Push(
-								remote: repository.Network.Remotes["origin"],
-								pushRefSpec: $"refs/heads/{docsGitBranchName}",
-								pushOptions: new PushOptions { CredentialsProvider = ProvideDocsCredentials });
+							// determine if the local working directory has the same 'origin' remote URL as the docs git repository; if so, clone from the local folder (which should be much faster)
+							string? localRepositorySource = null;
+							try
+							{
+								using (var localRepo = OpenRepository("."))
+								{
+									// allow the local repo to be cloned if it has the same remote URL (ignoring trailing .git) and branch (because it may be a shallow clone)
+									var originUrl = localRepo.Network.Remotes["origin"].Url;
+									var trimTrailingDotGit = new Regex(@"\.git$");
+									if (trimTrailingDotGit.Replace(originUrl, "") != trimTrailingDotGit.Replace(gitRepositoryUrl, ""))
+										Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same remote URL as the docs repository: {originUrl} != {gitRepositoryUrl}");
+									else if (localRepo.Head.FriendlyName != docsGitBranchName)
+										Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same branch as the docs repository: {localRepo.Head.FriendlyName} != {docsGitBranchName}");
+									else
+										localRepositorySource = localRepo.Info.WorkingDirectory;
+								}
+							}
+							catch (BuildException)
+							{
+							}
+
+							sourceUrl = localRepositorySource ?? gitRepositoryUrl;
+							Console.WriteLine($"Cloning documentation repository from {sourceUrl} to {docsCloneDirectory}");
+							Repository.Clone(sourceUrl: sourceUrl, workdirPath: docsCloneDirectory,
+								options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
+
+							if (localRepositorySource is not null)
+							{
+								// if the local repo was cloned, update the 'origin' remote so that changes are pushed to the correct remote
+								using (var clonedRepo = OpenRepository(docsCloneDirectory))
+								{
+									clonedRepo.Network.Remotes.Remove("origin");
+									clonedRepo.Network.Remotes.Add("origin", gitRepositoryUrl);
+								}
+							}
 						}
 						catch (LibGit2SharpException exception)
 						{
-							throw new BuildException($"Failed to push docs to branch {docsGitBranchName}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
+							throw new BuildException($"Failed to clone {sourceUrl} branch {docsGitBranchName} to {docsCloneDirectory}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
+						}
+						docsRepoDirectory = docsCloneDirectory;
+					}
+					else
+					{
+						docsRepoDirectory = ".";
+					}
+
+					using var repository = OpenRepository(docsRepoDirectory);
+					if (gitRepositoryUrl is not null)
+					{
+						docsGitBranchName ??= repository.Head.FriendlyName;
+					}
+					else if (docsGitBranchName is not null)
+					{
+						if (docsGitBranchName != repository.Head.FriendlyName)
+						{
+							var branch = repository.Branches[docsGitBranchName] ?? repository.CreateBranch(docsGitBranchName);
+							Commands.Checkout(repository, branch);
+						}
+					}
+					else
+					{
+						var branch = repository.Branches.FirstOrDefault(x => x.IsCurrentRepositoryHead);
+						if (branch is null)
+						{
+							var autoBranchName = Environment.GetEnvironmentVariable("APPVEYOR_REPO_BRANCH");
+
+							if (autoBranchName is null)
+							{
+								var gitRef = Environment.GetEnvironmentVariable("GITHUB_REF");
+								const string prefix = "refs/heads/";
+								if (gitRef?.StartsWith(prefix, StringComparison.Ordinal) is true)
+									autoBranchName = gitRef[prefix.Length..];
+							}
+
+							if (autoBranchName is not null)
+								branch = repository.Branches[autoBranchName] ?? repository.CreateBranch(autoBranchName);
+							else
+								branch = repository.Branches.FirstOrDefault(x => x.Tip.Sha == repository.Head.Tip.Sha);
+
+							if (branch is not null)
+								Commands.Checkout(repository, branch);
+						}
+						if (branch is null)
+							throw new BuildException("Could not determine repository branch for publishing docs.");
+						docsGitBranchName = branch.FriendlyName;
+					}
+
+					var docsPath = Path.Combine(docsRepoDirectory, docsSettings.TargetDirectory ?? "docs");
+
+					var xmlDocGenPaths = new List<string>();
+					var xmlDocGenProjectPath = FindFiles("tools/XmlDocGen/XmlDocGen.csproj").FirstOrDefault();
+					if (xmlDocGenProjectPath is not null)
+					{
+						var xmlDocGenProjectDocument = XDocument.Load(xmlDocGenProjectPath);
+						var xmlDocGenFrameworks = GetTargetFrameworks();
+						foreach (var framework in xmlDocGenFrameworks)
+						{
+							RunDotNet("publish", xmlDocGenProjectPath,
+								framework.Length != 0 ? "--framework" : null, framework.Length != 0 ? framework : null,
+								"-c", settings.GetConfiguration(),
+								settings.GetPlatformArg(),
+								settings.GetBuildNumberArg(),
+								"--nologo",
+								"--verbosity", "quiet",
+								"--output", Path.Combine("tools", "bin", framework, "XmlDocGen"));
+							var xmlDocGenPath = Path.Combine("tools", "bin", framework, "XmlDocGen", "XmlDocGen.dll");
+							if (!File.Exists(xmlDocGenPath))
+								xmlDocGenPath = Path.Combine("tools", "bin", framework, "XmlDocGen", "XmlDocGen.exe");
+							if (!File.Exists(xmlDocGenPath))
+								throw new BuildException($"Failed to build XmlDocGen{(framework.Length == 0 ? "" : $" ({framework})")}.");
+							xmlDocGenPaths.Add(xmlDocGenPath);
+						}
+
+						string[] GetTargetFrameworks()
+						{
+							// return single empty framework unless there are more than one
+							var text = xmlDocGenProjectDocument.XPathSelectElements("Project/PropertyGroup/TargetFrameworks").FirstOrDefault()?.Value;
+							var values = text is null ? Array.Empty<string>() : text.Split(';').Select(x => x.Trim()).Where(x => x.Length != 0).ToArray();
+							return values.Length > 1 ? values : new[] { "" };
 						}
 					}
 
-					if (docsCloneDirectory is not null)
-						ForceDeleteDirectory(docsCloneDirectory);
+					var projectHasDocs = docsSettings.ProjectHasDocs ?? (_ => true);
+					foreach (var project in packagePaths.Select(GetPackageInfo).Where(x => projectHasDocs(x.Name)))
+					{
+						var assemblyPaths = new List<string>();
+						if (docsSettings.FindAssemblies is not null)
+						{
+							assemblyPaths.AddRange(docsSettings.FindAssemblies(project.Name));
+						}
+						else if (docsSettings.FindAssembly is not null)
+						{
+							var assemblyPath = docsSettings.FindAssembly(project.Name);
+							if (assemblyPath is not null)
+								assemblyPaths.Add(assemblyPath);
+						}
+						else if (xmlDocGenPaths.Count != 0)
+						{
+							assemblyPaths.Add(project.Name);
+						}
+						else
+						{
+							var assemblyPath =
+								FindFiles($"tools/XmlDocTarget/bin/**/{project.Name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault() ??
+								FindFiles($"src/{project.Name}/bin/**/{project.Name}.dll").OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
+							if (assemblyPath is not null)
+								assemblyPaths.Add(assemblyPath);
+						}
 
-					Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
-						new UsernamePasswordCredentials { Username = docsSettings.GitLogin!.Username, Password = docsSettings.GitLogin!.Password };
+						if (assemblyPaths.Count != 0)
+						{
+							if (xmlDocGenPaths.Count != 0)
+							{
+								foreach (var xmlDocGenPath in xmlDocGenPaths)
+								{
+									var isDotNetApp = string.Equals(Path.GetExtension(xmlDocGenPath), ".dll", StringComparison.OrdinalIgnoreCase);
+									foreach (var assemblyPath in assemblyPaths)
+									{
+										var actualAssemblyPath = Path.Combine(Path.GetDirectoryName(xmlDocGenPath)!, assemblyPath + ".dll");
+										if (File.Exists(actualAssemblyPath))
+										{
+											if (isDotNetApp)
+												RunDotNet(new[] { xmlDocGenPath }.Concat(GetXmlDocArgs(assemblyPath)));
+											else
+												RunApp(xmlDocGenPath, new AppRunnerSettings { Arguments = GetXmlDocArgs(assemblyPath), IsFrameworkApp = true });
+										}
+										else if (xmlDocGenPaths.Count == 1)
+										{
+											// if XmlDocGen has only one framework, this is probably an error
+											Console.WriteLine($"Project {project.Name} missing from XmlDocGen: {actualAssemblyPath}");
+										}
+									}
+								}
+							}
+							else if (DotNetLocalTool.TryCreate("xmldocmd") is { } xmldocmd)
+							{
+								foreach (var assemblyPath in assemblyPaths)
+									xmldocmd.Run(GetXmlDocArgs(assemblyPath));
+							}
+							else
+							{
+#pragma warning disable 618
+								var dotNetTools = settings.DotNetTools ?? new DotNetTools(Path.Combine("tools", "bin"));
+								var xmlDocMarkdownVersion = settings.DocsSettings?.ToolVersion ?? "2.0.1";
+
+								foreach (var assemblyPath in assemblyPaths)
+									RunApp(dotNetTools.GetToolPath($"xmldocmd/{xmlDocMarkdownVersion}"), GetXmlDocArgs(assemblyPath));
+#pragma warning restore 618
+							}
+						}
+						else
+						{
+							Console.WriteLine($"Documentation not generated for {project.Name}; assembly not found.");
+						}
+
+						string?[] GetXmlDocArgs(string input) =>
+							new[] { input, docsPath, "--source", $"{docsSettings.SourceCodeUrl}/{project.Name}", "--newline", "lf", "--clean", string.IsNullOrEmpty(project.Suffix) ? null : "--dryrun" };
+					}
+
+					shouldPushDocs = repository.RetrieveStatus().IsDirty;
 				}
-				else
+
+				if (shouldPublishPackages)
 				{
-					Console.WriteLine($"To publish to NuGet, push this tag: v{GetPackageInfo(packagePaths[0]).Version}");
+					var nugetApiKey = settings.NuGetApiKey;
+					if (string.IsNullOrEmpty(nugetApiKey))
+						throw new BuildException("NuGetApiKey required to publish.");
+
+					if (triggerAutoDetected)
+					{
+						var nugetSettings = Settings.LoadDefaultSettings(root: null);
+						var packageSourceProvider = new PackageSourceProvider(nugetSettings);
+						var sourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, NuGet.Protocol.Core.Types.Repository.Provider.GetCoreV3());
+						using var sourceCacheContext = new SourceCacheContext();
+						var nugetRepositories = sourceRepositoryProvider.GetRepositories()
+							.Select(x => x.GetResourceAsync<DependencyInfoResource>().GetAwaiter().GetResult())
+							.ToList();
+
+						var alreadyPushedPackages = new List<string>();
+						foreach (var packagePath in packagePaths.ToList())
+						{
+							var packageInfo = GetPackageInfo(packagePath);
+							var package = new PackageIdentity(packageInfo.Name, NuGetVersion.Parse(packageInfo.Version));
+
+							foreach (var nugetRepository in nugetRepositories)
+							{
+								var dependencyInfo = nugetRepository.ResolvePackage(package, NuGetFramework.AnyFramework,
+									sourceCacheContext, NullLogger.Instance, CancellationToken.None).GetAwaiter().GetResult();
+								if (dependencyInfo is not null)
+								{
+									Console.WriteLine($"Package already pushed: {packageInfo.Name} {packageInfo.Version}");
+									alreadyPushedPackages.Add(packagePath);
+									break;
+								}
+							}
+						}
+
+						if (alreadyPushedPackages.Count != 0)
+							packagePaths = packagePaths.Except(alreadyPushedPackages).ToList();
+					}
+
+					var tagsToPush = new HashSet<string>();
+					var packageSettings = settings.PackageSettings;
+					var pushSuccess = false;
+
+					foreach (var packagePath in packagePaths)
+					{
+						var pushArgs = new[]
+						{
+							"nuget", "push", packagePath,
+							"--source", nugetSource,
+							"--api-key", nugetApiKey,
+							shouldSkipDuplicates ? "--skip-duplicate" : null,
+						};
+
+						var skippedDuplicate = false;
+
+						RunDotNet(new AppRunnerSettings
+						{
+							Arguments = pushArgs,
+							HandleOutputLine = line =>
+							{
+								Console.WriteLine(line);
+								if (line.TrimStart().StartsWith("Conflict", StringComparison.Ordinal))
+									skippedDuplicate = true;
+							},
+						});
+
+						if (!skippedDuplicate)
+						{
+							pushSuccess = true;
+
+							if (packageSettings?.PushTagOnPublish is { } getTag &&
+								getTag(GetPackageInfo(packagePath)) is { Length: not 0 } tag)
+							{
+								tagsToPush.Add(tag);
+							}
+						}
+					}
+
+					if (tagsToPush.Count != 0)
+					{
+						if (Environment.GetEnvironmentVariable("GITHUB_API_URL") is string githubApiUrl)
+							PushTagsUsingGitHubApi(packageSettings, tagsToPush, githubApiUrl);
+						else
+							PushTagsUsingLibGit2(packageSettings, tagsToPush);
+					}
+
+					// don't push documentation if the packages have already been published
+					if (!pushSuccess)
+						shouldPushDocs = false;
 				}
-			});
+
+				if (shouldPushDocs)
+				{
+					using var repository = OpenRepository(docsRepoDirectory!);
+					Console.WriteLine("Publishing documentation changes.");
+					Commands.Stage(repository, "*");
+					var author = new Signature(docsSettings!.GitAuthor!.Name, docsSettings.GitAuthor!.Email, DateTimeOffset.Now);
+					repository.Commit("Documentation updated.", author, author, new CommitOptions());
+					try
+					{
+						repository.Network.Push(
+							remote: repository.Network.Remotes["origin"],
+							pushRefSpec: $"refs/heads/{docsGitBranchName}",
+							pushOptions: new PushOptions { CredentialsProvider = ProvideDocsCredentials });
+					}
+					catch (LibGit2SharpException exception)
+					{
+						throw new BuildException($"Failed to push docs to branch {docsGitBranchName}{GetGitLoginErrorMessage(docsSettings.GitLogin!)}: {exception.Message}");
+					}
+				}
+
+				if (docsCloneDirectory is not null)
+					ForceDeleteDirectory(docsCloneDirectory);
+
+				Credentials ProvideDocsCredentials(string url, string usernameFromUrl, SupportedCredentialTypes types) =>
+					new UsernamePasswordCredentials { Username = docsSettings.GitLogin!.Username, Password = docsSettings.GitLogin!.Password };
+			}
+			else
+			{
+				Console.WriteLine($"To publish to NuGet, push this tag: v{GetPackageInfo(packagePaths[0]).Version}");
+			}
+		}
 
 		if (DotNetLocalTool.TryCreate("dotnet-format") is { } dotnetFormat)
 		{
