@@ -1,6 +1,11 @@
 name: Build
 on:
   workflow_dispatch:
+    inputs:
+      beta-version-number:
+        description: 'Set when publishing a beta release. You must also use the workflow version from your branch.'
+        type: string
+        required: false
   push:
     paths-ignore:
     - '*.md'
@@ -38,9 +43,15 @@ jobs:
       run: .\build.ps1 build --skip restore
     - name: Test
       run: .\build.ps1 test --skip build
-    - name: Publish
+    - name: Publish (Stable)
       if: runner.os == 'Windows' && github.repository_owner == 'Faithlife' && github.ref == 'refs/heads/master'
       env:
         BUILD_BOT_PASSWORD: ${{ secrets.BUILD_BOT_PASSWORD }}
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: .\build.ps1 publish --skip test
+    - name: Publish (Beta)
+      if: runner.os == 'Windows' && github.repository_owner == 'Faithlife' && github.ref != 'refs/heads/master' && github.event.inputs.beta-version-number != ''
+      env:
+        BUILD_BOT_PASSWORD: ${{ secrets.BUILD_BOT_PASSWORD }}
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: .\build.ps1 publish --skip test --version-suffix beta.${{ github.event.inputs.beta-version-number }}
