@@ -3,6 +3,7 @@
 ## 5.17.0
 
 * Add `publish-nuget-output` target.
+* Always use `--skip-duplicates` when pushing to NuGet.
 
 ## 5.16.1
 
