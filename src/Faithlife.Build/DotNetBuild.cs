@@ -259,7 +259,7 @@ public static class DotNetBuild
 				trigger = "publish-all";
 			}
 
-			var triggerParts = trigger.Split('-');
+			var triggerParts = trigger.Split('-', 2);
 			var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
 			var shouldPublishPackages = publishTrigger is "package" or "packages" or "all" or "nuget-output";
 			var shouldPublishDocs = canPublishDocs && publishTrigger is "docs" or "all" or "nuget-output";
