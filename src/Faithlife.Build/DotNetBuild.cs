@@ -221,23 +221,24 @@ public static class DotNetBuild
 			return createdPackagePaths;
 		}
 
-		build.Target("publish-nuget-output")
-			.Describe("Publishes all NuGet packages from --nuget-output. Useful for skipping all builds.")
-			.Does(() =>
-			{
-				var nugetOutputPath = Path.GetFullPath(buildOptions.NuGetOutputOption.Value!);
-				packagePaths = FindFilesFrom(nugetOutputPath, "*.nupkg");
-				DoPublish(canPublishDocs: false);
-			});
-
 		build.Target("publish")
 			.Describe("Publishes NuGet packages and documentation")
 			.DependsOn("package")
 			.Does(() =>
 			{
-				// we must build the packages to identify them
-				packagePaths ??= BuildNuGetPackages();
-				DoPublish(canPublishDocs: true);
+				if (buildOptions.TriggerOption.Value == "publish-nuget-output")
+				{
+					// '--trigger publish-nuget-output' can be used with '--skip package' to publish the output of a previous build
+					var nugetOutputPath = Path.GetFullPath(buildOptions.NuGetOutputOption.Value!);
+					packagePaths = FindFilesFrom(nugetOutputPath, "*.nupkg");
+					DoPublish(canPublishDocs: false);
+				}
+				else
+				{
+					// we must build the packages to identify them
+					packagePaths ??= BuildNuGetPackages();
+					DoPublish(canPublishDocs: true);
+				}
 			});
 
 		void DoPublish(bool canPublishDocs)
@@ -260,8 +261,8 @@ public static class DotNetBuild
 
 			var triggerParts = trigger.Split('-');
 			var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
-			var shouldPublishPackages = publishTrigger == "package" || publishTrigger == "packages" || publishTrigger == "all";
-			var shouldPublishDocs = canPublishDocs && (publishTrigger == "docs" || publishTrigger == "all");
+			var shouldPublishPackages = publishTrigger is "package" or "packages" or "all" or "nuget-output";
+			var shouldPublishDocs = canPublishDocs && publishTrigger is "docs" or "all" or "nuget-output";
 
 			var triggerVersion = GetVersionFromTrigger(trigger);
 			if (triggerVersion is not null)
