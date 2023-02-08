@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       beta-version-number:
-        description: 'Set when publishing a beta release. You must also use the workflow version from your branch.'
+        description: 'To publish a beta version: use the workflow version from the branch you want to publish from and include the beta version number in the box below. For example, a value of `1` will result in a package with a version suffix of `-beta.1`.'
         type: string
         required: false
   push:
