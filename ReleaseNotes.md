@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.17.0
+
+* Add `publish-nuget-output` trigger for use with the `publish` target.
+  * Can be used to publish everything in `--nuget-output` without rebuilding packages. e.g. `publish --skip package --trigger publish-nuget-output`.
+* Always use `--skip-duplicates` when pushing to NuGet.
+
 ## 5.16.1
 
 * Fix syntax error in verbosity parameter passed to `dotnet`.
