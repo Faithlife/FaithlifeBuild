@@ -291,7 +291,7 @@ public static class DotNetBuild
 					var gitRepositoryUrl = docsSettings.GitRepositoryUrl;
 					docsGitBranchName = docsSettings.GitBranchName;
 
-					if (gitRepositoryUrl is not null)
+					if (gitRepositoryUrl is not null || docsGitBranchName is not null)
 					{
 						docsCloneDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 						var sourceUrl = gitRepositoryUrl;
@@ -301,18 +301,17 @@ public static class DotNetBuild
 							string? localRepositorySource = null;
 							try
 							{
-								using (var localRepo = OpenRepository("."))
-								{
-									// allow the local repo to be cloned if it has the same remote URL (ignoring trailing .git) and branch (because it may be a shallow clone)
-									var originUrl = localRepo.Network.Remotes["origin"].Url;
-									var trimTrailingDotGit = new Regex(@"\.git$");
-									if (trimTrailingDotGit.Replace(originUrl, "") != trimTrailingDotGit.Replace(gitRepositoryUrl, ""))
-										Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same remote URL as the docs repository: {originUrl} != {gitRepositoryUrl}");
-									else if (localRepo.Head.FriendlyName != docsGitBranchName)
-										Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same branch as the docs repository: {localRepo.Head.FriendlyName} != {docsGitBranchName}");
-									else
-										localRepositorySource = localRepo.Info.WorkingDirectory;
-								}
+								// allow the local repo to be cloned if it has the same remote URL (ignoring trailing .git) and branch (because it may be a shallow clone)
+								using var localRepo = OpenRepository(".");
+								var originUrl = localRepo.Network.Remotes["origin"].Url;
+								gitRepositoryUrl ??= originUrl;
+								var trimTrailingDotGit = new Regex(@"\.git$");
+								if (trimTrailingDotGit.Replace(originUrl, "") != trimTrailingDotGit.Replace(gitRepositoryUrl, ""))
+									Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same remote URL as the docs repository: {originUrl} != {gitRepositoryUrl}");
+								else if (localRepo.Head.FriendlyName != docsGitBranchName)
+									Console.WriteLine($"Local repository in {localRepo.Info.WorkingDirectory} does not have the same branch as the docs repository: {localRepo.Head.FriendlyName} != {docsGitBranchName}");
+								else
+									localRepositorySource = localRepo.Info.WorkingDirectory;
 							}
 							catch (BuildException)
 							{
@@ -326,11 +325,9 @@ public static class DotNetBuild
 							if (localRepositorySource is not null)
 							{
 								// if the local repo was cloned, update the 'origin' remote so that changes are pushed to the correct remote
-								using (var clonedRepo = OpenRepository(docsCloneDirectory))
-								{
-									clonedRepo.Network.Remotes.Remove("origin");
-									clonedRepo.Network.Remotes.Add("origin", gitRepositoryUrl);
-								}
+								using var clonedRepo = OpenRepository(docsCloneDirectory);
+								clonedRepo.Network.Remotes.Remove("origin");
+								clonedRepo.Network.Remotes.Add("origin", gitRepositoryUrl);
 							}
 						}
 						catch (LibGit2SharpException exception)
@@ -353,6 +350,7 @@ public static class DotNetBuild
 					{
 						if (docsGitBranchName != repository.Head.FriendlyName)
 						{
+							Console.WriteLine($"Checking out branch {docsGitBranchName}.");
 							var branch = repository.Branches[docsGitBranchName] ?? repository.CreateBranch(docsGitBranchName);
 							Commands.Checkout(repository, branch);
 						}
