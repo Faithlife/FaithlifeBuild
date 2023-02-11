@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.17.2
+
+* Add README to package.
+
 ## 5.17.1
 
 * Clone docs into temp directory when branch is specified.
