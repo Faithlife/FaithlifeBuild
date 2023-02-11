@@ -6,6 +6,7 @@
     <PackageTags>build automation csharp</PackageTags>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +23,7 @@
   <ItemGroup>
     <None Include="Faithlife.Build.props" Pack="true" PackagePath="build" />
     <None Include="Faithlife.Build.props" Pack="true" PackagePath="buildTransitive" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
