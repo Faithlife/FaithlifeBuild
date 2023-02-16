@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using NuGet.Versioning;
 using static Faithlife.Build.AppRunner;
 
 namespace Faithlife.Build;
@@ -64,11 +65,12 @@ public sealed class DotNetClassicTool
 		// Find a matching package. If using a specific version, there will be exactly one match.
 		// If using floating versions, there may be multiple matches, so take the latest semantic version.
 		var packagePath = Directory.GetDirectories(Path.Combine(packagesPath, packageName.ToLowerInvariant()), packageVersion)
-			.OrderByDescending(fullPath => Version.Parse(Path.GetFileName(fullPath)))
+			.OrderByDescending(fullPath => NuGetVersion.Parse(Path.GetFileName(fullPath)))
 			.FirstOrDefault();
 
 		if (!Directory.Exists(packagePath))
 			throw new BuildException($"Missing restored NuGet package: {packagePath}");
+		Console.WriteLine(packagePath);
 
 		return new DotNetClassicTool(Path.Combine(packagePath, "tools", toolName ?? packageName));
 	}
