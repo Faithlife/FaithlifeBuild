@@ -70,7 +70,6 @@ public sealed class DotNetClassicTool
 
 		if (!Directory.Exists(packagePath))
 			throw new BuildException($"Missing restored NuGet package: {packagePath}");
-		Console.WriteLine(packagePath);
 
 		return new DotNetClassicTool(Path.Combine(packagePath, "tools", toolName ?? packageName));
 	}
