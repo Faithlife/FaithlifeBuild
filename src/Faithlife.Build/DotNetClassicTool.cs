@@ -63,7 +63,8 @@ public sealed class DotNetClassicTool
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
 
 		var packageDirectories = Directory.GetDirectories(Path.Combine(packagesPath, packageName.ToLowerInvariant()))
-			.Select(fullPath => NuGetVersion.Parse(Path.GetFileName(fullPath)));
+			.Select(fullPath => NuGetVersion.Parse(Path.GetFileName(fullPath)))
+			.ToList();
 
 		if (!packageDirectories.Any())
 			throw new BuildException($"Missing restored NuGet package: {Path.Combine(packagesPath, packageName.ToLowerInvariant(), packageVersion)}");
