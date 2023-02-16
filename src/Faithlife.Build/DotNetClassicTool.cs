@@ -60,7 +60,13 @@ public sealed class DotNetClassicTool
 
 		var packagesPath = Environment.GetEnvironmentVariable("NUGET_PACKAGES") ??
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
-		var packagePath = Path.Combine(packagesPath, packageName.ToLowerInvariant(), packageVersion);
+
+		// Find a matching package. If using a specific version, there will be exactly one match.
+		// If using floating versions, theyere may be multiple matches, so take the latest semantic version.
+		var packagePath = Directory.GetDirectories(Path.Combine(packagesPath, packageName.ToLowerInvariant()), packageVersion)
+			.OrderByDescending(fullPath => Version.Parse(Path.GetFileName(fullPath)))
+			.FirstOrDefault();
+
 		if (!Directory.Exists(packagePath))
 			throw new BuildException($"Missing restored NuGet package: {packagePath}");
 
