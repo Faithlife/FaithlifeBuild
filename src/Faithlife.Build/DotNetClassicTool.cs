@@ -62,7 +62,7 @@ public sealed class DotNetClassicTool
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
 
 		// Find a matching package. If using a specific version, there will be exactly one match.
-		// If using floating versions, theyere may be multiple matches, so take the latest semantic version.
+		// If using floating versions, there may be multiple matches, so take the latest semantic version.
 		var packagePath = Directory.GetDirectories(Path.Combine(packagesPath, packageName.ToLowerInvariant()), packageVersion)
 			.OrderByDescending(fullPath => Version.Parse(Path.GetFileName(fullPath)))
 			.FirstOrDefault();
