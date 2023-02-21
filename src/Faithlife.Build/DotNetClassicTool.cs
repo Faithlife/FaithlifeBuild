@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using NuGet.Versioning;
 using static Faithlife.Build.AppRunner;
 
 namespace Faithlife.Build;
@@ -60,11 +61,25 @@ public sealed class DotNetClassicTool
 
 		var packagesPath = Environment.GetEnvironmentVariable("NUGET_PACKAGES") ??
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
-		var packagePath = Path.Combine(packagesPath, packageName.ToLowerInvariant(), packageVersion);
-		if (!Directory.Exists(packagePath))
-			throw new BuildException($"Missing restored NuGet package: {packagePath}");
+		var packageFullPath = Path.Combine(packagesPath, packageName.ToLowerInvariant(), packageVersion);
 
-		return new DotNetClassicTool(Path.Combine(packagePath, "tools", toolName ?? packageName));
+		var packageDirectories = Directory.GetDirectories(Path.Combine(packagesPath, packageName.ToLowerInvariant()))
+			.Select(fullPath => NuGetVersion.Parse(Path.GetFileName(fullPath)))
+			.ToList();
+
+		if (!packageDirectories.Any())
+			throw new BuildException($"Missing restored NuGet package: {packageFullPath}");
+
+		var bestMatch = VersionRange.Parse(packageVersion).FindBestMatch(packageDirectories);
+		if (bestMatch == null)
+			throw new BuildException($"Found restored NuGet package folder but no version is a best match: {packageFullPath}");
+
+		var packageBestMatchPath = Path.Combine(packagesPath, packageName.ToLowerInvariant(), bestMatch.OriginalVersion);
+
+		if (!Directory.Exists(packageBestMatchPath))
+			throw new BuildException($"Missing restored NuGet package that was a best match: {packageBestMatchPath}");
+
+		return new DotNetClassicTool(Path.Combine(packageBestMatchPath, "tools", toolName ?? packageName));
 	}
 
 	/// <summary>

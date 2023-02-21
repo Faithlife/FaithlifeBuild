@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.18.0
+
+* Support floating version numbers of NuGet packages in `DotNetClassic` projects inside `Build.csproj`.
+
 ## 5.17.2
 
 * Add README to package.
