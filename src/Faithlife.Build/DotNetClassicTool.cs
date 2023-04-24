@@ -70,10 +70,8 @@ public sealed class DotNetClassicTool
 		if (!packageDirectories.Any())
 			throw new BuildException($"Missing restored NuGet package: {packageFullPath}");
 
-		var bestMatch = VersionRange.Parse(packageVersion).FindBestMatch(packageDirectories);
-		if (bestMatch == null)
+		var bestMatch = VersionRange.Parse(packageVersion).FindBestMatch(packageDirectories) ??
 			throw new BuildException($"Found restored NuGet package folder but no version is a best match: {packageFullPath}");
-
 		var packageBestMatchPath = Path.Combine(packagesPath, packageName.ToLowerInvariant(), bestMatch.OriginalVersion);
 
 		if (!Directory.Exists(packageBestMatchPath))
