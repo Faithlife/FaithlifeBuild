@@ -5,7 +5,6 @@
     <Description>A build automation system using C# build scripts.</Description>
     <PackageTags>build automation csharp</PackageTags>
     <IsPackable>true</IsPackable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
