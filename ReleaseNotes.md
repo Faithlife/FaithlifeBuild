@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.18.1
+
+* Update dependencies to fix [CVE-2023-29337](https://github.com/advisories/GHSA-6qmf-mmc7-6c2p).
+
 ## 5.18.0
 
 * Support floating version numbers of NuGet packages in `DotNetClassic` projects inside `Build.csproj`.
