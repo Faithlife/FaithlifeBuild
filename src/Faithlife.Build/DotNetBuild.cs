@@ -621,17 +621,6 @@ public static class DotNetBuild
 			}
 		}
 
-		if (DotNetLocalTool.TryCreate("dotnet-format") is { } dotnetFormat)
-		{
-			build.Target("format")
-				.DependsOn("restore")
-				.Describe("Fixes coding style with dotnet-format")
-				.Does(() =>
-				{
-					dotnetFormat.Run(settings.GetVerbosityArg());
-				});
-		}
-
 		if (DotNetLocalTool.TryCreate("jetbrains.resharper.globaltools") is { } jb)
 		{
 			build.Target("cleanup")
