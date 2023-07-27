@@ -621,32 +621,30 @@ public static class DotNetBuild
 			}
 		}
 
-		if (DotNetLocalTool.TryCreate("dotnet-format") is { } dotnetFormat)
+		// allow global tool to be used (dotnet tool update --global jetbrains.resharper.globaltools)
+		var jb = DotNetLocalTool.TryCreate("jetbrains.resharper.globaltools");
+		void RunJb(IEnumerable<string?> a)
 		{
-			build.Target("format")
-				.DependsOn("restore")
-				.Describe("Fixes coding style with dotnet-format")
-				.Does(() =>
-				{
-					dotnetFormat.Run(settings.GetVerbosityArg());
-				});
+			if (jb is not null)
+				jb.Run(a);
+			else
+				RunApp("jb", a);
 		}
 
-		if (DotNetLocalTool.TryCreate("jetbrains.resharper.globaltools") is { } jb)
+		if (jb is not null || FindFiles("*.DotSettings").Count != 0)
 		{
 			build.Target("cleanup")
 				.DependsOn("restore")
 				.Describe("Fixes coding style with JetBrains CleanupCode")
 				.Does(() =>
 				{
-					jb.Run(
-						new[]
-						{
-							"cleanupcode",
-							"--profile=Build",
-							"--verbosity=ERROR",
-							"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
-						}.Concat(GetJetBrainsProperties()).Append(GetSolutionName()));
+					RunJb(new[]
+					{
+						"cleanupcode",
+						"--profile=Build",
+						"--verbosity=ERROR",
+						"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
+					}.Concat(GetJetBrainsProperties()).Append(GetSolutionName()));
 				});
 
 			build.Target("inspect")
@@ -656,7 +654,7 @@ public static class DotNetBuild
 				{
 					var outputPath = Path.Combine("release", "inspect.xml");
 
-					jb.Run(
+					RunJb(
 						new[]
 						{
 							"inspectcode",
