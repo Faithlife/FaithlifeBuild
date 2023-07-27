@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.19.0
+
+* Allow global JetBrains tool to be used. (`dotnet tool update --global jetbrains.resharper.globaltools`)
+* Drop support for `format` target. (The `dotnet-format` tool is no longer being updated. Just use `dotnet format` directly.)
+
 ## 5.18.1
 
 * Update dependencies to fix [CVE-2023-29337](https://github.com/advisories/GHSA-6qmf-mmc7-6c2p).
