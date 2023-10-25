@@ -246,18 +246,14 @@ public static class DotNetBuild
 			if (packagePaths.Count == 0)
 				throw new BuildException("No NuGet packages found.");
 
-			var (trigger, triggerAutoDetected) = GetTrigger();
-
-			if (trigger is null)
+			if (packagePaths.Any(x => GetPackageInfo(x).Version == "0.0.0"))
 			{
-				if (packagePaths.Any(x => GetPackageInfo(x).Version == "0.0.0"))
-				{
-					Console.WriteLine("Not publishing package with version 0.0.0. Change package version to publish.");
-					return;
-				}
-
-				trigger = "publish-all";
+				Console.WriteLine("Not publishing package with version 0.0.0. Change package version to publish.");
+				return;
 			}
+
+			var (trigger, triggerAutoDetected) = GetTrigger();
+			trigger ??= "publish-all";
 
 			var triggerParts = trigger.Split('-', 2);
 			var publishTrigger = triggerParts.Length >= 2 && triggerParts[0] == "publish" ? triggerParts[1] : null;
