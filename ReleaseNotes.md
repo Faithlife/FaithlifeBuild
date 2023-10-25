@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.19.1
+
+* Never publish NuGet package with version `0.0.0`.
+
 ## 5.19.0
 
 * Allow global JetBrains tool to be used. (`dotnet tool update --global jetbrains.resharper.globaltools`)
