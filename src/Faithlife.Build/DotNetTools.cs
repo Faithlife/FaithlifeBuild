@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
+using NuGet.Versioning;
 using static Faithlife.Build.AppRunner;
 using static Faithlife.Build.DotNetRunner;
 
@@ -69,7 +70,7 @@ public sealed class DotNetTools
 			RunDotNet(new AppRunnerSettings { Arguments = args, WorkingDirectory = directory });
 		}
 
-		return new DotNetLocalTool(directory, name ?? package);
+		return new DotNetLocalTool(directory, name ?? package, new NuGetVersion(0, 0, 0));
 	}
 
 	/// <summary>
