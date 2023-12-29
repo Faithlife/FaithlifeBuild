@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.20.0
+
+* Add `Version` to `DotNetLocalTool`.
+
 ## 5.19.1
 
 * Never publish NuGet package with version `0.0.0`.
