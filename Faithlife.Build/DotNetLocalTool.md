@@ -14,6 +14,7 @@ public sealed class DotNetLocalTool
 | static [CreateFrom](DotNetLocalTool/CreateFrom.md)(…) | Accesses a .NET local tool at the specified directory. |
 | static [TryCreate](DotNetLocalTool/TryCreate.md)(…) | Accesses a .NET local tool at the current directory. |
 | static [TryCreateFrom](DotNetLocalTool/TryCreateFrom.md)(…) | Accesses a .NET local tool at the specified directory. |
+| [Version](DotNetLocalTool/Version.md) { get; } | The version of the tool. |
 | [Run](DotNetLocalTool/Run.md)(…) | Runs the local tool with the specified arguments. (3 methods) |
 | static [Any](DotNetLocalTool/Any.md)() | True if there are any .NET local tools at the current directory. |
 | static [AnyFrom](DotNetLocalTool/AnyFrom.md)(…) | True if there are any .NET local tools at the specified directory. |
