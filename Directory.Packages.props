@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Bullseye" Version="5.0.0" />
+    <PackageVersion Include="Glob" Version="1.1.9" />
+    <PackageVersion Include="LibGit2Sharp" Version="0.27.2" />
+    <PackageVersion Include="McMaster.Extensions.CommandLineUtils" Version="4.0.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageVersion Include="NuGet.CommandLine" Version="6.6.2" />
+    <PackageVersion Include="NuGet.Configuration" Version="6.6.1" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.6.1" />
+    <PackageVersion Include="NUnit" Version="4.0.1" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
+    <PackageVersion Include="Polly" Version="7.2.4" />
+    <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.4.0" />
+    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.0.1" />
+    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+  </ItemGroup>
+</Project>

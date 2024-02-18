@@ -34,10 +34,8 @@ public static class BuildUtility
 	/// <returns>The paths of the matching files.</returns>
 	public static IReadOnlyList<string> FindFilesFrom(string directory, params string[] globs)
 	{
-		if (directory is null)
-			throw new ArgumentNullException(nameof(directory));
-		if (globs is null)
-			throw new ArgumentNullException(nameof(globs));
+		ArgumentNullException.ThrowIfNull(directory);
+		ArgumentNullException.ThrowIfNull(globs);
 
 		return globs.SelectMany(glob => Glob.Files(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
 	}
@@ -50,10 +48,8 @@ public static class BuildUtility
 	/// <returns>The paths of the matching directories.</returns>
 	public static IReadOnlyList<string> FindDirectoriesFrom(string directory, params string[] globs)
 	{
-		if (directory is null)
-			throw new ArgumentNullException(nameof(directory));
-		if (globs is null)
-			throw new ArgumentNullException(nameof(globs));
+		ArgumentNullException.ThrowIfNull(directory);
+		ArgumentNullException.ThrowIfNull(globs);
 
 		return globs.SelectMany(glob => Glob.Directories(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
 	}
@@ -66,12 +62,9 @@ public static class BuildUtility
 	/// <param name="globs">The globs to match. Use <c>"**"</c> to copy all files and directories.</param>
 	public static void CopyFiles(string fromDirectory, string toDirectory, params string[] globs)
 	{
-		if (fromDirectory is null)
-			throw new ArgumentNullException(nameof(fromDirectory));
-		if (toDirectory is null)
-			throw new ArgumentNullException(nameof(toDirectory));
-		if (globs is null)
-			throw new ArgumentNullException(nameof(globs));
+		ArgumentNullException.ThrowIfNull(fromDirectory);
+		ArgumentNullException.ThrowIfNull(toDirectory);
+		ArgumentNullException.ThrowIfNull(globs);
 
 		CopyFilesCore(fromDirectory, toDirectory, globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct());
 	}
@@ -84,12 +77,9 @@ public static class BuildUtility
 	/// <param name="globs">The globs to exclude from copying.</param>
 	public static void CopyFilesExcept(string fromDirectory, string toDirectory, params string[] globs)
 	{
-		if (fromDirectory is null)
-			throw new ArgumentNullException(nameof(fromDirectory));
-		if (toDirectory is null)
-			throw new ArgumentNullException(nameof(toDirectory));
-		if (globs is null)
-			throw new ArgumentNullException(nameof(globs));
+		ArgumentNullException.ThrowIfNull(fromDirectory);
+		ArgumentNullException.ThrowIfNull(toDirectory);
+		ArgumentNullException.ThrowIfNull(globs);
 
 		CopyFilesCore(fromDirectory, toDirectory, Glob.Files(fromDirectory, "**").Except(globs.SelectMany(glob => Glob.Files(fromDirectory, glob, GlobOptions.CaseInsensitive)).Distinct()));
 	}
@@ -101,11 +91,10 @@ public static class BuildUtility
 	/// <remarks>Retries once on error.</remarks>
 	public static void DeleteDirectory(string path)
 	{
-		if (path is null)
-			throw new ArgumentNullException(nameof(path));
+		ArgumentNullException.ThrowIfNull(path);
 
 		Policy.Handle<IOException>()
-			.WaitAndRetry(new[] { TimeSpan.FromMilliseconds(50) })
+			.WaitAndRetry([TimeSpan.FromMilliseconds(50)])
 			.Execute(() =>
 			{
 				try

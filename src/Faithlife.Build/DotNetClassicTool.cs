@@ -67,7 +67,7 @@ public sealed class DotNetClassicTool
 			.Select(fullPath => NuGetVersion.Parse(Path.GetFileName(fullPath)))
 			.ToList();
 
-		if (!packageDirectories.Any())
+		if (packageDirectories.Count == 0)
 			throw new BuildException($"Missing restored NuGet package: {packageFullPath}");
 
 		var bestMatch = VersionRange.Parse(packageVersion).FindBestMatch(packageDirectories) ??

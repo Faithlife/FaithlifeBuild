@@ -69,8 +69,7 @@ public static class MSBuildRunner
 	/// <param name="args">The arguments, if any.</param>
 	public static void RunMSBuild(MSBuildSettings? settings, params string?[] args)
 	{
-		if (args is null)
-			throw new ArgumentNullException(nameof(args));
+		ArgumentNullException.ThrowIfNull(args);
 
 		RunMSBuild(settings, args.AsEnumerable());
 	}

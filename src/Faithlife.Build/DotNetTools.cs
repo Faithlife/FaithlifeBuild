@@ -40,7 +40,7 @@ public sealed class DotNetTools
 		if (!Directory.Exists(directory) || !File.Exists(Path.Combine(directory, ".config", "dotnet-tools.json")))
 		{
 			Directory.CreateDirectory(directory);
-			RunDotNet(new AppRunnerSettings { Arguments = new[] { "new", "tool-manifest" }, WorkingDirectory = directory });
+			RunDotNet(new AppRunnerSettings { Arguments = ["new", "tool-manifest"], WorkingDirectory = directory });
 
 			args.Add("tool");
 			args.Add("install");
@@ -173,8 +173,7 @@ public sealed class DotNetTools
 	/// <returns>The <c>DotNetTools</c> instance, for use by the "fluent" builder pattern.</returns>
 	public DotNetTools AddSource(string source)
 	{
-		if (source is null)
-			throw new ArgumentNullException(nameof(source));
+		ArgumentNullException.ThrowIfNull(source);
 
 		m_sources.Add(Regex.IsMatch(source, @"^\w+:") ? source : Path.GetFullPath(source));
 		return this;
@@ -192,7 +191,7 @@ public sealed class DotNetTools
 		return version;
 	}
 
-	private class NuGetVersionComparer : IComparer<string>
+	private sealed class NuGetVersionComparer : IComparer<string>
 	{
 		public int Compare(string? left, string? right)
 		{
@@ -201,8 +200,8 @@ public sealed class DotNetTools
 			if (right is null)
 				return 1;
 
-			var leftHyphenParts = left.Split(new[] { '-' }, 2);
-			var rightHyphenParts = right.Split(new[] { '-' }, 2);
+			var leftHyphenParts = left.Split('-', 2);
+			var rightHyphenParts = right.Split('-', 2);
 
 			var leftDotParts = leftHyphenParts[0].Split('.');
 			var rightDotParts = rightHyphenParts[0].Split('.');

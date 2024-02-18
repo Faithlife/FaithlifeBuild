@@ -58,8 +58,7 @@ public sealed class BuildApp
 	/// <returns>The specified build target. If a target with the specified name already exists, it is returned.</returns>
 	public BuildTarget Target(string name)
 	{
-		if (name is null)
-			throw new ArgumentNullException(nameof(name));
+		ArgumentNullException.ThrowIfNull(name);
 
 		var target = m_targets.SingleOrDefault(x => x.Name == name);
 		if (target is null)

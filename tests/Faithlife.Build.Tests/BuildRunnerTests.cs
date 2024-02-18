@@ -2,7 +2,6 @@ using NUnit.Framework;
 
 namespace Faithlife.Build.Tests;
 
-[TestFixture]
 public class BuildRunnerTests
 {
 	[Test]
@@ -14,6 +13,6 @@ public class BuildRunnerTests
 	[Test]
 	public void NullInitializeThrows()
 	{
-		Assert.Throws<ArgumentNullException>(() => BuildRunner.Execute(Array.Empty<string>(), null!));
+		Assert.Throws<ArgumentNullException>(() => BuildRunner.Execute([], null!));
 	}
 }

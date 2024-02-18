@@ -115,7 +115,7 @@ public static class DotNetBuild
 					else if (settings.TestSettings?.FindProjects is var findTestProjects and not null)
 						testPaths = findTestProjects();
 					else
-						testPaths = new[] { solutionName };
+						testPaths = [solutionName];
 
 					settings.RunTests(testPaths);
 				}
@@ -410,7 +410,7 @@ public static class DotNetBuild
 							// return single empty framework unless there are more than one
 							var text = xmlDocGenProjectDocument.XPathSelectElements("Project/PropertyGroup/TargetFrameworks").FirstOrDefault()?.Value;
 							var values = text is null ? Array.Empty<string>() : text.Split(';').Select(x => x.Trim()).Where(x => x.Length != 0).ToArray();
-							return values.Length > 1 ? values : new[] { "" };
+							return values.Length > 1 ? values : [""];
 						}
 					}
 
@@ -488,7 +488,7 @@ public static class DotNetBuild
 						}
 
 						string?[] GetXmlDocArgs(string input) =>
-							new[] { input, docsPath, "--source", $"{docsSettings.SourceCodeUrl}/{project.Name}", "--newline", "lf", "--clean", string.IsNullOrEmpty(project.Suffix) ? null : "--dryrun" };
+							[input, docsPath, "--source", $"{docsSettings.SourceCodeUrl}/{project.Name}", "--newline", "lf", "--clean", string.IsNullOrEmpty(project.Suffix) ? null : "--dryrun"];
 					}
 
 					shouldPushDocs = repository.RetrieveStatus().IsDirty;
@@ -634,13 +634,15 @@ public static class DotNetBuild
 				.Describe("Fixes coding style with JetBrains CleanupCode")
 				.Does(() =>
 				{
-					RunJb(new[]
-					{
+					RunJb(
+					[
 						"cleanupcode",
 						"--profile=Build",
 						"--verbosity=ERROR",
 						"--disable-settings-layers:GlobalAll;GlobalPerProduct;SolutionPersonal;ProjectPersonal",
-					}.Concat(GetJetBrainsProperties()).Append(GetSolutionName()));
+						.. GetJetBrainsProperties(),
+						GetSolutionName(),
+					]);
 				});
 
 			build.Target("inspect")
@@ -981,13 +983,13 @@ public static class DotNetBuild
 			{
 				RunDotNet(new AppRunnerSettings
 				{
-					Arguments = new[]
-					{
+					Arguments =
+					[
 						"test",
 						Path.GetFileName(path),
 						"--",
 						"RunConfiguration.TreatNoTestsAsError=true",
-					},
+					],
 					WorkingDirectory = Path.GetDirectoryName(path),
 				});
 			}
@@ -1030,8 +1032,8 @@ public static class DotNetBuild
 
 	private static (int Major, int Minor, int Patch, string? Suffix) SplitVersion(string version)
 	{
-		var hyphenParts = version.Split(new[] { '-' }, 2);
-		var dotParts = hyphenParts[0].Split(new[] { '.' }, 3);
+		var hyphenParts = version.Split('-', 2);
+		var dotParts = hyphenParts[0].Split('.', 3);
 		return (int.Parse(dotParts[0], CultureInfo.InvariantCulture), int.Parse(dotParts[1], CultureInfo.InvariantCulture), int.Parse(dotParts[2], CultureInfo.InvariantCulture), hyphenParts.ElementAtOrDefault(1));
 	}
 

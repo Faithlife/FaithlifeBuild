@@ -49,8 +49,7 @@ public sealed class BuildTarget
 	/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 	public BuildTarget Does(Action action)
 	{
-		if (action is null)
-			throw new ArgumentNullException(nameof(action));
+		ArgumentNullException.ThrowIfNull(action);
 
 		m_actions.Add(ActionAsync);
 		return this;
@@ -65,8 +64,7 @@ public sealed class BuildTarget
 	/// <returns>The target, for use by the "fluent" builder pattern.</returns>
 	public BuildTarget Does(Func<Task> action)
 	{
-		if (action is null)
-			throw new ArgumentNullException(nameof(action));
+		ArgumentNullException.ThrowIfNull(action);
 
 		m_actions.Add(action);
 		return this;

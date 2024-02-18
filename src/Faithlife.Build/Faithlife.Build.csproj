@@ -5,18 +5,19 @@
     <Description>A build automation system using C# build scripts.</Description>
     <PackageTags>build automation csharp</PackageTags>
     <IsPackable>true</IsPackable>
+    <EnablePackageValidation>true</EnablePackageValidation>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bullseye" Version="5.0.0" />
-    <PackageReference Include="Glob" Version="1.1.9" />
-    <PackageReference Include="LibGit2Sharp" Version="0.27.2" />
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.0.2" />
-    <PackageReference Include="NuGet.CommandLine" Version="6.6.2" />
-    <PackageReference Include="NuGet.Configuration" Version="6.6.1" />
-    <PackageReference Include="NuGet.Protocol" Version="6.6.1" />
-    <PackageReference Include="Polly" Version="7.2.4" />
+    <PackageReference Include="Bullseye" />
+    <PackageReference Include="Glob" />
+    <PackageReference Include="LibGit2Sharp" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" />
+    <PackageReference Include="NuGet.CommandLine" />
+    <PackageReference Include="NuGet.Configuration" />
+    <PackageReference Include="NuGet.Protocol" />
+    <PackageReference Include="Polly" />
   </ItemGroup>
 
   <ItemGroup>

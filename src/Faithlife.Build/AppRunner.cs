@@ -102,12 +102,10 @@ public static class AppRunner
 
 	private static int DoRunApp(string path, AppRunnerSettings settings)
 	{
-		if (path is null)
-			throw new ArgumentNullException(nameof(path));
-		if (settings is null)
-			throw new ArgumentNullException(nameof(settings));
+		ArgumentNullException.ThrowIfNull(path);
+		ArgumentNullException.ThrowIfNull(settings);
 
-		var arguments = settings.Arguments?.WhereNotNull() ?? Enumerable.Empty<string>();
+		var arguments = settings.Arguments?.WhereNotNull() ?? [];
 		string commandPath;
 		string argsString;
 		if (settings.UseCmdOnWindows && BuildEnvironment.IsWindows())
@@ -144,7 +142,7 @@ public static class AppRunner
 		};
 
 		if (!settings.NoEcho)
-			Console.Error.WriteLine($"{settings.WorkingDirectory}>> {ArgumentEscaper.EscapeAndConcatenate(new[] { commandPath })} {argsString}");
+			Console.Error.WriteLine($"{settings.WorkingDirectory}>> {ArgumentEscaper.EscapeAndConcatenate([commandPath])} {argsString}");
 
 		using var outputDone = handleOutputLine is not null ? new AutoResetEvent(initialState: false) : null;
 		using var errorDone = handleErrorLine is not null ? new AutoResetEvent(initialState: false) : null;

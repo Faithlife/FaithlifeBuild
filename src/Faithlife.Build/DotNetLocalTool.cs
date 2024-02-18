@@ -73,8 +73,7 @@ public sealed class DotNetLocalTool
 	/// <param name="args">The command-line arguments.</param>
 	public void Run(params string?[] args)
 	{
-		if (args is null)
-			throw new ArgumentNullException(nameof(args));
+		ArgumentNullException.ThrowIfNull(args);
 
 		Run(args.AsEnumerable());
 	}
@@ -91,14 +90,13 @@ public sealed class DotNetLocalTool
 	/// <param name="settings">The settings to use when running the tool.</param>
 	public int Run(AppRunnerSettings settings)
 	{
-		if (settings is null)
-			throw new ArgumentNullException(nameof(settings));
+		ArgumentNullException.ThrowIfNull(settings);
 
 		if (settings.WorkingDirectory is not null)
 			throw new ArgumentException($"{nameof(settings.WorkingDirectory)} not supported for local tools.", nameof(settings));
 
 		settings = settings.Clone();
-		settings.Arguments = new[] { "tool", "run", m_name, "--" }.Concat(settings.Arguments ?? Enumerable.Empty<string>());
+		settings.Arguments = ["tool", "run", m_name, "--", .. settings.Arguments ?? []];
 		if (m_directory != ".")
 			settings.WorkingDirectory = m_directory;
 

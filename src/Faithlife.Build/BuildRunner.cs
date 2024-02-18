@@ -28,10 +28,8 @@ public static class BuildRunner
 	/// <returns>The exit code for the build.</returns>
 	public static async Task<int> ExecuteAsync(string[] args, Action<BuildApp> initialize)
 	{
-		if (args is null)
-			throw new ArgumentNullException(nameof(args));
-		if (initialize is null)
-			throw new ArgumentNullException(nameof(initialize));
+		ArgumentNullException.ThrowIfNull(args);
+		ArgumentNullException.ThrowIfNull(initialize);
 
 		if (Assembly.GetEntryAssembly()?.EntryPoint?.ReturnType == typeof(void))
 		{
@@ -76,7 +74,7 @@ public static class BuildRunner
 			var skipDependencies = skipDependenciesFlag.Value;
 			if (skipOption.Value is not null && !skipDependencies)
 			{
-				var skipTargetNames = new HashSet<string>(skipOption.Value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+				var skipTargetNames = new HashSet<string>(skipOption.Value.Split(',', StringSplitOptions.RemoveEmptyEntries));
 				var targetNamesWithDependencies = new List<string>();
 
 				void AddTargetAndDependencies(BuildTarget target)

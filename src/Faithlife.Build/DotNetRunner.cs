@@ -56,7 +56,7 @@ public static class DotNetRunner
 	public static int RunDotNetTool(string name, AppRunnerSettings settings)
 	{
 		settings = (settings ?? throw new ArgumentNullException(nameof(settings))).Clone();
-		settings.Arguments = new[] { "tool", "run", name, "--" }.Concat(settings.Arguments ?? Enumerable.Empty<string>());
+		settings.Arguments = ["tool", "run", name, "--", .. settings.Arguments ?? []];
 		return RunDotNet(settings);
 	}
 
