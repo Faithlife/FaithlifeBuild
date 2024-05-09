@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.20.1
+
+* Don't delete `node_modules/**/bin` when cleaning.
+
 ## 5.20.0
 
 * Add `Version` to `DotNetLocalTool`.
