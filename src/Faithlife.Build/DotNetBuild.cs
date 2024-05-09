@@ -56,7 +56,7 @@ public static class DotNetBuild
 			.Does(() =>
 			{
 				var findDirectoriesToDelete = settings.CleanSettings?.FindDirectoriesToDelete ??
-					(() => FindDirectories("{src,tests,tools}/**/{bin,obj}").Except(FindDirectories("tools/bin")).ToList());
+					(() => FindDirectories("{src,tests,tools}/**/{bin,obj}").Except(FindDirectories("tools/bin", "**/node_modules/**/bin")).ToList());
 				foreach (var directoryToDelete in findDirectoriesToDelete())
 					DeleteDirectory(directoryToDelete);
 
