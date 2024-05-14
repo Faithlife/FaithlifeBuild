@@ -54,7 +54,7 @@ public sealed class DotNetClassicTool
 		var packageVersion = ((IEnumerable) XDocument.Load(projectPath).XPathEvaluate("//PackageReference"))
 			.OfType<XElement>()
 			.Where(x => string.Equals(x.Attribute("Include")?.Value, packageName, StringComparison.OrdinalIgnoreCase))
-			.Select(x => x.Attribute("Version")?.Value)
+			.Select(x => x.Attribute("Version")?.Value ?? x.Attribute("VersionOverride")?.Value)
 			.FirstOrDefault();
 		if (packageVersion is null)
 			return null;
