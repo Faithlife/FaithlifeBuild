@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.20.2
+
+* Support `VersionOverride` with `DotNetClassicTool.TryCreateFrom`.
+
 ## 5.20.1
 
 * Don't delete `node_modules/**/bin` when cleaning.
