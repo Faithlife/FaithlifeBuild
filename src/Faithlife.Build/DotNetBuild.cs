@@ -979,6 +979,7 @@ public static class DotNetBuild
 		}
 		else
 		{
+			var loggerArgs = settings.TestSettings?.GetLogger?.Invoke(path) is { } logger ? new[] { "--logger", logger } : [];
 			if (Path.GetExtension(path)?.ToLowerInvariant() is ".dll" or ".exe")
 			{
 				RunDotNet(new AppRunnerSettings
@@ -989,6 +990,7 @@ public static class DotNetBuild
 						Path.GetFileName(path),
 						settings.GetVerbosityArg(),
 						settings.GetMaxCpuCountArg(),
+						.. loggerArgs,
 						"--",
 						"RunConfiguration.TreatNoTestsAsError=true",
 					],
@@ -1008,6 +1010,7 @@ public static class DotNetBuild
 					settings.GetVerbosityArg(),
 					settings.GetMaxCpuCountArg(),
 					.. settings.GetExtraPropertyArgs("test"),
+					.. loggerArgs,
 					"--",
 					"RunConfiguration.TreatNoTestsAsError=true",
 				]);

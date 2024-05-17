@@ -32,6 +32,11 @@ public sealed class DotNetTestSettings
 	public bool? UseParallel { get; set; }
 
 	/// <summary>
+	/// Get the logger for the specified project.
+	/// </summary>
+	public Func<string?, string?>? GetLogger { get; set; }
+
+	/// <summary>
 	/// Clones the settings.
 	/// </summary>
 	public DotNetTestSettings Clone() => (DotNetTestSettings) MemberwiseClone();
