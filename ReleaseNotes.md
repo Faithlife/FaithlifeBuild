@@ -1,5 +1,9 @@
 # Release Notes
 
+## Unreleased
+
+* Fix running `dotnet test` with extra properties.
+
 ## 5.21.1
 
 * Send verbosity argument to `dotnet test`.

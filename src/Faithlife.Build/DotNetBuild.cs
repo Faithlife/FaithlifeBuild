@@ -997,8 +997,7 @@ public static class DotNetBuild
 			}
 			else
 			{
-				RunDotNet(new[]
-				{
+				RunDotNet([
 					"test",
 					path,
 					"-c",
@@ -1008,9 +1007,10 @@ public static class DotNetBuild
 					"--no-build",
 					settings.GetVerbosityArg(),
 					settings.GetMaxCpuCountArg(),
+					.. settings.GetExtraPropertyArgs("test"),
 					"--",
 					"RunConfiguration.TreatNoTestsAsError=true",
-				}.Concat(settings.GetExtraPropertyArgs("test")));
+				]);
 			}
 		}
 	}
