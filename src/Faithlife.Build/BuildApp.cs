@@ -66,16 +66,31 @@ public sealed class BuildApp
 		return target;
 	}
 
+	/// <summary>
+	/// Adds an action to execute when the command line arguments have been parsed, but before the target(s) are evaluated and executed.
+	/// </summary>
+	/// <param name="action">The action to execute when the command line arguments have been parsed.</param>
+	public void CommandLineParsed(Action action)
+	{
+		ArgumentNullException.ThrowIfNull(action);
+
+		m_commandLineParsedActions.Add(action);
+	}
+
 	internal BuildApp(CommandLineApplication app)
 	{
 		m_app = app;
 		m_targets = new List<BuildTarget>();
 		m_flags = new List<BuildFlag>();
 		m_options = new List<BuildOption>();
+		m_commandLineParsedActions = new List<Action>();
 	}
+
+	internal IReadOnlyList<Action> CommandLineParsedActions => m_commandLineParsedActions;
 
 	private readonly CommandLineApplication m_app;
 	private readonly List<BuildTarget> m_targets;
 	private readonly List<BuildFlag> m_flags;
 	private readonly List<BuildOption> m_options;
+	private readonly List<Action> m_commandLineParsedActions;
 }
