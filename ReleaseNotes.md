@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.21.0
+
+* Add `BuildApp.CommandLineParsed` to allow initialization based on arguments.
+
 ## 5.20.2
 
 * Support `VersionOverride` with `DotNetClassicTool.TryCreateFrom`.
