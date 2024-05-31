@@ -60,12 +60,18 @@ public static class BuildRunner
 		var helpFlag = buildApp.AddFlag("-h|-?|--help", "Show build help");
 		var targetsArgument = commandLineApp.Argument("targets", "The targets to build", multipleValues: true);
 
-		var bullseyeTargets = new Targets();
-		foreach (var target in buildApp.Targets)
-			bullseyeTargets.Add(name: target.Name, description: target.Description, dependsOn: target.Dependencies, action: target.RunAsync);
+		commandLineApp.OnParsingComplete(_ =>
+		{
+			foreach (var commandLineParsedAction in buildApp.CommandLineParsedActions)
+				commandLineParsedAction();
+		});
 
 		commandLineApp.OnExecuteAsync(async _ =>
 		{
+			var bullseyeTargets = new Targets();
+			foreach (var target in buildApp.Targets)
+				bullseyeTargets.Add(name: target.Name, description: target.Description, dependsOn: target.Dependencies, action: target.RunAsync);
+
 			var targetNames = targetsArgument.Values.WhereNotNull().ToList();
 
 			if (targetNames.Count == 0 && buildApp.Targets.Any(x => x.Name == c_defaultTarget))
