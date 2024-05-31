@@ -27,10 +27,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - name: Install .NET
-      uses: actions/setup-dotnet@v3
     - name: Check out code
       uses: actions/checkout@v3
+    - name: Install .NET
+      uses: actions/setup-dotnet@v3
     - name: Restore
       run: .\build.ps1 restore
     - name: Build
