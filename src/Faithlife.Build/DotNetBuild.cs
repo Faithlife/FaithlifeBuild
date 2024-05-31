@@ -409,7 +409,7 @@ public static class DotNetBuild
 						{
 							// return single empty framework unless there are more than one
 							var text = xmlDocGenProjectDocument.XPathSelectElements("Project/PropertyGroup/TargetFrameworks").FirstOrDefault()?.Value;
-							var values = text is null ? Array.Empty<string>() : text.Split(';').Select(x => x.Trim()).Where(x => x.Length != 0).ToArray();
+							var values = text is null ? [] : text.Split(';').Select(x => x.Trim()).Where(x => x.Length != 0).ToArray();
 							return values.Length > 1 ? values : [""];
 						}
 					}

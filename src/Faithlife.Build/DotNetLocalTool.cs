@@ -60,7 +60,7 @@ public sealed class DotNetLocalTool
 	/// True if there are any .NET local tools at the specified directory.
 	/// </summary>
 	/// <param name="directory">The directory from which the tool would be run.</param>
-	public static bool AnyFrom(string directory) => GetDotNetLocalTools(directory).Any();
+	public static bool AnyFrom(string directory) => GetDotNetLocalTools(directory).Count != 0;
 
 	/// <summary>
 	/// The version of the tool.
@@ -110,11 +110,11 @@ public sealed class DotNetLocalTool
 		Version = version;
 	}
 
-	private static IReadOnlyList<(string Package, NuGetVersion Version, string Command)> GetDotNetLocalTools(string directory)
+	private static List<(string Package, NuGetVersion Version, string Command)> GetDotNetLocalTools(string directory)
 	{
 		var manifestPath = TryGetDotNetLocalToolManifestPath(Path.GetFullPath(directory));
 		if (manifestPath is null)
-			return Array.Empty<(string, NuGetVersion, string)>();
+			return [];
 
 		return JsonDocument.Parse(File.ReadAllText(manifestPath))
 			.RootElement
