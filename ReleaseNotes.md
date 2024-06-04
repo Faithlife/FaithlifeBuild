@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.21.1
+
+* Send verbosity argument to `dotnet test`.
+
 ## 5.21.0
 
 * Add `BuildApp.CommandLineParsed` to allow initialization based on arguments.
