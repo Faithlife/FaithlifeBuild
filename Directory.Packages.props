@@ -11,14 +11,14 @@
     <PackageVersion Include="NuGet.CommandLine" Version="6.6.2" />
     <PackageVersion Include="NuGet.Configuration" Version="6.6.1" />
     <PackageVersion Include="NuGet.Protocol" Version="6.6.1" />
-    <PackageVersion Include="NUnit" Version="4.0.1" />
+    <PackageVersion Include="NUnit" Version="4.1.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="Polly" Version="7.2.4" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
   </ItemGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.4.0" />
-    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.0.1" />
+    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.5.0" />
+    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.2.0" />
     <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
   </ItemGroup>
 </Project>
