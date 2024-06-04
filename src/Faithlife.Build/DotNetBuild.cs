@@ -987,6 +987,8 @@ public static class DotNetBuild
 					[
 						"test",
 						Path.GetFileName(path),
+						settings.GetVerbosityArg(),
+						settings.GetMaxCpuCountArg(),
 						"--",
 						"RunConfiguration.TreatNoTestsAsError=true",
 					],
@@ -1004,6 +1006,7 @@ public static class DotNetBuild
 					settings.GetPlatformArg(),
 					settings.GetBuildNumberArg(),
 					"--no-build",
+					settings.GetVerbosityArg(),
 					settings.GetMaxCpuCountArg(),
 					"--",
 					"RunConfiguration.TreatNoTestsAsError=true",
