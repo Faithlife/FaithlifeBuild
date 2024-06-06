@@ -979,6 +979,7 @@ public static class DotNetBuild
 		}
 		else
 		{
+			var loggerArgs = settings.TestSettings?.GetLogger?.Invoke(path) is { } logger ? new[] { "--logger", logger } : [];
 			if (Path.GetExtension(path)?.ToLowerInvariant() is ".dll" or ".exe")
 			{
 				RunDotNet(new AppRunnerSettings
@@ -988,7 +989,7 @@ public static class DotNetBuild
 						"test",
 						Path.GetFileName(path),
 						settings.GetVerbosityArg(),
-						settings.GetMaxCpuCountArg(),
+						.. loggerArgs,
 						"--",
 						"RunConfiguration.TreatNoTestsAsError=true",
 					],
@@ -997,8 +998,7 @@ public static class DotNetBuild
 			}
 			else
 			{
-				RunDotNet(new[]
-				{
+				RunDotNet([
 					"test",
 					path,
 					"-c",
@@ -1008,9 +1008,11 @@ public static class DotNetBuild
 					"--no-build",
 					settings.GetVerbosityArg(),
 					settings.GetMaxCpuCountArg(),
+					.. settings.GetExtraPropertyArgs("test"),
+					.. loggerArgs,
 					"--",
 					"RunConfiguration.TreatNoTestsAsError=true",
-				}.Concat(settings.GetExtraPropertyArgs("test")));
+				]);
 			}
 		}
 	}
