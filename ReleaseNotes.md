@@ -1,6 +1,6 @@
 # Release Notes
 
-## Unreleased
+## 5.22.0
 
 * Fix running `dotnet test` with extra properties.
 * Add `DotNetTestSettings.GetLogger` to support custom loggers.
