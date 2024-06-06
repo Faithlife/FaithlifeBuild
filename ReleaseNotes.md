@@ -4,6 +4,7 @@
 
 * Fix running `dotnet test` with extra properties.
 * Add `DotNetTestSettings.GetLogger` to support custom loggers.
+* Don't send `-maxcpucount` argument when calling `dotnet test` with a dll.
 
 ## 5.21.1
 
