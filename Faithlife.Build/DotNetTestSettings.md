@@ -13,6 +13,7 @@ public sealed class DotNetTestSettings
 | [DotNetTestSettings](DotNetTestSettings/DotNetTestSettings.md)() | The default constructor. |
 | [FindAssemblies](DotNetTestSettings/FindAssemblies.md) { get; set; } | Called to find the test assemblies. |
 | [FindProjects](DotNetTestSettings/FindProjects.md) { get; set; } | Called to find the projects to test. |
+| [GetLogger](DotNetTestSettings/GetLogger.md) { get; set; } | Get the logger for the specified project. |
 | [RunTests](DotNetTestSettings/RunTests.md) { get; set; } | Called to run tests on the specified solution, project, or assembly. |
 | [UseParallel](DotNetTestSettings/UseParallel.md) { get; set; } | True to run tests on multiple projects or assemblies in parallel. |
 | [Clone](DotNetTestSettings/Clone.md)() | Clones the settings. |
