@@ -11,10 +11,10 @@ jobs:
   publish-docs:
     runs-on: windows-latest
     steps:
-    - name: Install .NET
-      uses: actions/setup-dotnet@v4
     - name: Check out code
       uses: actions/checkout@v4
+    - name: Install .NET
+      uses: actions/setup-dotnet@v4
     - name: Publish Docs
       env:
         BUILD_BOT_PASSWORD: ${{ secrets.BUILD_BOT_PASSWORD }}
