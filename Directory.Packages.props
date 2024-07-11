@@ -9,11 +9,13 @@
     <PackageVersion Include="McMaster.Extensions.CommandLineUtils" Version="4.0.2" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     <PackageVersion Include="NuGet.CommandLine" Version="6.6.2" />
-    <PackageVersion Include="NuGet.Configuration" Version="6.6.1" />
-    <PackageVersion Include="NuGet.Protocol" Version="6.6.1" />
+    <PackageVersion Include="NuGet.Configuration" Version="6.10.1" />
+    <PackageVersion Include="NuGet.Packaging" Version="6.10.1" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.10.1" />
     <PackageVersion Include="NUnit" Version="4.1.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="Polly" Version="7.2.4" />
+    <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
   </ItemGroup>
   <ItemGroup>
