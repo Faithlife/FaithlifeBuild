@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.22.1
+
+* Update vulnerable NuGet dependencies.
+* Update NuGet dependencies to latest versions.
+
 ## 5.22.0
 
 * Fix running `dotnet test` with extra properties.
