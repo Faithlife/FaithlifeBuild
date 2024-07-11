@@ -7,8 +7,6 @@
 
   <ItemGroup>
     <PackageReference Include="Faithlife.Build" VersionOverride="5.*" />
-    <PackageReference Include="NuGet.Packaging" />
-    <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 
 </Project>
