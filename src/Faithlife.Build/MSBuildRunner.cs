@@ -51,9 +51,9 @@ public static class MSBuildRunner
 			{
 				return version switch
 				{
-					MSBuildVersion.VS2017 => (new[] { Environment.SpecialFolder.ProgramFilesX86 }, "2017", "15.0"),
-					MSBuildVersion.VS2019 => (new[] { Environment.SpecialFolder.ProgramFilesX86 }, "2019", "Current"),
-					MSBuildVersion.VS2022 => (new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 }, "2022", "Current"),
+					MSBuildVersion.VS2017 => ([Environment.SpecialFolder.ProgramFilesX86], "2017", "15.0"),
+					MSBuildVersion.VS2019 => ([Environment.SpecialFolder.ProgramFilesX86], "2019", "Current"),
+					MSBuildVersion.VS2022 => ([Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86], "2022", "Current"),
 					_ => throw new BuildException($"Unexpected MSBuildVersion: {version}"),
 				};
 			}
