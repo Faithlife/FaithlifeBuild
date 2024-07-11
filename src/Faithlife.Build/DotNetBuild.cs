@@ -316,7 +316,7 @@ public static class DotNetBuild
 							sourceUrl = localRepositorySource ?? gitRepositoryUrl;
 							Console.WriteLine($"Cloning documentation repository from {sourceUrl} to {docsCloneDirectory}");
 							Repository.Clone(sourceUrl: sourceUrl, workdirPath: docsCloneDirectory,
-								options: new CloneOptions { BranchName = docsGitBranchName, CredentialsProvider = ProvideDocsCredentials });
+								options: new CloneOptions { BranchName = docsGitBranchName, FetchOptions = { CredentialsProvider = ProvideDocsCredentials } });
 
 							if (localRepositorySource is not null)
 							{
@@ -799,7 +799,7 @@ public static class DotNetBuild
 				try
 				{
 					Repository.Clone(sourceUrl: gitRepositoryUrl, workdirPath: tagsCloneDirectory,
-						options: new CloneOptions { CredentialsProvider = ProvidePackageTagCredentials });
+						options: new CloneOptions { FetchOptions = { CredentialsProvider = ProvidePackageTagCredentials } });
 				}
 				catch (LibGit2SharpException exception)
 				{
