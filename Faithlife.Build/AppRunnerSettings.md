@@ -12,6 +12,7 @@ public sealed class AppRunnerSettings
 | --- | --- |
 | [AppRunnerSettings](AppRunnerSettings/AppRunnerSettings.md)() | The default constructor. |
 | [Arguments](AppRunnerSettings/Arguments.md) { get; set; } | The arguments to pass to the app. |
+| [EnvironmentVariables](AppRunnerSettings/EnvironmentVariables.md) { get; } | Additional environment variables to set when running the app. |
 | [HandleErrorLine](AppRunnerSettings/HandleErrorLine.md) { get; set; } | If set, each line of standard error is sent to the delegate, not to the console. |
 | [HandleOutputLine](AppRunnerSettings/HandleOutputLine.md) { get; set; } | If set, each line of standard output is sent to the delegate, not to the console. |
 | [IsExitCodeSuccess](AppRunnerSettings/IsExitCodeSuccess.md) { get; set; } | Called to determine if the exit code is successful; it if isn't, an exception is thrown. |
