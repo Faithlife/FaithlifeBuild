@@ -16,6 +16,11 @@ public sealed class AppRunnerSettings
 	public string? WorkingDirectory { get; set; }
 
 	/// <summary>
+	/// Additional environment variables to set when running the app.
+	/// </summary>
+	public IDictionary<string, string?> EnvironmentVariables { get; private set; } = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+
+	/// <summary>
 	/// True if the process information should not be written to standard error.
 	/// </summary>
 	public bool NoEcho { get; set; }
@@ -52,6 +57,7 @@ public sealed class AppRunnerSettings
 	{
 		var clone = (AppRunnerSettings) MemberwiseClone();
 		clone.Arguments = clone.Arguments?.ToList();
+		clone.EnvironmentVariables = new Dictionary<string, string?>(clone.EnvironmentVariables, StringComparer.OrdinalIgnoreCase);
 		return clone;
 	}
 }
