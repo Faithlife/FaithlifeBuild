@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.23.0
+
+* Add `AppRunnerSettings.EnvironmentVariables` property: [#67](https://github.com/Faithlife/FaithlifeBuild/pull/67).
+
 ## 5.22.1
 
 * Update vulnerable NuGet dependencies.
