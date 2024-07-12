@@ -13,7 +13,7 @@
     <GitHubOrganization>Faithlife</GitHubOrganization>
     <RepositoryName>FaithlifeBuild</RepositoryName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/$(GitHubOrganization)/$(RepositoryName)</PackageProjectUrl>
+    <PackageProjectUrl>https://faithlife.github.io/$(RepositoryName)/</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/$(GitHubOrganization)/$(RepositoryName)/blob/master/ReleaseNotes.md</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/$(GitHubOrganization)/$(RepositoryName).git</RepositoryUrl>
     <Authors>Faithlife</Authors>
