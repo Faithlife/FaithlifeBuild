@@ -127,18 +127,27 @@ public static class AppRunner
 		var handleOutputLine = settings.HandleOutputLine;
 		var handleErrorLine = settings.HandleErrorLine;
 
+		var startInfo = new ProcessStartInfo
+		{
+			FileName = commandPath,
+			Arguments = argsString,
+			WorkingDirectory = settings.WorkingDirectory,
+			UseShellExecute = false,
+			RedirectStandardOutput = handleOutputLine is not null,
+			RedirectStandardError = handleErrorLine is not null,
+			CreateNoWindow = false,
+		};
+
+		// add environment variables only if they're specified (to avoid touching the lazy ProcessStartInfo.Environment property)
+		if (settings.EnvironmentVariables.Count != 0)
+		{
+			foreach (var (name, value) in settings.EnvironmentVariables)
+				startInfo.Environment.Add(name, value);
+		}
+
 		using var process = new Process
 		{
-			StartInfo = new ProcessStartInfo
-			{
-				FileName = commandPath,
-				Arguments = argsString,
-				WorkingDirectory = settings.WorkingDirectory,
-				UseShellExecute = false,
-				RedirectStandardOutput = handleOutputLine is not null,
-				RedirectStandardError = handleErrorLine is not null,
-				CreateNoWindow = false,
-			},
+			StartInfo = startInfo,
 		};
 
 		if (!settings.NoEcho)
