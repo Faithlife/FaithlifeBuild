@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.24.0
+
+* Add `AppRunnerSettings.InputStream` to allow sending input to stdin: [#68](https://github.com/Faithlife/FaithlifeBuild/pull/68).
+
 ## 5.23.0
 
 * Add `AppRunnerSettings.EnvironmentVariables` property: [#67](https://github.com/Faithlife/FaithlifeBuild/pull/67).
