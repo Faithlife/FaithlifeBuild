@@ -51,6 +51,11 @@ public sealed class AppRunnerSettings
 	public Action<string>? HandleErrorLine { get; set; }
 
 	/// <summary>
+	/// If set, redirects standard in and uses this stream as input.
+	/// </summary>
+	public Stream? InputStream { get; set; }
+
+	/// <summary>
 	/// Clones the settings.
 	/// </summary>
 	public AppRunnerSettings Clone()

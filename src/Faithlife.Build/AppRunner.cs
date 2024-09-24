@@ -126,6 +126,7 @@ public static class AppRunner
 
 		var handleOutputLine = settings.HandleOutputLine;
 		var handleErrorLine = settings.HandleErrorLine;
+		var inputStream = settings.InputStream;
 
 		var startInfo = new ProcessStartInfo
 		{
@@ -135,6 +136,7 @@ public static class AppRunner
 			UseShellExecute = false,
 			RedirectStandardOutput = handleOutputLine is not null,
 			RedirectStandardError = handleErrorLine is not null,
+			RedirectStandardInput = inputStream is not null,
 			CreateNoWindow = false,
 		};
 
@@ -179,6 +181,14 @@ public static class AppRunner
 		}
 
 		process.Start();
+
+		if (inputStream is not null)
+		{
+			using var reader = new StreamReader(inputStream);
+
+			process.StandardInput.Write(reader.ReadToEnd());
+			process.StandardInput.Close();
+		}
 
 		if (handleOutputLine is not null)
 			process.BeginOutputReadLine();
