@@ -15,6 +15,7 @@ public sealed class AppRunnerSettings
 | [EnvironmentVariables](AppRunnerSettings/EnvironmentVariables.md) { get; } | Additional environment variables to set when running the app. |
 | [HandleErrorLine](AppRunnerSettings/HandleErrorLine.md) { get; set; } | If set, each line of standard error is sent to the delegate, not to the console. |
 | [HandleOutputLine](AppRunnerSettings/HandleOutputLine.md) { get; set; } | If set, each line of standard output is sent to the delegate, not to the console. |
+| [InputStream](AppRunnerSettings/InputStream.md) { get; set; } | If set, redirects standard in and uses this stream as input. |
 | [IsExitCodeSuccess](AppRunnerSettings/IsExitCodeSuccess.md) { get; set; } | Called to determine if the exit code is successful; it if isn't, an exception is thrown. |
 | [IsFrameworkApp](AppRunnerSettings/IsFrameworkApp.md) { get; set; } | True if Mono is used to run the app on Linux and macOS. |
 | [NoEcho](AppRunnerSettings/NoEcho.md) { get; set; } | True if the process information should not be written to standard error. |
