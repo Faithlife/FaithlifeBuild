@@ -24,7 +24,7 @@ public class BuildRunnerTests
 
 		var targetName = "target";
 
-		Assert.That(BuildRunner.Execute([targetName], build => { }, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(2));
+		Assert.That(BuildRunner.Execute([targetName], build => { }), Is.EqualTo(2));
 		Assert.That(error.ToString(), Does.Contain($"Target not found: {targetName}"));
 	}
 
@@ -34,7 +34,7 @@ public class BuildRunnerTests
 		using var output = new StringWriter();
 		Console.SetOut(output);
 
-		Assert.That(BuildRunner.Execute([], build => { }, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(0));
+		Assert.That(BuildRunner.Execute([], build => { }), Is.EqualTo(0));
 
 		// Check for some known default targets
 		var outputString = output.ToString();
@@ -56,7 +56,7 @@ public class BuildRunnerTests
 		{
 			build.Target(targetName)
 				.Describe(targetDescription);
-		}, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(0));
+		}), Is.EqualTo(0));
 		Assert.That(output.ToString(), Does.Match($"{targetName}\\s+{targetDescription}"));
 	}
 
@@ -75,7 +75,7 @@ public class BuildRunnerTests
 				{
 					throw new InvalidOperationException();
 				});
-		}, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(1));
+		}), Is.EqualTo(1));
 		Assert.That(output.ToString(), Does.Contain($"{targetName}: FAILED!"));
 	}
 
@@ -94,7 +94,7 @@ public class BuildRunnerTests
 				{
 					throw new InvalidOperationException();
 				});
-		}, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(0));
+		}), Is.EqualTo(0));
 		Assert.That(output.ToString(), Does.Contain($"Succeeded ({targetName}) (dry run)"));
 	}
 
@@ -113,7 +113,7 @@ public class BuildRunnerTests
 
 			build.Target(secondTarget)
 				.DependsOn(firstTarget);
-		}, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(0));
+		}), Is.EqualTo(0));
 
 		var outputString = output.ToString();
 		Assert.That(outputString, Does.Contain($"{firstTarget}: Succeeded"));
@@ -135,7 +135,7 @@ public class BuildRunnerTests
 
 			build.Target(secondTarget)
 				.DependsOn(firstTarget);
-		}, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(0));
+		}), Is.EqualTo(0));
 
 		var outputString = output.ToString();
 		Assert.That(outputString, Does.Not.Contain($"{firstTarget}: Succeeded"));
@@ -161,7 +161,7 @@ public class BuildRunnerTests
 			build.Target(thirdTarget)
 				.DependsOn(firstTarget)
 				.DependsOn(secondTarget);
-		}, new BuildRunnerSettings { AllowVoidEntrypoint = true }), Is.EqualTo(0));
+		}), Is.EqualTo(0));
 
 		var outputString = output.ToString();
 		Assert.That(outputString, Does.Contain($"{firstTarget}: Succeeded"));

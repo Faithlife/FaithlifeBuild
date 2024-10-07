@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using Bullseye;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -16,30 +15,20 @@ public static class BuildRunner
 	/// </summary>
 	/// <param name="args">The command-line arguments from <c>Main</c>.</param>
 	/// <param name="initialize">Called to initialize the build.</param>
-	/// <param name="settings">The build runner settings.</param>
 	/// <returns>The exit code for the build.</returns>
-	public static int Execute(string[] args, Action<BuildApp> initialize, BuildRunnerSettings? settings = null) =>
-		ExecuteAsync(args, initialize, settings).GetAwaiter().GetResult();
+	public static int Execute(string[] args, Action<BuildApp> initialize) =>
+		ExecuteAsync(args, initialize).GetAwaiter().GetResult();
 
 	/// <summary>
 	/// Executes an automated build. Called from <c>Main</c>.
 	/// </summary>
 	/// <param name="args">The command-line arguments from <c>Main</c>.</param>
 	/// <param name="initialize">Called to initialize the build.</param>
-	/// <param name="settings">The build runner settings.</param>
 	/// <returns>The exit code for the build.</returns>
-	public static async Task<int> ExecuteAsync(string[] args, Action<BuildApp> initialize, BuildRunnerSettings? settings = null)
+	public static async Task<int> ExecuteAsync(string[] args, Action<BuildApp> initialize)
 	{
-		settings ??= new BuildRunnerSettings();
-
 		ArgumentNullException.ThrowIfNull(args);
 		ArgumentNullException.ThrowIfNull(initialize);
-
-		if (!settings.AllowVoidEntrypoint && Assembly.GetEntryAssembly()?.EntryPoint?.ReturnType == typeof(void))
-		{
-			Console.Error.WriteLine("Application entry point returns void; it should return the result of BuildRunner.Execute.");
-			return 2;
-		}
 
 		var commandLineApp = new CommandLineApplication();
 
