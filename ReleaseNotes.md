@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.25.0
+
+* Allow void entry point when calling `BuildRunner.Execute`: [#69](https://github.com/Faithlife/FaithlifeBuild/pull/69).
+
 ## 5.24.0
 
 * Add `AppRunnerSettings.InputStream` to allow sending input to stdin: [#68](https://github.com/Faithlife/FaithlifeBuild/pull/68).
