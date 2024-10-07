@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using Bullseye;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -30,12 +29,6 @@ public static class BuildRunner
 	{
 		ArgumentNullException.ThrowIfNull(args);
 		ArgumentNullException.ThrowIfNull(initialize);
-
-		if (Assembly.GetEntryAssembly()?.EntryPoint?.ReturnType == typeof(void))
-		{
-			Console.Error.WriteLine("Application entry point returns void; it should return the result of BuildRunner.Execute.");
-			return 2;
-		}
 
 		var commandLineApp = new CommandLineApplication();
 
