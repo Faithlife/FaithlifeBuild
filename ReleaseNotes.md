@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.26.0
+
+* Allow NuGet packages to be signed before publishing by setting `PackageSettings.SigningSettings`: [#70](https://github.com/Faithlife/FaithlifeBuild/pull/70).
+
 ## 5.25.0
 
 * Allow void entry point when calling `BuildRunner.Execute`: [#69](https://github.com/Faithlife/FaithlifeBuild/pull/69).
