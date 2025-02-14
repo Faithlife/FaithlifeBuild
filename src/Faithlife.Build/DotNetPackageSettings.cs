@@ -6,6 +6,11 @@ namespace Faithlife.Build;
 public sealed class DotNetPackageSettings
 {
 	/// <summary>
+	/// Settings for signing NuGet packages.
+	/// </summary>
+	public DotNetSigningSettings? SigningSettings { get; set; }
+
+	/// <summary>
 	/// Called to find the projects to package.
 	/// </summary>
 	public Func<IReadOnlyList<string>>? FindProjects { get; set; }

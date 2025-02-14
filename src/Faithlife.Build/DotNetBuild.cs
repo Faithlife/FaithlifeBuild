@@ -535,10 +535,48 @@ public static class DotNetBuild
 
 					var tagsToPush = new HashSet<string>();
 					var packageSettings = settings.PackageSettings;
+					List<string>? signingArguments = null;
 					var pushSuccess = false;
+
+					if (packagePaths.Count != 0 && packageSettings?.SigningSettings is { } signingSettings)
+					{
+						// build the arguments for 'dotnet sign'
+						signingArguments = ["sign", "code"];
+						switch (signingSettings)
+						{
+							case { AzureKeyVaultSettings: null, TrustedSigningSettings: null }:
+								throw new BuildException("Either TrustedSigningSettings or AzureKeyVaultSettings must be specified.");
+							case { AzureKeyVaultSettings: { } azureSettings, TrustedSigningSettings: null }:
+								signingArguments.AddRange([
+									"azure-key-vault",
+									"-kvu", azureSettings.KeyVaultUrl?.AbsoluteUri ?? throw new BuildException("SigningSettings.AzureKeyVaultSettings.KeyVaultUrl is required."),
+									"-kvc", azureSettings.CertificateName ?? throw new BuildException("SigningSettings.AzureKeyVaultSettings.CertificateName is required."),
+									]);
+								break;
+							case { AzureKeyVaultSettings: null, TrustedSigningSettings: { } trustedSettings }:
+								signingArguments.AddRange([
+									"trusted-signing",
+									"-tse", trustedSettings.EndpointUrl?.AbsoluteUri ?? throw new BuildException("SigningSettings.TrustedSigningSettings.EndpointUrl is required."),
+									"-tsa", trustedSettings.Account ?? throw new BuildException("SigningSettings.TrustedSigningSettings.Account is required."),
+									"-tscp", trustedSettings.CertificateProfile ?? throw new BuildException("SigningSettings.TrustedSigningSettings.CertificateProfile is required."),
+									]);
+								break;
+							default:
+								throw new BuildException("Only one of TrustedSigningSettings or AzureKeyVaultSettings can be specified.");
+						}
+
+						// install dotnet sign
+						RunDotNet("tool", "install", "--tool-path", "release/sign", "--prerelease", "sign");
+					}
 
 					foreach (var packagePath in packagePaths)
 					{
+						if (signingArguments is not null)
+						{
+							// sign the package before it's published; this will unzip it, sign each file it contains, rezip it, then sign the package as a whole
+							RunApp("release/sign/sign", [.. signingArguments, packagePath]);
+						}
+
 						var pushArgs = new[]
 						{
 							"nuget", "push", packagePath,
