@@ -56,7 +56,7 @@ public static class DotNetBuild
 			.Does(() =>
 			{
 				var findDirectoriesToDelete = settings.CleanSettings?.FindDirectoriesToDelete ??
-					(() => FindDirectories("{src,tests,tools}/**/{bin,obj}").Except(FindDirectories("tools/bin", "**/node_modules/**/bin")).ToList());
+					(() => [.. FindDirectories("{src,tests,tools}/**/{bin,obj}").Except(FindDirectories("tools/bin", "**/node_modules/**/bin"))]);
 				foreach (var directoryToDelete in findDirectoriesToDelete())
 					DeleteDirectory(directoryToDelete);
 
@@ -137,7 +137,7 @@ public static class DotNetBuild
 			{
 				using var repository = OpenRepository(".");
 				var headSha = repository.Head.Tip.Sha;
-				var autoTrigger = GetBestTriggerFromTags(repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName).ToList());
+				var autoTrigger = GetBestTriggerFromTags([.. repository.Tags.Where(x => x.Target.Sha == headSha).Select(x => x.FriendlyName)]);
 				if (autoTrigger is not null)
 				{
 					Console.WriteLine($"Detected trigger: {trigger}");
@@ -530,7 +530,7 @@ public static class DotNetBuild
 						}
 
 						if (alreadyPushedPackages.Count != 0)
-							packagePaths = packagePaths.Except(alreadyPushedPackages).ToList();
+							packagePaths = [.. packagePaths.Except(alreadyPushedPackages)];
 					}
 
 					var tagsToPush = new HashSet<string>();

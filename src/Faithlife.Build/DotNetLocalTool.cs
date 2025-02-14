@@ -43,7 +43,7 @@ public sealed class DotNetLocalTool
 		var allTools = GetDotNetLocalTools(directory);
 		var foundTools = allTools.Where(x => string.Equals(x.Package, name, StringComparison.OrdinalIgnoreCase)).ToList();
 		if (foundTools.Count == 0)
-			foundTools = allTools.Where(x => string.Equals(x.Command, name, StringComparison.OrdinalIgnoreCase)).ToList();
+			foundTools = [.. allTools.Where(x => string.Equals(x.Command, name, StringComparison.OrdinalIgnoreCase))];
 		if (foundTools.Count == 0)
 			return null;
 		if (foundTools.Count > 1)
@@ -116,12 +116,11 @@ public sealed class DotNetLocalTool
 		if (manifestPath is null)
 			return [];
 
-		return JsonDocument.Parse(File.ReadAllText(manifestPath))
+		return [.. JsonDocument.Parse(File.ReadAllText(manifestPath))
 			.RootElement
 			.GetProperty("tools")
 			.EnumerateObject()
-			.SelectMany(tool => tool.Value.GetProperty("commands").EnumerateArray().Select(x => (tool.Name, NuGetVersion.Parse(tool.Value.GetProperty("version").GetString()!), x.GetString()!)))
-			.ToList();
+			.SelectMany(tool => tool.Value.GetProperty("commands").EnumerateArray().Select(x => (tool.Name, NuGetVersion.Parse(tool.Value.GetProperty("version").GetString()!), x.GetString()!)))];
 	}
 
 	private static string? TryGetDotNetLocalToolManifestPath(string directory)

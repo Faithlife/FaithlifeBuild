@@ -37,7 +37,7 @@ public static class BuildUtility
 		ArgumentNullException.ThrowIfNull(directory);
 		ArgumentNullException.ThrowIfNull(globs);
 
-		return globs.SelectMany(glob => Glob.Files(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
+		return [.. globs.SelectMany(glob => Glob.Files(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path))];
 	}
 
 	/// <summary>
@@ -51,7 +51,7 @@ public static class BuildUtility
 		ArgumentNullException.ThrowIfNull(directory);
 		ArgumentNullException.ThrowIfNull(globs);
 
-		return globs.SelectMany(glob => Glob.Directories(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path)).ToList();
+		return [.. globs.SelectMany(glob => Glob.Directories(directory, glob, GlobOptions.CaseInsensitive)).Distinct().Select(path => Path.Combine(directory, path))];
 	}
 
 	/// <summary>
