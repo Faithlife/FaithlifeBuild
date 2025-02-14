@@ -566,7 +566,7 @@ public static class DotNetBuild
 						}
 
 						// install dotnet sign
-						RunDotNet("tool", "install", "--tool-path", "release/sign", "--prerelease", "sign");
+						RunDotNet("tool", "install", "--tool-path", "release/sign", "--prerelease", "Faithlife.SignTool");
 					}
 
 					foreach (var packagePath in packagePaths)
@@ -574,7 +574,7 @@ public static class DotNetBuild
 						if (signingArguments is not null)
 						{
 							// sign the package before it's published; this will unzip it, sign each file it contains, rezip it, then sign the package as a whole
-							RunApp("release/sign/sign", [.. signingArguments, packagePath]);
+							RunApp("release/sign/faithlife-sign", [.. signingArguments, packagePath]);
 						}
 
 						var pushArgs = new[]

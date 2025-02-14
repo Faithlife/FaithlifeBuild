@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.26.1
+
+* Switch from `dotnet sign` to Faithlife.SignTool for package signing.
+  * `dotnet sign` was not detecting the Azure credentials obtained by Actions/az-login.
+
 ## 5.26.0
 
 * Allow NuGet packages to be signed before publishing by setting `PackageSettings.SigningSettings`: [#70](https://github.com/Faithlife/FaithlifeBuild/pull/70).
