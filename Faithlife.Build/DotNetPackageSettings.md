@@ -15,6 +15,7 @@ public sealed class DotNetPackageSettings
 | [GitLogin](DotNetPackageSettings/GitLogin.md) { get; set; } | Credentials used to push tags to git. |
 | [GitRepositoryUrl](DotNetPackageSettings/GitRepositoryUrl.md) { get; set; } | The URL of the git repository where tags are pushed. |
 | [PushTagOnPublish](DotNetPackageSettings/PushTagOnPublish.md) { get; set; } | Set if a git tag should be pushed when a NuGet package is published. |
+| [SigningSettings](DotNetPackageSettings/SigningSettings.md) { get; set; } | Settings for signing NuGet packages. |
 | [Clone](DotNetPackageSettings/Clone.md)() | Clones the settings. |
 
 ## See Also
