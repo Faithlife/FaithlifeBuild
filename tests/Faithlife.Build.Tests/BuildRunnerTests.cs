@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Faithlife.Build.Tests;
 
-public class BuildRunnerTests
+internal sealed class BuildRunnerTests
 {
 	[Test]
 	public void NullArgsThrows()

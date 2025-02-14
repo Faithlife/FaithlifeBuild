@@ -158,7 +158,7 @@ public static class BuildRunner
 		if (targetsToShow.Count != 0)
 		{
 			Console.WriteLine("Targets:");
-			var maxTargetLength = targetsToShow.Select(x => x.Name.Length).Max();
+			var maxTargetLength = targetsToShow.Max(x => x.Name.Length);
 			foreach (var target in targetsToShow)
 				Console.WriteLine("  {0}  {1}", target.Name.PadRight(maxTargetLength), target.Description);
 		}
