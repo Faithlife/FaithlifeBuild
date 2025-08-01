@@ -34,7 +34,7 @@ internal sealed class BuildRunnerTests
 		using var output = new StringWriter();
 		Console.SetOut(output);
 
-		Assert.That(BuildRunner.Execute([], build => { }), Is.EqualTo(0));
+		Assert.That(BuildRunner.Execute([], build => { }), Is.Zero);
 
 		// Check for some known default targets
 		var outputString = output.ToString();
@@ -56,7 +56,7 @@ internal sealed class BuildRunnerTests
 		{
 			build.Target(targetName)
 				.Describe(targetDescription);
-		}), Is.EqualTo(0));
+		}), Is.Zero);
 		Assert.That(output.ToString(), Does.Match($"{targetName}\\s+{targetDescription}"));
 	}
 
@@ -94,7 +94,7 @@ internal sealed class BuildRunnerTests
 				{
 					throw new InvalidOperationException();
 				});
-		}), Is.EqualTo(0));
+		}), Is.Zero);
 		Assert.That(output.ToString(), Does.Contain($"Succeeded ({targetName}) (dry run)"));
 	}
 
@@ -113,7 +113,7 @@ internal sealed class BuildRunnerTests
 
 			build.Target(secondTarget)
 				.DependsOn(firstTarget);
-		}), Is.EqualTo(0));
+		}), Is.Zero);
 
 		var outputString = output.ToString();
 		Assert.That(outputString, Does.Contain($"{firstTarget}: Succeeded"));
@@ -135,7 +135,7 @@ internal sealed class BuildRunnerTests
 
 			build.Target(secondTarget)
 				.DependsOn(firstTarget);
-		}), Is.EqualTo(0));
+		}), Is.Zero);
 
 		var outputString = output.ToString();
 		Assert.That(outputString, Does.Not.Contain($"{firstTarget}: Succeeded"));
@@ -161,7 +161,7 @@ internal sealed class BuildRunnerTests
 			build.Target(thirdTarget)
 				.DependsOn(firstTarget)
 				.DependsOn(secondTarget);
-		}), Is.EqualTo(0));
+		}), Is.Zero);
 
 		var outputString = output.ToString();
 		Assert.That(outputString, Does.Contain($"{firstTarget}: Succeeded"));
