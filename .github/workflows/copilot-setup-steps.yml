@@ -26,4 +26,5 @@ jobs:
       uses: actions/setup-dotnet@v4
     - name: Restore
       run: .\build.ps1 restore
+      shell: pwsh
 
