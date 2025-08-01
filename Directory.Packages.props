@@ -7,20 +7,20 @@
     <PackageVersion Include="Glob" Version="1.1.9" />
     <PackageVersion Include="LibGit2Sharp" Version="0.30.0" />
     <PackageVersion Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageVersion Include="NuGet.CommandLine" Version="6.10.1" />
-    <PackageVersion Include="NuGet.Configuration" Version="6.10.1" />
-    <PackageVersion Include="NuGet.Packaging" Version="6.10.1" />
-    <PackageVersion Include="NuGet.Protocol" Version="6.10.1" />
-    <PackageVersion Include="NUnit" Version="4.1.0" />
-    <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
-    <PackageVersion Include="Polly" Version="7.2.4" />
-    <PackageVersion Include="System.Formats.Asn1" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="NuGet.CommandLine" Version="6.14.0" />
+    <PackageVersion Include="NuGet.Configuration" Version="6.14.0" />
+    <PackageVersion Include="NuGet.Packaging" Version="6.14.0" />
+    <PackageVersion Include="NuGet.Protocol" Version="6.14.0" />
+    <PackageVersion Include="NUnit" Version="4.3.2" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageVersion Include="Polly" Version="8.6.2" />
+    <PackageVersion Include="System.Formats.Asn1" Version="9.0.7" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
   </ItemGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.5.0" />
-    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.2.0" />
+    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.5.1" />
+    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.9.2" />
     <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
   </ItemGroup>
 </Project>
