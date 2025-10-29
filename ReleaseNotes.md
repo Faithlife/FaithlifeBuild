@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.27.0
+
+* Drop `net6.0` support; Faithlife.Build now targets `net8.0`.
+* Update Bullseye to 6.0.0.
+* Update LibGit2Sharp to 0.31.0.
+
 ## 5.26.1
 
 * Switch from `dotnet sign` to Faithlife.SignTool for package signing.
