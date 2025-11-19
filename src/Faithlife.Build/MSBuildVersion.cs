@@ -19,4 +19,9 @@ public enum MSBuildVersion
 	/// Visual Studio 2022.
 	/// </summary>
 	VS2022,
+
+	/// <summary>
+	/// Visual Studio 2026.
+	/// </summary>
+	VS2026,
 }

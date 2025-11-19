@@ -54,6 +54,7 @@ public static class MSBuildRunner
 					MSBuildVersion.VS2017 => ([Environment.SpecialFolder.ProgramFilesX86], "2017", "15.0"),
 					MSBuildVersion.VS2019 => ([Environment.SpecialFolder.ProgramFilesX86], "2019", "Current"),
 					MSBuildVersion.VS2022 => ([Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86], "2022", "Current"),
+					MSBuildVersion.VS2026 => ([Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86], "18", "Current"),
 					_ => throw new BuildException($"Unexpected MSBuildVersion: {version}"),
 				};
 			}
