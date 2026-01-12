@@ -556,6 +556,7 @@ public static class DotNetBuild
 							case { AzureKeyVaultSettings: null, TrustedSigningSettings: { } trustedSettings }:
 								signingArguments.AddRange([
 									"trusted-signing",
+									"-act", "azure-cli",
 									"-tse", trustedSettings.EndpointUrl?.AbsoluteUri ?? throw new BuildException("SigningSettings.TrustedSigningSettings.EndpointUrl is required."),
 									"-tsa", trustedSettings.Account ?? throw new BuildException("SigningSettings.TrustedSigningSettings.Account is required."),
 									"-tscp", trustedSettings.CertificateProfile ?? throw new BuildException("SigningSettings.TrustedSigningSettings.CertificateProfile is required."),
@@ -566,7 +567,7 @@ public static class DotNetBuild
 						}
 
 						// install dotnet sign
-						RunDotNet("tool", "install", "--tool-path", "release/sign", "--prerelease", "Faithlife.SignTool");
+						RunDotNet("tool", "install", "--tool-path", "release/sign", "--prerelease", "sign");
 					}
 
 					foreach (var packagePath in packagePaths)
@@ -574,7 +575,7 @@ public static class DotNetBuild
 						if (signingArguments is not null)
 						{
 							// sign the package before it's published; this will unzip it, sign each file it contains, rezip it, then sign the package as a whole
-							RunApp("release/sign/faithlife-sign", [.. signingArguments, packagePath]);
+							RunApp("release/sign/sign", [.. signingArguments, packagePath]);
 						}
 
 						var pushArgs = new[]
