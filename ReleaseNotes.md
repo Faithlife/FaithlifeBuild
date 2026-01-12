@@ -1,5 +1,11 @@
 # Release Notes
 
+## 5.26.2
+
+* Switch from Faithlife.SignTool back to `dotnet sign` for package signing.
+  * The fixes in [dotnet/sign#816](https://github.com/dotnet/sign/pull/816) and [dotnet/sign#891](https://github.com/dotnet/sign/pull/891) should eliminate our need to fork this tool.
+* Support `MSBuildVersion.VS2026`: [#75](https://github.com/Faithlife/FaithlifeBuild/pull/75).
+
 ## 5.26.1
 
 * Switch from `dotnet sign` to Faithlife.SignTool for package signing.
