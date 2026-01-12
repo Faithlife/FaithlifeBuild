@@ -20,6 +20,10 @@ defaults:
   run:
     shell: pwsh
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -37,15 +41,21 @@ jobs:
       run: .\build.ps1 build --skip restore
     - name: Test
       run: .\build.ps1 test --skip build
+    - name: Log in to NuGet
+      if: runner.os == 'Windows' && github.repository_owner == 'Faithlife' && github.ref == 'refs/heads/master'
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: bgrainger
     - name: Publish (Stable)
       if: runner.os == 'Windows' && github.repository_owner == 'Faithlife' && github.ref == 'refs/heads/master'
       env:
         BUILD_BOT_PASSWORD: ${{ secrets.BUILD_BOT_PASSWORD }}
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
       run: .\build.ps1 publish --skip test
     - name: Publish (Beta)
       if: runner.os == 'Windows' && github.repository_owner == 'Faithlife' && github.ref != 'refs/heads/master' && github.event.inputs.beta-version-number != ''
       env:
         BUILD_BOT_PASSWORD: ${{ secrets.BUILD_BOT_PASSWORD }}
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
       run: .\build.ps1 publish --skip test --version-suffix beta.${{ github.event.inputs.beta-version-number }}
