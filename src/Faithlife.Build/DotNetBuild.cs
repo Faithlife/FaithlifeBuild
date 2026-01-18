@@ -1074,8 +1074,27 @@ public static class DotNetBuild
 	/// <summary>
 	/// Gets the argument that enables CI Build settings.
 	/// </summary>
-	private static string? GetContinuousIntegrationBuildArg(this DotNetBuildSettings settings) =>
-		settings.GetBuildNumber() is not null ? "-p:ContinuousIntegrationBuild=true" : null;
+	private static string? GetContinuousIntegrationBuildArg(this DotNetBuildSettings settings)
+	{
+		// check common CI environment variables; cf. https://github.com/watson/ci-info/blob/master/vendors.json
+		foreach (var name in new[]
+		{
+			"CI", // GitHub Actions, GitLab CI, Travis CI, CircleCI, and others
+			"GITHUB_ACTIONS", // GitHub Actions
+			"GITLAB_CI", // GitLab CI
+			"CIRCLECI", // CircleCI
+			"TRAVIS", // Travis CI
+			"APPVEYOR", // AppVeyor
+			"TF_BUILD", // Azure Pipelines
+			"BUILD_ID", // Jenkins
+		})
+		{
+			if (Environment.GetEnvironmentVariable(name) is not (null or "" or "false" or "False" or "FALSE"))
+				return "-p:ContinuousIntegrationBuild=true";
+		}
+
+		return null;
+	}
 
 	private static DotNetPackageInfo GetPackageInfo(string path)
 	{
