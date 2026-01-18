@@ -1,0 +1,37 @@
+<!-- NOTE: This file is not exposed via the NuGet package (which would require all projects
+  to take a dependency on Faithlife.Build) but is injected into the build at runtime. -->
+<Project>
+  <!-- Import the real Directory.Build.targets if it exists -->
+  <PropertyGroup>
+    <_FaithlifeBuildDirectoryBuildTargetsFile>Directory.Build.targets</_FaithlifeBuildDirectoryBuildTargetsFile>
+    <_FaithlifeBuildDirectoryBuildTargetsBasePath>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildProjectDirectory), '$(_FaithlifeBuildDirectoryBuildTargetsFile)'))</_FaithlifeBuildDirectoryBuildTargetsBasePath>
+    <_FaithlifeBuildOriginalDirectoryBuildTargetsPath>$([System.IO.Path]::Combine('$(_FaithlifeBuildDirectoryBuildTargetsBasePath)', '$(_FaithlifeBuildDirectoryBuildTargetsFile)'))</_FaithlifeBuildOriginalDirectoryBuildTargetsPath>
+  </PropertyGroup>
+  <Import Project="$(_FaithlifeBuildOriginalDirectoryBuildTargetsPath)" Condition="Exists('$(_FaithlifeBuildOriginalDirectoryBuildTargetsPath)')" />
+
+  <!-- Check if properties were already set -->
+  <PropertyGroup>
+    <_FaithlifeBuildAllowedOutputExtensionsInPackageBuildOutputFolderContainsPdb Condition=" $(AllowedOutputExtensionsInPackageBuildOutputFolder.Contains('.pdb')) ">true</_FaithlifeBuildAllowedOutputExtensionsInPackageBuildOutputFolderContainsPdb>
+    <_FaithlifeBuildPublishRepositoryUrlWasSet Condition="'$(PublishRepositoryUrl)' != ''">true</_FaithlifeBuildPublishRepositoryUrlWasSet>
+  </PropertyGroup>
+
+  <!-- Enforce CI properties -->
+  <PropertyGroup Condition=" '$(BuildNumber)' != '' ">
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <Target Name="FaithlifeBuildWarnings" BeforeTargets="BeforeBuild">
+    <Warning
+      Condition=" '$(_FaithlifeBuildPublishRepositoryUrlWasSet)' == 'true' "
+      Code="FLBLD0001"
+      Text="&lt;PublishRepositoryUrl> was set explicitly; this property should be omitted to use defaults from Faithlife.Build." />
+    <Warning
+      Condition=" '$(_FaithlifeBuildAllowedOutputExtensionsInPackageBuildOutputFolderContainsPdb)' == 'true' "
+      Code="FLBLD0002"
+      Text="&lt;AllowedOutputExtensionsInPackageBuildOutputFolder> is set explicitly; this property should be omitted to use defaults from Faithlife.Build." />
+  </Target>
+</Project>

@@ -28,4 +28,8 @@
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Runtime.Directory.Build.targets" />
+  </ItemGroup>
+
 </Project>

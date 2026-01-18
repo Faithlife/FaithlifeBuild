@@ -71,11 +71,12 @@ public static class DotNetBuild
 			.Describe("Restores NuGet packages")
 			.Does(() =>
 			{
+				using var runtimeTargetsFile = RuntimeTargetsFile.Create(settings);
 				var extraProperties = settings.GetExtraPropertyArgs("restore");
 				if (msbuildSettings is null)
-					RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 				else
-					MSBuild(new[] { solutionName, "-t:Restore", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					MSBuild(new[] { solutionName, "-t:Restore", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 
 				if (DotNetLocalTool.Any())
 					RunDotNet("tool", "restore");
@@ -86,11 +87,12 @@ public static class DotNetBuild
 			.Describe("Builds the solution")
 			.Does(() =>
 			{
+				using var runtimeTargetsFile = RuntimeTargetsFile.Create(settings);
 				var extraProperties = settings.GetExtraPropertyArgs("build");
 				if (msbuildSettings is null)
-					RunDotNet(new[] { "build", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), "--no-restore", settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "build", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), "--no-restore", settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 				else
-					MSBuild(new[] { solutionName, settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg() }.Concat(extraProperties));
+					MSBuild(new[] { solutionName, settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 			});
 
 		build.Target("test")
@@ -167,6 +169,7 @@ public static class DotNetBuild
 			else
 				packageProjects.Add(solutionName);
 
+			using var runtimeTargetsFile = RuntimeTargetsFile.Create(settings);
 			var extraProperties = settings.GetExtraPropertyArgs("package").ToList();
 			foreach (var packageProject in packageProjects)
 			{
@@ -182,6 +185,7 @@ public static class DotNetBuild
 						"--output", tempOutputPath,
 						versionSuffix is not null ? "--version-suffix" : null, versionSuffix,
 						settings.GetMaxCpuCountArg(),
+						runtimeTargetsFile.GetBuildArg(),
 					}.Concat(extraProperties));
 				}
 				else
@@ -197,6 +201,7 @@ public static class DotNetBuild
 						versionSuffix is not null ? $"-p:VersionSuffix={versionSuffix}" : null,
 						settings.GetVerbosityArg(),
 						settings.GetMaxCpuCountArg(),
+						runtimeTargetsFile.GetBuildArg(),
 					}.Concat(extraProperties));
 				}
 			}
@@ -1103,5 +1108,44 @@ public static class DotNetBuild
 		if (gitLogin.Password.Length == 0)
 			infos.Add("no password");
 		return infos.Count == 0 ? "" : $" ({string.Join(", ", infos)})";
+	}
+
+	private readonly struct RuntimeTargetsFile : IDisposable
+	{
+		public static RuntimeTargetsFile Create(DotNetBuildSettings settings)
+		{
+			var tempPath = Path.Combine(Path.GetTempPath(), $"FaithlifeBuild.{Guid.NewGuid().ToString("n")[^8..]}.targets");
+
+			var assembly = Assembly.GetExecutingAssembly();
+			var resourceName = "Faithlife.Build.Runtime.Directory.Build.targets";
+			using var resourceStream = assembly.GetManifestResourceStream(resourceName) ?? throw new BuildException($"Embedded resource '{resourceName}' not found.");
+			using var fileStream = File.Create(tempPath);
+			resourceStream.CopyTo(fileStream);
+
+			return new(tempPath);
+		}
+
+		public RuntimeTargetsFile(string targetsFilePath)
+		{
+			TargetsFilePath = targetsFilePath;
+		}
+
+		public string TargetsFilePath { get; }
+
+		public string GetBuildArg() => $"-p:DirectoryBuildTargetsPath={TargetsFilePath}";
+
+		public void Dispose()
+		{
+			if (File.Exists(TargetsFilePath))
+			{
+				try
+				{
+					File.Delete(TargetsFilePath);
+				}
+				catch (Exception)
+				{
+				}
+			}
+		}
 	}
 }
