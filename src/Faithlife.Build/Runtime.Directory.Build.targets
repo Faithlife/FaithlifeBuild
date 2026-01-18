@@ -17,7 +17,7 @@
 
   <!-- Enforce CI properties -->
   <PropertyGroup Condition=" '$(ContinuousIntegrationBuild)' == 'true' ">
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder Condition=" '$(_FaithlifeBuildAllowedOutputExtensionsInPackageBuildOutputFolderContainsPdb)' != 'true' ">$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
