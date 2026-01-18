@@ -71,7 +71,7 @@ public static class DotNetBuild
 			.Describe("Restores NuGet packages")
 			.Does(() =>
 			{
-				using var runtimeTargetsFile = RuntimeTargetsFile.Create(settings);
+				using var runtimeTargetsFile = RuntimeTargetsFile.Create();
 				var extraProperties = settings.GetExtraPropertyArgs("restore");
 				if (msbuildSettings is null)
 					RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
@@ -87,7 +87,7 @@ public static class DotNetBuild
 			.Describe("Builds the solution")
 			.Does(() =>
 			{
-				using var runtimeTargetsFile = RuntimeTargetsFile.Create(settings);
+				using var runtimeTargetsFile = RuntimeTargetsFile.Create();
 				var extraProperties = settings.GetExtraPropertyArgs("build");
 				if (msbuildSettings is null)
 					RunDotNet(new[] { "build", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), "--no-restore", settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
@@ -169,7 +169,7 @@ public static class DotNetBuild
 			else
 				packageProjects.Add(solutionName);
 
-			using var runtimeTargetsFile = RuntimeTargetsFile.Create(settings);
+			using var runtimeTargetsFile = RuntimeTargetsFile.Create();
 			var extraProperties = settings.GetExtraPropertyArgs("package").ToList();
 			foreach (var packageProject in packageProjects)
 			{
@@ -1114,7 +1114,7 @@ public static class DotNetBuild
 
 	private readonly struct RuntimeTargetsFile : IDisposable
 	{
-		public static RuntimeTargetsFile Create(DotNetBuildSettings settings)
+		public static RuntimeTargetsFile Create()
 		{
 			var tempPath = Path.Combine(Path.GetTempPath(), $"FaithlifeBuild.{Guid.NewGuid().ToString("n")[^8..]}.targets");
 
@@ -1127,27 +1127,24 @@ public static class DotNetBuild
 			return new(tempPath);
 		}
 
-		public RuntimeTargetsFile(string targetsFilePath)
-		{
-			TargetsFilePath = targetsFilePath;
-		}
+		public RuntimeTargetsFile(string targetsFilePath) => m_targetsFileTempPath = targetsFilePath;
 
-		public string TargetsFilePath { get; }
-
-		public string GetBuildArg() => $"-p:DirectoryBuildTargetsPath={TargetsFilePath}";
+		public string GetBuildArg() => $"-p:DirectoryBuildTargetsPath={m_targetsFileTempPath}";
 
 		public void Dispose()
 		{
-			if (File.Exists(TargetsFilePath))
+			if (m_targetsFileTempPath is not null && File.Exists(m_targetsFileTempPath))
 			{
 				try
 				{
-					File.Delete(TargetsFilePath);
+					File.Delete(m_targetsFileTempPath);
 				}
 				catch (Exception)
 				{
 				}
 			}
 		}
+
+		private readonly string m_targetsFileTempPath;
 	}
 }
