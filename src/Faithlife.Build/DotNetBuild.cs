@@ -1127,9 +1127,9 @@ public static class DotNetBuild
 			return new(tempPath);
 		}
 
-		public RuntimeTargetsFile(string targetsFilePath) => m_targetsFileTempPath = targetsFilePath;
+		public RuntimeTargetsFile(string targetsFileTempPath) => m_targetsFileTempPath = targetsFileTempPath;
 
-		public string GetBuildArg() => $"-p:DirectoryBuildTargetsPath={m_targetsFileTempPath}";
+		public string GetBuildArg() => $"-p:DirectoryBuildTargetsPath=\"{m_targetsFileTempPath}\"";
 
 		public void Dispose()
 		{
