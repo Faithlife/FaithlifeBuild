@@ -62,9 +62,9 @@ public static class DotNetBuild
 
 				var extraProperties = settings.GetExtraPropertyArgs("clean");
 				if (msbuildSettings is null)
-					RunDotNet(new[] { "clean", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "clean", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetContinuousIntegrationBuildArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 				else
-					MSBuild(new[] { solutionName, "-t:Clean", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
+					MSBuild(new[] { solutionName, "-t:Clean", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetContinuousIntegrationBuildArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg() }.Concat(extraProperties));
 			});
 
 		build.Target("restore")
@@ -74,9 +74,9 @@ public static class DotNetBuild
 				using var runtimeTargetsFile = RuntimeTargetsFile.Create();
 				var extraProperties = settings.GetExtraPropertyArgs("restore");
 				if (msbuildSettings is null)
-					RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "restore", solutionName, settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetContinuousIntegrationBuildArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 				else
-					MSBuild(new[] { solutionName, "-t:Restore", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
+					MSBuild(new[] { solutionName, "-t:Restore", settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetContinuousIntegrationBuildArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 
 				if (DotNetLocalTool.Any())
 					RunDotNet("tool", "restore");
@@ -90,9 +90,9 @@ public static class DotNetBuild
 				using var runtimeTargetsFile = RuntimeTargetsFile.Create();
 				var extraProperties = settings.GetExtraPropertyArgs("build");
 				if (msbuildSettings is null)
-					RunDotNet(new[] { "build", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), "--no-restore", settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
+					RunDotNet(new[] { "build", solutionName, "-c", settings.GetConfiguration(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetContinuousIntegrationBuildArg(), "--no-restore", settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 				else
-					MSBuild(new[] { solutionName, settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
+					MSBuild(new[] { solutionName, settings.GetConfigurationArg(), settings.GetPlatformArg(), settings.GetBuildNumberArg(), settings.GetContinuousIntegrationBuildArg(), settings.GetVerbosityArg(), settings.GetMaxCpuCountArg(), settings.GetBuildSummaryArg(), runtimeTargetsFile.GetBuildArg() }.Concat(extraProperties));
 			});
 
 		build.Target("test")
@@ -181,6 +181,7 @@ public static class DotNetBuild
 						"-c", settings.GetConfiguration(),
 						settings.GetPlatformArg(),
 						settings.GetBuildNumberArg(),
+						settings.GetContinuousIntegrationBuildArg(),
 						"--no-build",
 						"--output", tempOutputPath,
 						versionSuffix is not null ? "--version-suffix" : null, versionSuffix,
@@ -196,6 +197,7 @@ public static class DotNetBuild
 						settings.GetConfigurationArg(),
 						settings.GetPlatformArg(),
 						settings.GetBuildNumberArg(),
+						settings.GetContinuousIntegrationBuildArg(),
 						"-p:NoBuild=true",
 						$"-p:PackageOutputPath={tempOutputPath}",
 						versionSuffix is not null ? $"-p:VersionSuffix={versionSuffix}" : null,
@@ -399,6 +401,7 @@ public static class DotNetBuild
 								"-c", settings.GetConfiguration(),
 								settings.GetPlatformArg(),
 								settings.GetBuildNumberArg(),
+								settings.GetContinuousIntegrationBuildArg(),
 								"--nologo",
 								"--verbosity", "quiet",
 								"--output", Path.Combine("tools", "bin", framework, "XmlDocGen"));
@@ -991,8 +994,6 @@ public static class DotNetBuild
 			foreach (var (key, value) in pairs)
 				yield return $"-p:{key}={value}";
 		}
-		if (settings.GetBuildNumber() is not null)
-			yield return "-p:ContinuousIntegrationBuild=true";
 	}
 
 	/// <summary>
@@ -1051,6 +1052,7 @@ public static class DotNetBuild
 					settings.GetConfiguration(),
 					settings.GetPlatformArg(),
 					settings.GetBuildNumberArg(),
+					settings.GetContinuousIntegrationBuildArg(),
 					"--no-build",
 					settings.GetVerbosityArg(),
 					settings.GetMaxCpuCountArg(),
@@ -1068,6 +1070,12 @@ public static class DotNetBuild
 	/// </summary>
 	[Obsolete("Use other overload.")]
 	public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings) => settings.GetExtraPropertyArgs(target);
+
+	/// <summary>
+	/// Gets the argument that enables CI Build settings.
+	/// </summary>
+	private static string? GetContinuousIntegrationBuildArg(this DotNetBuildSettings settings) =>
+		settings.GetBuildNumber() is not null ? "-p:ContinuousIntegrationBuild=true" : null;
 
 	private static DotNetPackageInfo GetPackageInfo(string path)
 	{
