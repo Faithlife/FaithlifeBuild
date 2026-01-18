@@ -991,6 +991,8 @@ public static class DotNetBuild
 			foreach (var (key, value) in pairs)
 				yield return $"-p:{key}={value}";
 		}
+		if (settings.GetBuildNumber() is not null)
+			yield return "-p:ContinuousIntegrationBuild=true";
 	}
 
 	/// <summary>

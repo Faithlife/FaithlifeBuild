@@ -16,12 +16,11 @@
   </PropertyGroup>
 
   <!-- Enforce CI properties -->
-  <PropertyGroup Condition=" '$(BuildNumber)' != '' ">
+  <PropertyGroup Condition=" '$(ContinuousIntegrationBuild)' == 'true' ">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <Target Name="FaithlifeBuildWarnings" BeforeTargets="BeforeBuild">
