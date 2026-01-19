@@ -92,6 +92,23 @@ The supported [`DotNetBuildSettings`](Faithlife.Build/DotNetBuildSettings.md) in
 
 For details on exactly what each target does and how the settings and command-line options affect the build, read the [source code](https://github.com/Faithlife/FaithlifeBuild/blob/master/src/Faithlife.Build/DotNetBuild.cs).
 
+### Automatic MSBuild Properties
+
+When using `DotNetBuild.AddDotNetTargets`,
+`Faithlife.Build` will set the following MSBuild properties automatically; you should not set them in `Project.csproj` or `Directory.Build.props`:
+
+* `AllowedOutputExtensionsInPackageBuildOutputFolder`: set to include `.pdb` files.
+* `AssemblyVersion`: set to `$(VersionPrefix).$(BuildNumber)` if `BuildNumber` is provided.
+* `ContinuousIntegrationBuild`: set to `true` if a CI environment is detected.
+* `PublishRepositoryUrl`: set to `true` to include repository URL in NuGet package metadata.
+
+Additionally, this property and item come from the .NET SDK and should not be set manually:
+
+* `EmbedUntrackedFiles`: set to `true`.
+* `SourceLinkGitHubHost`: `ContentUrl="https://raw.githubusercontent.com"` is added for GitHub.com repositories.
+
+To check the exact MSBuild properties and items being used, read the [`Runtime.Directory.Build.targets` source code](https://github.com/Faithlife/FaithlifeBuild/blob/master/src/Faithlife.Build/Runtime.Directory.Build.targets).
+
 ## Acknowledgements
 
 Special thanks to the libraries and tools used by `Faithlife.Build`:
