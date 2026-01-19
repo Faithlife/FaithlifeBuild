@@ -1,5 +1,16 @@
 # Release Notes
 
+## 5.27.0
+
+* Faithlife.Build now targets .NET 8.0.
+* Automatically set the following MSBuild properties for .NET builds:
+  * `AllowedOutputExtensionsInPackageBuildOutputFolder` to include `.pdb`.
+  * `AssemblyVersion` to `$(VersionPrefix).$(BuildNumber)` if build number is set.
+  * `ContinuousIntegrationBuild` to true if `CI` environment variable is set.
+  * `EmbedUntrackedSources` to true (also set by .NET SDK).
+  * `PublishRepositoryUrl` to true.
+* Issue warnings if some of these properties are already set; they should be deleted from your project.
+
 ## 5.26.2
 
 * Switch from Faithlife.SignTool back to `dotnet sign` for package signing.

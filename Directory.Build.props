@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <VersionPrefix>5.26.2</VersionPrefix>
-    <PackageValidationBaselineVersion>5.26.0</PackageValidationBaselineVersion>
+    <VersionPrefix>5.27.0</VersionPrefix>
+    <PackageValidationBaselineVersion>5.27.0</PackageValidationBaselineVersion>
     <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
