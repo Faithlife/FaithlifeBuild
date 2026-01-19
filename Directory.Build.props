@@ -18,8 +18,6 @@
     <RepositoryUrl>https://github.com/$(GitHubOrganization)/$(RepositoryName).git</RepositoryUrl>
     <Authors>Faithlife</Authors>
     <Copyright>Copyright $(Authors)</Copyright>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest-all</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -34,11 +32,6 @@
     <NuGetAudit>true</NuGetAudit>
     <NuGetAuditMode>all</NuGetAuditMode>
     <NuGetAuditLevel>low</NuGetAuditLevel>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(BuildNumber)' != '' ">
-    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
 </Project>
