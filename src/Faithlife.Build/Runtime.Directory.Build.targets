@@ -22,7 +22,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(BuildNumber)' != '' ">
-    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
   </PropertyGroup>
 
   <Target Name="FaithlifeBuildWarnings" BeforeTargets="BeforeBuild">
