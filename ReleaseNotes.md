@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.27.1
+
+* Faithlife.Build sets the `<FileVersion>` of produced assemblies not the `<AssemblyVersion>`.
+  * This leaves the "Revision Number" of the assembly version at 0.
+
 ## 5.27.0
 
 * Faithlife.Build now targets .NET 8.0.
