@@ -6,7 +6,7 @@
     <PackageVersion Include="Bullseye" Version="6.1.0" />
     <PackageVersion Include="Glob" Version="1.1.9" />
     <PackageVersion Include="LibGit2Sharp" Version="0.31.0" />
-    <PackageVersion Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
+    <PackageVersion Include="McMaster.Extensions.CommandLineUtils" Version="5.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="NuGet.CommandLine" Version="7.0.1" />
     <PackageVersion Include="NuGet.Configuration" Version="7.0.1" />
