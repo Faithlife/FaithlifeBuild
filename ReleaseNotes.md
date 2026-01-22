@@ -1,5 +1,10 @@
 # Release Notes
 
+## 5.28.0
+
+* Add `DotNetBuildSettings.PublishContainer` extension method to publish a Linux Docker container image using the .NET SDK.
+  * Customize container settings with `DotNetPublishContainerSettings`.
+
 ## 5.27.1
 
 * Faithlife.Build sets the `<FileVersion>` of produced assemblies not the `<AssemblyVersion>`.
