@@ -25,6 +25,7 @@
 | class [DotNetLocalTool](./Faithlife.Build/DotNetLocalTool.md) | Provides access to a .NET local tool. |
 | class [DotNetPackageInfo](./Faithlife.Build/DotNetPackageInfo.md) | Information about a NuGet package. |
 | class [DotNetPackageSettings](./Faithlife.Build/DotNetPackageSettings.md) | Settings for creating and publishing NuGet packages. |
+| class [DotNetPublishContainerSettings](./Faithlife.Build/DotNetPublishContainerSettings.md) | Settings for publishing a .NET project to a Linux container. |
 | static class [DotNetRunner](./Faithlife.Build/DotNetRunner.md) | Runs `dotnet` commands. |
 | class [DotNetSigningSettings](./Faithlife.Build/DotNetSigningSettings.md) | Settings for signing NuGet packages. |
 | class [DotNetTestSettings](./Faithlife.Build/DotNetTestSettings.md) | Settings for running .NET tests. |

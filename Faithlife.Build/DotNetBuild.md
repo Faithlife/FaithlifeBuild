@@ -22,6 +22,7 @@ public static class DotNetBuild
 | static [GetPlatformArg](DotNetBuild/GetPlatformArg.md)(…) | Gets the argument that specifies the platform, if needed. |
 | static [GetVerbosity](DotNetBuild/GetVerbosity.md)(…) | Gets the build verbosity. |
 | static [GetVerbosityArg](DotNetBuild/GetVerbosityArg.md)(…) | Gets the argument that specifies the verbosity. |
+| static [PublishContainer](DotNetBuild/PublishContainer.md)(…) | Publishes a .NET project as a container image. |
 | static [RunTests](DotNetBuild/RunTests.md)(…) | Runs tests on the specified paths. (2 methods) |
 
 ## See Also
