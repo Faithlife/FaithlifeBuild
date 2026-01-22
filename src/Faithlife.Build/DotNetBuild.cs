@@ -1072,6 +1072,34 @@ public static class DotNetBuild
 	public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings) => settings.GetExtraPropertyArgs(target);
 
 	/// <summary>
+	/// Publishes a .NET project as a container image.
+	/// </summary>
+	/// <param name="settings">The .NET Build Settings.</param>
+	/// <param name="projectPath">The path to the project to publish.</param>
+	/// <param name="containerSettings">The container publishing settings.</param>
+	public static void PublishContainer(this DotNetBuildSettings settings, string projectPath, DotNetPublishContainerSettings containerSettings)
+	{
+		ArgumentNullException.ThrowIfNull(projectPath);
+		ArgumentNullException.ThrowIfNull(containerSettings);
+
+		using var runtimeTargetsFile = RuntimeTargetsFile.Create();
+		RunDotNet("publish",
+			"--os", "linux",
+			"--arch", "x64",
+			settings.GetBuildNumberArg(),
+			settings.GetContinuousIntegrationBuildArg(),
+			settings.GetVerbosityArg(),
+			settings.GetMaxCpuCountArg(),
+			runtimeTargetsFile.GetBuildArg(),
+			"/t:PublishContainer",
+			containerSettings.Repository is { } repository ? $"-p:ContainerRepository={repository}" : null,
+			containerSettings.Family is { } family ? $"-p:ContainerFamily={family}" : null,
+			containerSettings.Registry is { } registry ? $"-p:ContainerRegistry={registry}" : null,
+			containerSettings.ImageTags is { Count: > 0 } imageTags ? $"-p:ContainerImageTags=\"{string.Join(';', imageTags)}\"" : null,
+			projectPath);
+	}
+
+	/// <summary>
 	/// Gets the argument that enables CI Build settings.
 	/// </summary>
 	private static string? GetContinuousIntegrationBuildArg(this DotNetBuildSettings settings)
