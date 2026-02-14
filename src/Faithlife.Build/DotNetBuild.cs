@@ -568,6 +568,7 @@ public static class DotNetBuild
 									"-tse", trustedSettings.EndpointUrl?.AbsoluteUri ?? throw new BuildException("SigningSettings.TrustedSigningSettings.EndpointUrl is required."),
 									"-tsa", trustedSettings.Account ?? throw new BuildException("SigningSettings.TrustedSigningSettings.Account is required."),
 									"-tscp", trustedSettings.CertificateProfile ?? throw new BuildException("SigningSettings.TrustedSigningSettings.CertificateProfile is required."),
+									"-v", "information",
 									]);
 								break;
 							default:
