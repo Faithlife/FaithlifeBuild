@@ -526,8 +526,10 @@ public static class DotNetBuild
 
 							foreach (var nugetRepository in nugetRepositories)
 							{
+#pragma warning disable CA2025 // Do not pass 'IDisposable' instances into unawaited tasks; this uses GetAwaiter().GetResult()
 								var dependencyInfo = nugetRepository.ResolvePackage(package, NuGetFramework.AnyFramework,
 									sourceCacheContext, NullLogger.Instance, CancellationToken.None).GetAwaiter().GetResult();
+#pragma warning restore CA2025
 								if (dependencyInfo is not null)
 								{
 									Console.WriteLine($"Package already pushed: {packageInfo.Name} {packageInfo.Version}");
