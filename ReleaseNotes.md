@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.28.1
+
+* Reduce verbosity of code signing.
+
 ## 5.28.0
 
 * Add `DotNetBuildSettings.PublishContainer` extension method to publish a Linux Docker container image using the .NET SDK.
