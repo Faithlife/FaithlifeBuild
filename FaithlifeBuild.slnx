@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".github/dependabot.yml" />
+    <File Path=".github/workflows/build.yaml" />
+    <File Path=".gitignore" />
+    <File Path="build.ps1" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+    <File Path="ReleaseNotes.md" />
+  </Folder>
+  <Project Path="src/Faithlife.Build/Faithlife.Build.csproj" />
+  <Project Path="tests/Faithlife.Build.Tests/Faithlife.Build.Tests.csproj" />
+  <Project Path="tools/Build/Build.csproj" />
+  <Project Path="tools/XmlDocGen/XmlDocGen.csproj" />
+</Solution>
