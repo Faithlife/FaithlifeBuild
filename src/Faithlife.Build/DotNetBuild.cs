@@ -795,9 +795,12 @@ public static class DotNetBuild
 			if (Environment.GetEnvironmentVariable("GITHUB_SHA") is not string commitSha)
 				commitSha = GetGitCommitSha();
 
+			const string githubApiVersion = "2022-11-28";
+
 			// create HTTP client and authenticate to GitHub API
 			var httpClient = new HttpClient();
 			httpClient.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+			httpClient.DefaultRequestHeaders.Add("X-GitHub-Api-Version", githubApiVersion);
 			httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 			httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"Faithlife.Build/{Assembly.GetExecutingAssembly().GetName().Version}");
 
