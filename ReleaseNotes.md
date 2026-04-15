@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.28.2
+
+* Update NuGet dependencies to fix low severity vulnerabilities.
+
 ## 5.28.1
 
 * Reduce verbosity of code signing.
