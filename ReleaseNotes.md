@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.28.3
+
+* Include API version when calling GitHub API.
+
 ## 5.28.2
 
 * Update NuGet dependencies to fix low severity vulnerabilities.

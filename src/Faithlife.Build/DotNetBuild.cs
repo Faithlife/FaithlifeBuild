@@ -798,6 +798,7 @@ public static class DotNetBuild
 			// create HTTP client and authenticate to GitHub API
 			var httpClient = new HttpClient();
 			httpClient.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+			httpClient.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2022-11-28");
 			httpClient.DefaultRequestHeaders.Authorization = authenticationHeader;
 			httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"Faithlife.Build/{Assembly.GetExecutingAssembly().GetName().Version}");
 
