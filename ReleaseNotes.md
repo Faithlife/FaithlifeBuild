@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.29.0
+
+* Add opt-in `coverage` target support through `DotNetBuildSettings.CoverageSettings`.
+
 ## 5.28.3
 
 * Include API version when calling GitHub API.
