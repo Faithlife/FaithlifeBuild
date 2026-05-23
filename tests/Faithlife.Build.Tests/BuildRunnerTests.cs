@@ -44,6 +44,74 @@ internal sealed class BuildRunnerTests
 	}
 
 	[Test]
+	public void DotNetTargetsOmitCoverageByDefault()
+	{
+		using var output = new StringWriter();
+		Console.SetOut(output);
+
+		Assert.That(BuildRunner.Execute([], build =>
+		{
+			build.AddDotNetTargets(new DotNetBuildSettings { SolutionName = "Test.sln" });
+		}), Is.Zero);
+		Assert.That(output.ToString(), Does.Not.Contain("coverage"));
+	}
+
+	[Test]
+	public void DotNetTargetsIncludeCoverageWhenConfigured()
+	{
+		using var output = new StringWriter();
+		Console.SetOut(output);
+
+		Assert.That(BuildRunner.Execute([], build =>
+		{
+			build.AddDotNetTargets(new DotNetBuildSettings
+			{
+				CoverageSettings = new DotNetCoverageSettings(),
+				SolutionName = "Test.sln",
+			});
+		}), Is.Zero);
+		Assert.That(output.ToString(), Does.Match("coverage\\s+Runs tests with coverage and generates coverage reports"));
+	}
+
+	[Test]
+	public void DotNetBuildSettingsCloneClonesCoverageSettings()
+	{
+		var settings = new DotNetBuildSettings
+		{
+			CoverageSettings = new DotNetCoverageSettings { TargetFramework = "net10.0" },
+		};
+
+		var clone = settings.Clone();
+
+		Assert.That(clone.CoverageSettings, Is.Not.Null);
+		Assert.That(clone.CoverageSettings, Is.Not.SameAs(settings.CoverageSettings));
+		Assert.That(clone.CoverageSettings!.TargetFramework, Is.EqualTo("net10.0"));
+	}
+
+	[Test]
+	public void CoverageRunSettingsDefaultToCoverageRunSettingsWhenPresent()
+	{
+		var currentDirectory = Environment.CurrentDirectory;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			Environment.CurrentDirectory = tempDirectory;
+			Assert.That(new DotNetCoverageSettings().GetCoverageRunSettingsPath(), Is.Null);
+
+			File.WriteAllText("coverage.runsettings", "<RunSettings />");
+			Assert.That(new DotNetCoverageSettings().GetCoverageRunSettingsPath(), Is.EqualTo("coverage.runsettings"));
+			Assert.That(new DotNetCoverageSettings { RunSettingsPath = "custom.runsettings" }.GetCoverageRunSettingsPath(), Is.EqualTo("custom.runsettings"));
+		}
+		finally
+		{
+			Environment.CurrentDirectory = currentDirectory;
+			Directory.Delete(tempDirectory, recursive: true);
+		}
+	}
+
+	[Test]
 	public void PrintsCustomTargets()
 	{
 		using var output = new StringWriter();

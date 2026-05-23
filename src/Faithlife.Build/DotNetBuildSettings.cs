@@ -50,6 +50,11 @@ public sealed class DotNetBuildSettings
 	public DotNetTestSettings? TestSettings { get; set; }
 
 	/// <summary>
+	/// Settings for running unit tests with coverage.
+	/// </summary>
+	public DotNetCoverageSettings? CoverageSettings { get; set; }
+
+	/// <summary>
 	/// Settings for creating and publishing NuGet packages.
 	/// </summary>
 	public DotNetPackageSettings? PackageSettings { get; set; }
@@ -74,7 +79,7 @@ public sealed class DotNetBuildSettings
 	/// A function that returns any extra properties for the specified build target.
 	/// </summary>
 	/// <remarks>Supported build targets include <c>clean</c>, <c>restore</c>, <c>build</c>, <c>test</c>,
-	/// and <c>package</c>.</remarks>
+	/// <c>coverage</c>, and <c>package</c>.</remarks>
 	public Func<string, IEnumerable<(string Key, string Value)>>? ExtraProperties { get; set; }
 
 	/// <summary>
@@ -113,6 +118,7 @@ public sealed class DotNetBuildSettings
 		clone.DocsSettings = clone.DocsSettings?.Clone();
 		clone.MSBuildSettings = clone.MSBuildSettings?.Clone();
 		clone.TestSettings = clone.TestSettings?.Clone();
+		clone.CoverageSettings = clone.CoverageSettings?.Clone();
 		clone.PackageSettings = clone.PackageSettings?.Clone();
 		clone.CleanSettings = clone.CleanSettings?.Clone();
 #pragma warning disable 618

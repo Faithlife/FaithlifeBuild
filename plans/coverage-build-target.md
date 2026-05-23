@@ -13,11 +13,11 @@ Add an opt-in standard `coverage` target to `DotNetBuild.AddDotNetTargets` when 
 ```csharp
 var settings = new DotNetBuildSettings
 {
-	CoverageSettings = new DotNetCoverageSettings
-	{
-		TargetFramework = "net10.0",
-		AssemblyFilters = ["+MuchAdo*", "-*.Tests"],
-	},
+    CoverageSettings = new DotNetCoverageSettings
+    {
+        TargetFramework = "net10.0",
+        AssemblyFilters = ["+MuchAdo*", "-*.Tests"],
+    },
 };
 ```
 
@@ -30,14 +30,14 @@ Add `DotNetCoverageSettings` with narrowly scoped defaults that match the MuchAd
 ```csharp
 public sealed class DotNetCoverageSettings
 {
-	public Func<DotNetBuildSettings, IReadOnlyList<string>>? FindProjects { get; set; }
-	public string? TargetFramework { get; set; }
-	public string? RunSettingsPath { get; set; }
-	public string? TestResultsDirectory { get; set; }
-	public string? ReportDirectory { get; set; }
-	public IReadOnlyList<string>? AssemblyFilters { get; set; }
-	public IReadOnlyList<string>? ReportTypes { get; set; }
-	public DotNetCoverageSettings Clone() => (DotNetCoverageSettings) MemberwiseClone();
+    public Func<DotNetBuildSettings, IReadOnlyList<string>>? FindProjects { get; set; }
+    public string? TargetFramework { get; set; }
+    public string? RunSettingsPath { get; set; }
+    public string? TestResultsDirectory { get; set; }
+    public string? ReportDirectory { get; set; }
+    public IReadOnlyList<string>? AssemblyFilters { get; set; }
+    public IReadOnlyList<string>? ReportTypes { get; set; }
+    public DotNetCoverageSettings Clone() => (DotNetCoverageSettings) MemberwiseClone();
 }
 ```
 
@@ -70,10 +70,10 @@ Register the target inside `AddDotNetTargets` after `test` and before `package`:
 ```csharp
 if (settings.CoverageSettings is not null)
 {
-	build.Target("coverage")
-		.DependsOn("build")
-		.Describe("Runs tests with coverage and generates coverage reports")
-		.Does(() => settings.RunCoverage());
+    build.Target("coverage")
+        .DependsOn("build")
+        .Describe("Runs tests with coverage and generates coverage reports")
+        .Does(() => settings.RunCoverage());
 }
 ```
 
@@ -108,13 +108,13 @@ After FaithlifeBuild ships the target, MuchAdo could replace its custom `coverag
 ```csharp
 var buildSettings = new DotNetBuildSettings
 {
-	NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
-	PackageSettings = new DotNetPackageSettings { PushTagOnPublish = x => $"v{x.Version}" },
-	CoverageSettings = new DotNetCoverageSettings
-	{
-		TargetFramework = "net10.0",
-		AssemblyFilters = ["+MuchAdo*", "-*.Tests"],
-	},
+    NuGetApiKey = Environment.GetEnvironmentVariable("NUGET_API_KEY"),
+    PackageSettings = new DotNetPackageSettings { PushTagOnPublish = x => $"v{x.Version}" },
+    CoverageSettings = new DotNetCoverageSettings
+    {
+        TargetFramework = "net10.0",
+        AssemblyFilters = ["+MuchAdo*", "-*.Tests"],
+    },
 };
 ```
 

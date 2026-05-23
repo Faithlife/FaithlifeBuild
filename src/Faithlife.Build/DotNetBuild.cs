@@ -123,6 +123,14 @@ public static class DotNetBuild
 				}
 			});
 
+		if (settings.CoverageSettings is not null)
+		{
+			build.Target("coverage")
+				.DependsOn("build")
+				.Describe("Runs tests with coverage and generates coverage reports")
+				.Does(settings.RunCoverage);
+		}
+
 		build.Target("package")
 			.DependsOn("test")
 			.Describe("Creates NuGet packages")
@@ -1001,6 +1009,82 @@ public static class DotNetBuild
 	}
 
 	/// <summary>
+	/// Runs tests with coverage and generates coverage reports.
+	/// </summary>
+	public static void RunCoverage(this DotNetBuildSettings settings)
+	{
+		ArgumentNullException.ThrowIfNull(settings);
+
+		var coverageSettings = settings.CoverageSettings ?? throw new BuildException("CoverageSettings must be set to run coverage.");
+		var coverageTestResultsDirectory = GetCoverageTestResultsDirectory(coverageSettings);
+		var coverageReportDirectory = GetCoverageReportDirectory(coverageSettings);
+		var coverageRunSettings = coverageSettings.GetCoverageRunSettingsPath();
+
+		CleanCoverageDirectory(coverageTestResultsDirectory);
+		CleanCoverageDirectory(coverageReportDirectory);
+
+		foreach (var project in settings.FindCoverageProjects())
+		{
+			RunDotNet([
+				"test",
+				project,
+				"-c",
+				settings.GetConfiguration(),
+				settings.GetPlatformArg(),
+				settings.GetBuildNumberArg(),
+				"--no-build",
+				settings.GetVerbosityArg(),
+				settings.GetMaxCpuCountArg(),
+				.. settings.GetExtraPropertyArgs("coverage"),
+				.. GetCoverageFrameworkArgs(coverageSettings),
+				"--results-directory",
+				coverageTestResultsDirectory,
+				"--logger",
+				$"trx;LogFileName={Path.GetFileNameWithoutExtension(project)}.coverage.trx",
+				"--collect",
+				"XPlat Code Coverage",
+				.. GetCoverageRunSettingsArgs(coverageRunSettings),
+				"--",
+				"RunConfiguration.TreatNoTestsAsError=true",
+			]);
+		}
+
+		RunDotNet([
+			"dnx",
+			"dotnet-reportgenerator-globaltool",
+			"--yes",
+			$"-reports:{coverageTestResultsDirectory}/*/coverage.cobertura.xml",
+			$"-targetdir:{coverageReportDirectory}",
+			$"-reporttypes:{GetCoverageReportTypes(coverageSettings)}",
+			.. GetCoverageAssemblyFilterArgs(coverageSettings),
+		]);
+
+		WriteCoverageSummary(coverageReportDirectory);
+	}
+
+	/// <summary>
+	/// Finds projects to test with coverage.
+	/// </summary>
+	public static IReadOnlyList<string> FindCoverageProjects(this DotNetBuildSettings settings)
+	{
+		ArgumentNullException.ThrowIfNull(settings);
+
+		return settings.CoverageSettings?.FindProjects?.Invoke(settings) ??
+			[.. FindFiles("tests/**/*.csproj").Order(StringComparer.OrdinalIgnoreCase)];
+	}
+
+	/// <summary>
+	/// Gets the run settings path to use for coverage, if any.
+	/// </summary>
+	public static string? GetCoverageRunSettingsPath(this DotNetCoverageSettings settings)
+	{
+		ArgumentNullException.ThrowIfNull(settings);
+
+		const string defaultRunSettingsPath = "coverage.runsettings";
+		return settings.RunSettingsPath ?? (File.Exists(defaultRunSettingsPath) ? defaultRunSettingsPath : null);
+	}
+
+	/// <summary>
 	/// Runs tests on the specified paths.
 	/// </summary>
 	/// <remarks>Calls <c>RunTests</c> on each path, in parallel if <c>UseParallel</c> is true.</remarks>
@@ -1074,6 +1158,45 @@ public static class DotNetBuild
 	/// </summary>
 	[Obsolete("Use other overload.")]
 	public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings) => settings.GetExtraPropertyArgs(target);
+
+	private static void CleanCoverageDirectory(string path)
+	{
+		if (Directory.Exists(path))
+			Directory.Delete(path, recursive: true);
+		Directory.CreateDirectory(path);
+	}
+
+	private static IEnumerable<string> GetCoverageAssemblyFilterArgs(DotNetCoverageSettings settings) =>
+		settings.AssemblyFilters is { Count: not 0 } assemblyFilters ? [$"-assemblyfilters:{string.Join(";", assemblyFilters)}"] : [];
+
+	private static IEnumerable<string> GetCoverageFrameworkArgs(DotNetCoverageSettings settings) =>
+		!string.IsNullOrWhiteSpace(settings.TargetFramework) ? ["--framework", settings.TargetFramework] : [];
+
+	private static string GetCoverageReportDirectory(DotNetCoverageSettings settings) =>
+		!string.IsNullOrWhiteSpace(settings.ReportDirectory) ? settings.ReportDirectory : "artifacts/Coverage/Report";
+
+	private static string GetCoverageReportTypes(DotNetCoverageSettings settings) =>
+		settings.ReportTypes is { Count: not 0 } reportTypes ? string.Join(";", reportTypes) : "Html;Cobertura;TextSummary;MarkdownAssembliesSummary";
+
+	private static IEnumerable<string> GetCoverageRunSettingsArgs(string? runSettingsPath) =>
+		!string.IsNullOrWhiteSpace(runSettingsPath) ? ["--settings", runSettingsPath] : [];
+
+	private static string GetCoverageTestResultsDirectory(DotNetCoverageSettings settings) =>
+		!string.IsNullOrWhiteSpace(settings.TestResultsDirectory) ? settings.TestResultsDirectory : "artifacts/Coverage/TestResults";
+
+	private static void WriteCoverageSummary(string coverageReportDirectory)
+	{
+		var textSummaryPath = Path.Combine(coverageReportDirectory, "Summary.txt");
+		if (File.Exists(textSummaryPath))
+			Console.WriteLine(File.ReadAllText(textSummaryPath));
+
+		var githubStepSummaryPath = Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY");
+		var markdownSummaryPath = Path.Combine(coverageReportDirectory, "Summary.md");
+		if (!string.IsNullOrWhiteSpace(githubStepSummaryPath) && File.Exists(markdownSummaryPath))
+			File.AppendAllText(githubStepSummaryPath, File.ReadAllText(markdownSummaryPath));
+
+		Console.WriteLine($"Coverage report: {Path.GetFullPath(coverageReportDirectory)}");
+	}
 
 	/// <summary>
 	/// Publishes a .NET project as a container image.
