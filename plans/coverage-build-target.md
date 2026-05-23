@@ -84,8 +84,9 @@ The implementation should factor the work into reusable helpers on `DotNetBuild`
 * `RunCoverage(this DotNetBuildSettings settings)`
 * `FindCoverageProjects(this DotNetBuildSettings settings)`
 * `GetCoverageRunSettingsPath(DotNetCoverageSettings settings)`
-* `CleanCoverageDirectory(string path)` or a private helper inside `RunCoverage`
 * `WriteCoverageSummary(DotNetCoverageSettings settings)`
+
+The target should not recursively delete configured coverage directories. Instead, create a fresh subdirectory under `TestResultsDirectory` for each run so ReportGenerator only reads current coverage files, and create or update `ReportDirectory` without deleting it.
 
 The core command sequence should mirror MuchAdo:
 
@@ -137,7 +138,7 @@ Repos with Docker-specific test subsets can still keep custom targets such as Mu
 * Unit test `DotNetBuildSettings.Clone` copies `CoverageSettings`.
 * Unit test that `RunSettingsPath` defaults to `coverage.runsettings` when that file exists and is omitted otherwise.
 * Add command-construction coverage if the test harness is extended to intercept `RunDotNet` calls; otherwise keep command behavior covered by a small sample consumer or integration-style build script test.
-* Manually validate with a consumer such as MuchAdo: run `./build.ps1 coverage --skip build`, confirm test results under `artifacts/Coverage/TestResults`, reports under `artifacts/Coverage/Report`, console summary output, and markdown assemblies summary output in CI.
+* Manually validate with a consumer such as MuchAdo: run `./build.ps1 coverage --skip build`, confirm test results under a fresh `artifacts/Coverage/TestResults` subdirectory, reports under `artifacts/Coverage/Report`, console summary output, and markdown assemblies summary output in CI.
 
 ## Settled Decisions
 

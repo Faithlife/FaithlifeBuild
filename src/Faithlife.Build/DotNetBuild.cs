@@ -1016,12 +1016,12 @@ public static class DotNetBuild
 		ArgumentNullException.ThrowIfNull(settings);
 
 		var coverageSettings = settings.CoverageSettings ?? throw new BuildException("CoverageSettings must be set to run coverage.");
-		var coverageTestResultsDirectory = GetCoverageTestResultsDirectory(coverageSettings);
+		var coverageTestResultsDirectory = Path.Combine(GetCoverageTestResultsDirectory(coverageSettings), Path.GetRandomFileName());
 		var coverageReportDirectory = GetCoverageReportDirectory(coverageSettings);
 		var coverageRunSettings = coverageSettings.GetCoverageRunSettingsPath();
 
-		CleanCoverageDirectory(coverageTestResultsDirectory);
-		CleanCoverageDirectory(coverageReportDirectory);
+		Directory.CreateDirectory(coverageTestResultsDirectory);
+		Directory.CreateDirectory(coverageReportDirectory);
 
 		foreach (var project in settings.FindCoverageProjects())
 		{
@@ -1158,13 +1158,6 @@ public static class DotNetBuild
 	/// </summary>
 	[Obsolete("Use other overload.")]
 	public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings) => settings.GetExtraPropertyArgs(target);
-
-	private static void CleanCoverageDirectory(string path)
-	{
-		if (Directory.Exists(path))
-			Directory.Delete(path, recursive: true);
-		Directory.CreateDirectory(path);
-	}
 
 	private static IEnumerable<string> GetCoverageAssemblyFilterArgs(DotNetCoverageSettings settings) =>
 		settings.AssemblyFilters is { Count: not 0 } assemblyFilters ? [$"-assemblyfilters:{string.Join(";", assemblyFilters)}"] : [];
