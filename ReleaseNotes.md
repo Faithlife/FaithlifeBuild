@@ -1,6 +1,6 @@
 # Release Notes
 
-## 5.28.4
+## 5.29.0
 
 * Add opt-in `coverage` target support through `DotNetBuildSettings.CoverageSettings`.
 
