@@ -2,9 +2,7 @@
 
 **Faithlife.Build** is a build automation system using C# build scripts.
 
-[![Build](https://github.com/Faithlife/FaithlifeBuild/workflows/Build/badge.svg)](https://github.com/Faithlife/FaithlifeBuild/actions?query=workflow%3ABuild) [![NuGet](https://img.shields.io/nuget/v/Faithlife.Build.svg)](https://www.nuget.org/packages/Faithlife.Build)
-
-[Release Notes](./ReleaseNotes.md) | [Contributing](./CONTRIBUTING.md)
+[![NuGet](https://img.shields.io/nuget/v/Faithlife.Build.svg)](https://www.nuget.org/packages/Faithlife.Build)
 
 ## Overview
 
@@ -122,7 +120,7 @@ Additionally, this property and item come from the .NET SDK and should not be se
 
 To check the exact MSBuild properties and items being used, read the [Runtime.Directory.Build.targets source code](./src/Faithlife.Build/Runtime.Directory.Build.targets).
 
-## Coverage
+### Coverage
 
 Set `DotNetBuildSettings.CoverageSettings` to add a standard `coverage` target that runs test projects under `tests/**/*.csproj` with Coverlet and generates reports with `dotnet dnx dotnet-reportgenerator-globaltool`.
 
@@ -139,6 +137,10 @@ build.AddDotNetTargets(new DotNetBuildSettings
 
 The target writes test results under `artifacts/Coverage/TestResults`, writes reports to `artifacts/Coverage/Report`, and uses `coverage.runsettings` automatically when that file exists. Each run uses a fresh test-results subdirectory so stale coverage files are not included, but the target does not delete configured coverage directories.
 
+## Contributing
+
+See [Contributing](./CONTRIBUTING.md) for setup and contribution guidelines. For a history of notable changes, see the [Release Notes](./ReleaseNotes.md).
+
 ## Acknowledgements
 
 Special thanks to the libraries and tools used by `Faithlife.Build`:
@@ -149,6 +151,5 @@ Special thanks to the libraries and tools used by `Faithlife.Build`:
 * [McMaster.Extensions.CommandLineUtils](https://github.com/natemcmaster/CommandLineUtils)
 * [Polly](https://github.com/App-vNext/Polly)
 * [SimpleExec](https://github.com/adamralph/simple-exec)
-* [XmlDocMarkdown](http://ejball.com/XmlDocMarkdown/)
 
 Also thanks to Paul Knopf for [this article](https://pknopf.com/post/2019-03-10-you-dont-need-cake-anymore-the-way-to-build-dotnet-projects-going-forward/), which inspired us to think beyond Cake.
