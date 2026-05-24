@@ -12,7 +12,6 @@ The goal is to preserve the single-source README workflow while making the packa
 - Make every link in the packaged README valid from nuget.org.
 - Avoid hand-maintaining a second near-duplicate README unless there is a strong reason.
 - Centralize the solution so other repositories can opt in with a small, obvious configuration change.
-- Add validation so future relative links do not silently regress package rendering.
 
 ## Option 1: Generate a NuGet-specific README during pack
 
@@ -33,7 +32,6 @@ Recommended implementation details:
 - Resolve relative paths from the README file's directory, normalize `.` and `..`, and preserve any fragment or query string.
 - Prefer immutable commit URLs using the source revision when available; fall back to the repository's default branch when building without source revision metadata.
 - Use `blob` URLs for files and `tree` URLs for directories when the target exists in the working tree.
-- Fail the package target if the generated README still contains repo-relative links, except for explicitly allowed same-document anchors.
 
 Extensibility path:
 
@@ -111,60 +109,173 @@ Cons:
 
 This is only worth considering if multiple repositories already need more substantial README generation.
 
-## Option 5: Add validation only
-
-Keep the existing package README setup but add a package validation step that fails when `PackageReadmeFile` content contains relative links that nuget.org cannot resolve.
-
-Pros:
-
-- Cheap guardrail.
-- Useful with any other option.
-- Makes the problem visible before publishing.
-
-Cons:
-
-- Does not fix links by itself.
-- Can push developers toward manual absolute-link edits unless paired with generation.
-
-This should be part of the final solution, but not the whole solution.
-
 ## Recommendation
 
-Implement Option 1, with Option 5 as a required validation layer.
+Implement Option 1.
 
-Start with an opt-in generated package README for this repository. Once the behavior is proven, move the transform and validation into shared Faithlife.Build packaging infrastructure so other repositories can adopt it with minimal project-file changes.
+Start with an opt-in generated package README for this repository. Once the behavior is proven, move the transform into shared Faithlife.Build packaging infrastructure so other repositories can adopt it with minimal project-file changes.
+
+## Implementation Spec
+
+The shared implementation should have two pieces: a link rewriter and an MSBuild integration point.
+
+The link rewriter should accept these inputs:
+
+- `SourceFile`: the authored README, usually the repository root `README.md`.
+- `OutputFile`: the generated README that will be packed into the NuGet package.
+- `RepositoryUrl`: the canonical GitHub repository URL, preferably inferred from `RepositoryUrl` or `PackageProjectUrl` metadata.
+- `GitRef`: the commit SHA, tag, or branch used in generated GitHub URLs.
+- `RepositoryRoot`: the repository root used to calculate the path portion of generated GitHub URLs. Relative Markdown links are resolved from the source README directory first, then made relative to this root.
+
+The link rewriter should produce a byte-for-byte normal Markdown file except for rewritten link destinations. It should rewrite Markdown inline links, image links, and reference-style link definitions. It should not rewrite links inside code spans or fenced code blocks.
+
+Recommended rewrite rules:
+
+- Leave absolute URIs unchanged, including `http`, `https`, `mailto`, and protocol-relative URLs.
+- Leave same-document anchors unchanged, such as `#create-net-targets`.
+- Leave NuGet-supported package-relative image assets unchanged only if they are intentionally packed with the README; otherwise rewrite them like other repository-relative paths.
+- Rewrite root-relative and dot-relative repository paths to GitHub URLs.
+- Preserve fragments and query strings after rewriting the path.
+- Use a `blob` URL when the resolved target is a file.
+- Use a `tree` URL when the resolved target is a directory.
+- Use a `blob` URL when the target does not exist locally but has a file-like extension; otherwise use `tree` as the conservative fallback.
+
+The MSBuild integration should run before NuGet generates the package manifest, not after `dotnet pack` has already assembled package contents. A target such as `GenerateNuGetPackageReadme` can create the generated file, add it to the package root, and keep `PackageReadmeFile` set to `README.md` because NuGet expects that property to be the path inside the package.
+
+Sketch:
+
+```xml
+<Target Name="GenerateNuGetPackageReadme" BeforeTargets="GenerateNuspec" Condition="'$(GenerateNuGetPackageReadme)' == 'true'">
+  <PropertyGroup>
+    <PackageReadmeSourceFile Condition="'$(PackageReadmeSourceFile)' == ''">$(MSBuildProjectDirectory)\$(PackageReadmeFile)</PackageReadmeSourceFile>
+    <PackageReadmeRepositoryRoot Condition="'$(PackageReadmeRepositoryRoot)' == ''">$([System.IO.Path]::GetDirectoryName('$(PackageReadmeSourceFile)'))</PackageReadmeRepositoryRoot>
+    <GeneratedNuGetPackageReadmeFile>$(IntermediateOutputPath)PackageReadme\README.md</GeneratedNuGetPackageReadmeFile>
+  </PropertyGroup>
+
+  <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(GeneratedNuGetPackageReadmeFile)'))" />
+
+  <RewritePackageReadmeLinks
+      SourceFile="$(PackageReadmeSourceFile)"
+      OutputFile="$(GeneratedNuGetPackageReadmeFile)"
+      RepositoryRoot="$(PackageReadmeRepositoryRoot)"
+      RepositoryUrl="$(RepositoryUrl)"
+      GitRef="$(PackageReadmeGitRef)" />
+
+  <ItemGroup>
+    <None Include="$(GeneratedNuGetPackageReadmeFile)" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+</Target>
+```
+
+The exact target and property names can change during implementation, but the important shape is that projects opt in with a property, the generated file is the file packed at `README.md`, and the authored repository README remains the source file.
 
 ## Proposed Phases
 
 ### Phase 1: Prototype in this repository
 
-- Add a package README generation step before `dotnet pack`.
-- Generate `artifacts/PackageReadme/Faithlife.Build/README.md` from the root `README.md`.
-- Rewrite only Markdown link/image destinations that are repository-relative paths.
-- Point `PackageReadmeFile` at the generated README for the package.
-- Add validation that fails if unsupported relative links remain.
-- Inspect the generated `.nupkg` to confirm the packaged README contains absolute links.
+Implement the feature locally in `Faithlife.Build` before generalizing it.
+
+- Add a small README rewrite utility in the build code path. For the prototype, this can be a private helper or MSBuild task invoked only by this package.
+- Use a Markdown parser so the implementation walks links and images in the parsed document instead of searching the whole README text.
+- Generate `artifacts/PackageReadme/Faithlife.Build/README.md` or an equivalent intermediate output from the root `README.md`.
+- Derive the GitHub base URL from the existing `GitHubOrganization`, `RepositoryName`, and `RepositoryUrl` properties.
+- Derive the Git ref from Source Link/source revision metadata when available; use `master` as the local fallback for this repository.
+- Update `src/Faithlife.Build/Faithlife.Build.csproj` so the generated README is the file packed at the package root as `README.md`.
+- Build a local package and inspect the `.nupkg` contents to confirm `README.md` is generated and its source-code links point at GitHub.
+
+Example prototype usage in this repository:
+
+```xml
+<PropertyGroup>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <GenerateNuGetPackageReadme>true</GenerateNuGetPackageReadme>
+  <PackageReadmeSourceFile>$(MSBuildProjectDirectory)\..\..\README.md</PackageReadmeSourceFile>
+</PropertyGroup>
+```
+
+After `dotnet pack`, the package should contain `README.md`, but that file should be generated from the repository README and contain links like:
+
+```md
+[BuildApp](https://github.com/Faithlife/FaithlifeBuild/blob/<revision>/src/Faithlife.Build/BuildApp.cs)
+```
 
 ### Phase 2: Harden link handling
 
-- Support inline links, images, reference links, and collapsed/full reference definitions.
-- Preserve anchors, query strings, and URL encoding.
+Turn the prototype into production-quality behavior.
+
+- Support inline links, image links, shortcut references, collapsed references, full reference definitions, and autolinks when the parser exposes them as link nodes.
+- Preserve anchors, query strings, URL encoding, and original link text.
+- Normalize Windows and POSIX path separators before generating GitHub URLs.
+- Avoid rewriting links inside code spans, fenced code blocks, HTML blocks, and raw HTML attributes unless a later requirement explicitly needs HTML handling.
 - Distinguish existing files from directories for `blob` versus `tree` URLs.
-- Add tests covering common README link forms and false positives such as code blocks.
+- Add unit tests for common README link forms, false positives, missing targets, fragments, spaces in paths, and source READMEs that live below the repository root.
+- Add an integration test that packs a sample project and opens the `.nupkg` to verify the generated README is the packaged README.
+
+Useful test examples:
+
+```md
+[source](./src/Project/Class.cs)
+[folder](./src/Project)
+[with anchor](./README.md#usage)
+![diagram](./docs/diagram.png)
+[ref]: ./CONTRIBUTING.md
+```
+
+Expected output should preserve Markdown shape while changing only the relative destinations.
 
 ### Phase 3: Make it reusable
 
-- Move the generator into Faithlife.Build or a small shared build tool.
-- Expose MSBuild/build settings for source README, output path, repository URL, git ref, and validation behavior.
+Move the hardened implementation into shared Faithlife.Build packaging infrastructure.
+
+- Ship the MSBuild target in the Faithlife.Build package alongside existing build assets.
+- Ship the rewrite task in an assembly that the target can load without each repository adding a new package reference.
+- Expose MSBuild/build settings for source README, generated output path, repository URL, git ref, and repository root.
 - Document the opt-in configuration for repositories that reuse their root README as `PackageReadmeFile`.
-- Add a convention-based default for repositories with `GitHubOrganization`, `RepositoryName`, `RepositoryUrl`, and Source Link metadata.
+- Add convention-based defaults for repositories with `GitHubOrganization`, `RepositoryName`, `RepositoryUrl`, and Source Link metadata.
+- Keep project-level customization small; most repositories should only set `GenerateNuGetPackageReadme` and, when needed, `PackageReadmeSourceFile`.
+
+Example consumer project after the shared target exists:
+
+```xml
+<PropertyGroup>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <GenerateNuGetPackageReadme>true</GenerateNuGetPackageReadme>
+</PropertyGroup>
+```
+
+Example for a package project below `src/` that uses the root README:
+
+```xml
+<PropertyGroup>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <GenerateNuGetPackageReadme>true</GenerateNuGetPackageReadme>
+  <PackageReadmeSourceFile>$(MSBuildProjectDirectory)\..\..\README.md</PackageReadmeSourceFile>
+</PropertyGroup>
+```
+
+Example for a repository that wants branch-based links instead of commit-based links in local packages:
+
+```xml
+<PropertyGroup>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+  <GenerateNuGetPackageReadme>true</GenerateNuGetPackageReadme>
+  <PackageReadmeGitRef>master</PackageReadmeGitRef>
+</PropertyGroup>
+```
 
 ### Phase 4: Adopt broadly
 
-- Find repositories that pack `README.md` as `PackageReadmeFile`.
-- Enable the shared setting in each repository.
-- Publish prerelease packages or inspect generated packages to verify nuget.org-ready README output.
-- Consider making the option default for Faithlife.Build-based repositories after adoption is smooth.
+Roll the shared behavior out to other repositories that have the same README reuse pattern.
+
+- Find repositories that pack `README.md` as `PackageReadmeFile`, especially those using a root README from a package project under `src/`.
+- Enable the shared setting in each repository with the smallest possible project-file change.
+- Build packages locally and inspect generated package READMEs before publishing.
+- Update repository templates or coding guidelines so new packages can opt in from the start.
+- Consider making the option default for Faithlife.Build-based repositories after enough packages have adopted it without surprises.
 
 ## Acceptance Criteria
 
@@ -172,5 +283,4 @@ Start with an opt-in generated package README for this repository. Once the beha
 - The `.nupkg` contains a README whose repository-relative links are absolute GitHub URLs.
 - Same-document anchors still work in both GitHub and NuGet rendering.
 - External links are unchanged.
-- The package build fails when unsupported relative links remain in the generated package README.
 - Another repository can adopt the behavior through documented build/MSBuild settings without copying custom code.
