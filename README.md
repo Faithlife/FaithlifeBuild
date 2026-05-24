@@ -67,7 +67,7 @@ The supported targets include:
 * `restore` : Restores NuGet packages.
 * `build` : Builds the solution.
 * `test` : Runs the unit tests.
-* `coverage` : Runs tests with coverage and generates coverage reports, if coverage settings are configured.
+* `coverage` : Runs tests with coverage and generates coverage reports, if coverage settings are configured or `coverage.runsettings` exists.
 * `package` : Builds NuGet packages.
 * `publish` : Publishes NuGet packages and documentation.
 * `cleanup` : Runs JetBrains CleanupCode if `jetbrains.resharper.globaltools` is installed as a local or global tool, or if solution settings are present.
@@ -122,7 +122,7 @@ To check the exact MSBuild properties and items being used, read the [Runtime.Di
 
 ### Coverage
 
-Set `DotNetBuildSettings.CoverageSettings` to add a standard `coverage` target that runs test projects under `tests/**/*.csproj` with Coverlet and generates reports with `dotnet dnx dotnet-reportgenerator-globaltool`.
+Set `DotNetBuildSettings.CoverageSettings`, or place `coverage.runsettings` in the working directory, to add a standard `coverage` target that runs test projects under `tests/**/*.csproj` with Coverlet and generates reports with `dotnet dnx dotnet-reportgenerator-globaltool`.
 
 ```csharp
 build.AddDotNetTargets(new DotNetBuildSettings
@@ -130,12 +130,11 @@ build.AddDotNetTargets(new DotNetBuildSettings
 	CoverageSettings = new DotNetCoverageSettings
 	{
 		TargetFramework = "net10.0",
-		AssemblyFilters = ["+MyProject*", "-*.Tests"],
 	},
 });
 ```
 
-The target writes test results under `artifacts/Coverage/TestResults`, writes reports to `artifacts/Coverage/Report`, and uses `coverage.runsettings` automatically when that file exists. Each run uses a fresh test-results subdirectory so stale coverage files are not included, but the target does not delete configured coverage directories.
+The target writes test results under `artifacts/Coverage/TestResults`, writes reports to `artifacts/Coverage/Report`, and uses `coverage.runsettings` automatically when that file exists. Each run uses a fresh test-results subdirectory so stale coverage files are not included.
 
 ## Contributing
 

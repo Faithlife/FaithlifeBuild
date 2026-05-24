@@ -123,7 +123,7 @@ public static class DotNetBuild
 				}
 			});
 
-		if (settings.CoverageSettings is not null)
+		if (settings.CoverageSettings is not null || File.Exists(c_coverageRunSettingsPath))
 		{
 			build.Target("coverage")
 				.DependsOn("build")
@@ -1015,10 +1015,10 @@ public static class DotNetBuild
 	{
 		ArgumentNullException.ThrowIfNull(settings);
 
-		var coverageSettings = settings.CoverageSettings ?? throw new BuildException("CoverageSettings must be set to run coverage.");
-		var coverageTestResultsDirectory = Path.Combine(GetCoverageTestResultsDirectory(coverageSettings), Path.GetRandomFileName());
-		var coverageReportDirectory = GetCoverageReportDirectory(coverageSettings);
-		var coverageRunSettings = coverageSettings.GetCoverageRunSettingsPath();
+		var coverageSettings = settings.CoverageSettings ?? new DotNetCoverageSettings();
+		var coverageTestResultsDirectory = Path.Combine("artifacts/Coverage/TestResults", Path.GetRandomFileName());
+		var coverageReportDirectory = "artifacts/Coverage/Report";
+		var coverageRunSettings = File.Exists(c_coverageRunSettingsPath) ? c_coverageRunSettingsPath : null;
 
 		Directory.CreateDirectory(coverageTestResultsDirectory);
 		Directory.CreateDirectory(coverageReportDirectory);
@@ -1055,8 +1055,7 @@ public static class DotNetBuild
 			"--yes",
 			$"-reports:{coverageTestResultsDirectory}/*/coverage.cobertura.xml",
 			$"-targetdir:{coverageReportDirectory}",
-			$"-reporttypes:{GetCoverageReportTypes(coverageSettings)}",
-			.. GetCoverageAssemblyFilterArgs(coverageSettings),
+			"-reporttypes:Html;Cobertura;TextSummary;MarkdownAssembliesSummary",
 		]);
 
 		WriteCoverageSummary(coverageReportDirectory);
@@ -1071,17 +1070,6 @@ public static class DotNetBuild
 
 		return settings.CoverageSettings?.FindProjects?.Invoke(settings) ??
 			[.. FindFiles("tests/**/*.csproj").Order(StringComparer.OrdinalIgnoreCase)];
-	}
-
-	/// <summary>
-	/// Gets the run settings path to use for coverage, if any.
-	/// </summary>
-	public static string? GetCoverageRunSettingsPath(this DotNetCoverageSettings settings)
-	{
-		ArgumentNullException.ThrowIfNull(settings);
-
-		const string defaultRunSettingsPath = "coverage.runsettings";
-		return settings.RunSettingsPath ?? (File.Exists(defaultRunSettingsPath) ? defaultRunSettingsPath : null);
 	}
 
 	/// <summary>
@@ -1159,23 +1147,11 @@ public static class DotNetBuild
 	[Obsolete("Use other overload.")]
 	public static IEnumerable<string> GetExtraPropertyArgs(string target, DotNetBuildSettings settings) => settings.GetExtraPropertyArgs(target);
 
-	private static IEnumerable<string> GetCoverageAssemblyFilterArgs(DotNetCoverageSettings settings) =>
-		settings.AssemblyFilters is { Count: not 0 } assemblyFilters ? [$"-assemblyfilters:{string.Join(";", assemblyFilters)}"] : [];
-
 	private static IEnumerable<string> GetCoverageFrameworkArgs(DotNetCoverageSettings settings) =>
 		!string.IsNullOrWhiteSpace(settings.TargetFramework) ? ["--framework", settings.TargetFramework] : [];
 
-	private static string GetCoverageReportDirectory(DotNetCoverageSettings settings) =>
-		!string.IsNullOrWhiteSpace(settings.ReportDirectory) ? settings.ReportDirectory : "artifacts/Coverage/Report";
-
-	private static string GetCoverageReportTypes(DotNetCoverageSettings settings) =>
-		settings.ReportTypes is { Count: not 0 } reportTypes ? string.Join(";", reportTypes) : "Html;Cobertura;TextSummary;MarkdownAssembliesSummary";
-
 	private static IEnumerable<string> GetCoverageRunSettingsArgs(string? runSettingsPath) =>
 		!string.IsNullOrWhiteSpace(runSettingsPath) ? ["--settings", runSettingsPath] : [];
-
-	private static string GetCoverageTestResultsDirectory(DotNetCoverageSettings settings) =>
-		!string.IsNullOrWhiteSpace(settings.TestResultsDirectory) ? settings.TestResultsDirectory : "artifacts/Coverage/TestResults";
 
 	private static void WriteCoverageSummary(string coverageReportDirectory)
 	{
@@ -1322,4 +1298,6 @@ public static class DotNetBuild
 
 		private readonly string m_targetsFileTempPath;
 	}
+
+	private const string c_coverageRunSettingsPath = "coverage.runsettings";
 }
