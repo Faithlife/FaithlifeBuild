@@ -1,0 +1,41 @@
+<Project>
+
+  <PropertyGroup>
+    <_FaithlifeBuildConfiguration>$([System.String]::Copy('$(Configuration)').ToLowerInvariant())</_FaithlifeBuildConfiguration>
+    <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' and Exists('$(MSBuildThisFileDirectory)..\Faithlife.Build.Tasks\Faithlife.Build.Tasks.csproj') ">$(MSBuildThisFileDirectory)..\..\artifacts\bin\Faithlife.Build.Tasks\$(_FaithlifeBuildConfiguration)\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
+    <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' and Exists('$(MSBuildThisFileDirectory)tools\net8.0\Faithlife.Build.Tasks.dll') ">$(MSBuildThisFileDirectory)tools\net8.0\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
+    <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' ">$(MSBuildThisFileDirectory)..\tools\net8.0\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
+  </PropertyGroup>
+
+  <UsingTask TaskName="Faithlife.Build.Tasks.RewritePackageReadmeLinks" AssemblyFile="$(FaithlifeBuildTasksAssemblyFile)" />
+
+  <Target Name="RewritePackageReadmeLinksForPack" BeforeTargets="_GetPackageFiles" Condition=" '$(RewritePackageReadmeLinks)' == 'true' ">
+    <ItemGroup>
+        <PackageReadmeSource Include="@(None)"
+          Condition=" '%(None.Pack)' == 'true' and ('%(None.PackagePath)' == '' or '%(None.PackagePath)' == '\' or '%(None.PackagePath)' == '/' or '%(None.PackagePath)' == '.') and '%(None.Filename)%(None.Extension)' == '$(PackageReadmeFile)' " />
+    </ItemGroup>
+
+    <Error Condition=" '@(PackageReadmeSource->Count())' != '1' " Text="RewritePackageReadmeLinks requires exactly one packed README item such as &lt;None Include=&quot;..\..\README.md&quot; Pack=&quot;true&quot; PackagePath=&quot;\&quot; /&gt;." />
+
+    <PropertyGroup>
+      <GeneratedNuGetPackageReadmeFile>$(IntermediateOutputPath)PackageReadme\README.md</GeneratedNuGetPackageReadmeFile>
+    </PropertyGroup>
+
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(GeneratedNuGetPackageReadmeFile)'))" />
+
+    <Faithlife.Build.Tasks.RewritePackageReadmeLinks
+        SourceFile="@(PackageReadmeSource)"
+        OutputFile="$(GeneratedNuGetPackageReadmeFile)"
+        RepositoryUrl="$(RepositoryUrl)" />
+
+    <ItemGroup>
+      <None Remove="@(PackageReadmeSource)" />
+      <None Include="$(GeneratedNuGetPackageReadmeFile)" Pack="true" PackagePath="\" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+  </Target>
+
+</Project>

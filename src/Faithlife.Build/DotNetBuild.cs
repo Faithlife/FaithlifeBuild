@@ -1267,36 +1267,52 @@ public static class DotNetBuild
 	{
 		public static RuntimeTargetsFile Create()
 		{
-			var tempPath = Path.Combine(Path.GetTempPath(), $"FaithlifeBuild.{Guid.NewGuid().ToString("n")[^8..]}.targets");
+			var tempPath = Path.Combine(Path.GetTempPath(), $"FaithlifeBuild.{Guid.NewGuid().ToString("n")[^8..]}");
+			Directory.CreateDirectory(tempPath);
+			Directory.CreateDirectory(Path.Combine(tempPath, "tools", "net8.0"));
 
 			var assembly = Assembly.GetExecutingAssembly();
-			var resourceName = "Faithlife.Build.Runtime.Directory.Build.targets";
-			using var resourceStream = assembly.GetManifestResourceStream(resourceName) ?? throw new BuildException($"Embedded resource '{resourceName}' not found.");
-			using var fileStream = File.Create(tempPath);
-			resourceStream.CopyTo(fileStream);
+			CopyResource(assembly, "Faithlife.Build.Runtime.Directory.Build.targets", Path.Combine(tempPath, "Runtime.Directory.Build.targets"));
+			CopyResource(assembly, "Faithlife.Build.Faithlife.Build.targets", Path.Combine(tempPath, "Faithlife.Build.targets"));
+			CopyResource(assembly, "Faithlife.Build.Faithlife.Build.Tasks.dll", Path.Combine(tempPath, "tools", "net8.0", "Faithlife.Build.Tasks.dll"));
 
-			return new(tempPath);
+			return new(tempPath, Path.Combine(tempPath, "Runtime.Directory.Build.targets"));
 		}
 
-		public RuntimeTargetsFile(string targetsFileTempPath) => m_targetsFileTempPath = targetsFileTempPath;
+		public RuntimeTargetsFile(string tempPath, string targetsFilePath)
+		{
+			m_tempPath = tempPath;
+			m_targetsFilePath = targetsFilePath;
+		}
 
-		public string GetBuildArg() => $"-p:DirectoryBuildTargetsPath=\"{m_targetsFileTempPath}\"";
+		public string GetBuildArg() => $"-p:DirectoryBuildTargetsPath=\"{m_targetsFilePath}\"";
 
 		public void Dispose()
 		{
-			if (m_targetsFileTempPath is not null && File.Exists(m_targetsFileTempPath))
+			if (m_tempPath is not null && Directory.Exists(m_tempPath))
 			{
 				try
 				{
-					File.Delete(m_targetsFileTempPath);
+					Directory.Delete(m_tempPath, recursive: true);
 				}
-				catch (Exception)
+				catch (IOException)
+				{
+				}
+				catch (UnauthorizedAccessException)
 				{
 				}
 			}
 		}
 
-		private readonly string m_targetsFileTempPath;
+		private static void CopyResource(Assembly assembly, string resourceName, string path)
+		{
+			using var resourceStream = assembly.GetManifestResourceStream(resourceName) ?? throw new BuildException($"Embedded resource '{resourceName}' not found.");
+			using var fileStream = File.Create(path);
+			resourceStream.CopyTo(fileStream);
+		}
+
+		private readonly string m_tempPath;
+		private readonly string m_targetsFilePath;
 	}
 
 	private const string c_coverageRunSettingsPath = "coverage.runsettings";

@@ -8,6 +8,7 @@
     <_FaithlifeBuildOriginalDirectoryBuildTargetsPath>$([System.IO.Path]::Combine('$(_FaithlifeBuildDirectoryBuildTargetsBasePath)', '$(_FaithlifeBuildDirectoryBuildTargetsFile)'))</_FaithlifeBuildOriginalDirectoryBuildTargetsPath>
   </PropertyGroup>
   <Import Project="$(_FaithlifeBuildOriginalDirectoryBuildTargetsPath)" Condition="Exists('$(_FaithlifeBuildOriginalDirectoryBuildTargetsPath)')" />
+  <Import Project="$(MSBuildThisFileDirectory)Faithlife.Build.targets" Condition="Exists('$(MSBuildThisFileDirectory)Faithlife.Build.targets')" />
 
   <!-- Check if properties were already set -->
   <PropertyGroup>
