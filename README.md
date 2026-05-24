@@ -130,12 +130,11 @@ build.AddDotNetTargets(new DotNetBuildSettings
 	CoverageSettings = new DotNetCoverageSettings
 	{
 		TargetFramework = "net10.0",
-		AssemblyFilters = ["+MyProject*", "-*.Tests"],
 	},
 });
 ```
 
-The target writes test results under `artifacts/Coverage/TestResults`, writes reports to `artifacts/Coverage/Report`, and uses `coverage.runsettings` automatically when that file exists. Each run uses a fresh test-results subdirectory so stale coverage files are not included, but the target does not delete configured coverage directories.
+The target writes test results under `artifacts/Coverage/TestResults`, writes reports to `artifacts/Coverage/Report`, and uses `coverage.runsettings` automatically when that file exists. Each run uses a fresh test-results subdirectory so stale coverage files are not included.
 
 ## Contributing
 
