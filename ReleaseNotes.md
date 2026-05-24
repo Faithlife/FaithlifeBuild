@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.29.1
+
+* Remove unused settings from `DotNetBuildSettings.CoverageSettings`. (We can restore them in the future if necessary.)
+
 ## 5.29.0
 
 * Add opt-in `coverage` target support through `DotNetBuildSettings.CoverageSettings`.
