@@ -123,7 +123,7 @@ public static class DotNetBuild
 				}
 			});
 
-		if (settings.CoverageSettings is not null || File.Exists("coverage.runsettings"))
+		if (settings.CoverageSettings is not null || File.Exists(c_coverageRunSettingsPath))
 		{
 			build.Target("coverage")
 				.DependsOn("build")
@@ -1018,7 +1018,7 @@ public static class DotNetBuild
 		var coverageSettings = settings.CoverageSettings ?? new DotNetCoverageSettings();
 		var coverageTestResultsDirectory = Path.Combine("artifacts/Coverage/TestResults", Path.GetRandomFileName());
 		var coverageReportDirectory = "artifacts/Coverage/Report";
-		var coverageRunSettings = GetCoverageRunSettingsPath();
+		var coverageRunSettings = File.Exists(c_coverageRunSettingsPath) ? c_coverageRunSettingsPath : null;
 
 		Directory.CreateDirectory(coverageTestResultsDirectory);
 		Directory.CreateDirectory(coverageReportDirectory);
@@ -1070,15 +1070,6 @@ public static class DotNetBuild
 
 		return settings.CoverageSettings?.FindProjects?.Invoke(settings) ??
 			[.. FindFiles("tests/**/*.csproj").Order(StringComparer.OrdinalIgnoreCase)];
-	}
-
-	/// <summary>
-	/// Gets the run settings path to use for coverage, if any.
-	/// </summary>
-	private static string? GetCoverageRunSettingsPath()
-	{
-		const string defaultRunSettingsPath = "coverage.runsettings";
-		return File.Exists(defaultRunSettingsPath) ? defaultRunSettingsPath : null;
 	}
 
 	/// <summary>
@@ -1307,4 +1298,6 @@ public static class DotNetBuild
 
 		private readonly string m_targetsFileTempPath;
 	}
+
+	private const string c_coverageRunSettingsPath = "coverage.runsettings";
 }
