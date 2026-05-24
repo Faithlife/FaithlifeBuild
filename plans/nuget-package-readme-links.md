@@ -50,10 +50,10 @@ The link rewriter should accept these inputs:
 - `SourceFile`: the authored README, usually the repository root `README.md`.
 - `OutputFile`: the generated README that will be packed into the NuGet package.
 - `RepositoryUrl`: the canonical GitHub repository URL, preferably inferred from `RepositoryUrl` or `PackageProjectUrl` metadata.
-- `GitRef`: the GitHub ref used in generated GitHub URLs. Default this to `-` so links redirect to the default branch.
-- `RepositoryRoot`: the repository root used to calculate the path portion of generated GitHub URLs. Relative Markdown links are resolved from the source README directory first, then made relative to this root.
 
-The link rewriter should produce normal Markdown with only link destinations changed. Use regular expressions for the Markdown link forms this plan supports: inline links, image links, and reference-style link definitions. Before applying those expressions, split or scan the document so fenced code blocks are copied through unchanged.
+The task should infer the repository root from the nearest ancestor of `SourceFile` that contains `.git`. If that is not available during pack, it should use the directory containing `SourceFile`. Relative Markdown links are resolved from the source README directory first, then made relative to the inferred repository root.
+
+The link rewriter should produce normal Markdown with only link destinations changed. Use regular expressions for the Markdown link forms this plan supports: inline links, image links, and reference-style link definitions.
 
 ## Relative Link Rules
 
@@ -83,7 +83,7 @@ When rewriting a destination, split the destination into path, query, and fragme
 
 Path resolution rules:
 
-- A path starting with `/` is relative to `RepositoryRoot`.
+- A path starting with `/` is relative to the inferred repository root.
 - Any other relative path is resolved from the source README directory.
 - Normalize `.` and `..` segments.
 - Convert path separators to `/` in generated URLs.
@@ -91,7 +91,7 @@ Path resolution rules:
 - Use a `tree` URL when the original path ends in `/`.
 - Do not check the file system to decide between `blob` and `tree`, and do not infer this from file-like extensions.
 
-Example transform, using `-` as the GitHub ref so GitHub redirects to the repository's default branch:
+Generated GitHub URLs should use `-` as the ref so GitHub redirects to the repository's default branch:
 
 - `./src/Faithlife.Build/BuildApp.cs` -> `https://github.com/Faithlife/FaithlifeBuild/blob/-/src/Faithlife.Build/BuildApp.cs`
 - `./src/Faithlife.Build` -> `https://github.com/Faithlife/FaithlifeBuild/blob/-/src/Faithlife.Build`
@@ -134,9 +134,7 @@ Sketch:
   <Faithlife.Build.Tasks.RewritePackageReadmeLinks
       SourceFile="@(PackageReadmeSource)"
       OutputFile="$(GeneratedNuGetPackageReadmeFile)"
-      RepositoryRoot="$(MSBuildProjectDirectory)\..\.."
-      RepositoryUrl="$(RepositoryUrl)"
-      GitRef="-" />
+      RepositoryUrl="$(RepositoryUrl)" />
 
   <ItemGroup>
     <None Update="@(PackageReadmeSource)" Pack="false" />
@@ -149,7 +147,7 @@ Sketch:
 </Target>
 ```
 
-The sketch uses `$(MSBuildProjectDirectory)\..\..` as the repository root because this repository's packable project is under `src/Faithlife.Build`. The implementation should infer the repository root in the shared build target from the nearest ancestor containing `.git` when possible. If that is not available during pack, use the directory containing the source README.
+The task infers the repository root from `SourceFile`, so the consuming project does not have to specify where the repository root is.
 
 The shared target is published through the `Faithlife.Build` NuGet package. `Faithlife.Build.targets` is packed under `build/Faithlife.Build.targets` and `buildTransitive/Faithlife.Build.targets`, and `Faithlife.Build.Tasks.dll` is packed under `tools/net8.0/`. NuGet automatically imports `build/Faithlife.Build.targets` into projects that directly reference the package, and imports `buildTransitive/Faithlife.Build.targets` through project-to-project/package dependency chains. The target then loads the task assembly through the relative `UsingTask` path shown above.
 
@@ -164,7 +162,7 @@ For repositories that only reference `Faithlife.Build` from `tools/Build`, `DotN
 - Update `src/Faithlife.Build/Faithlife.Build.csproj` to pack `Faithlife.Build.targets` under both `build/` and `buildTransitive/`.
 - Update `src/Faithlife.Build/Faithlife.Build.csproj` to pack `Faithlife.Build.Tasks.dll` and any required task dependencies under `tools/net8.0/`.
 - Update the existing runtime targets mechanism so Faithlife.Build-based repositories that pack via `DotNetBuild` can import the same target during `dotnet pack`.
-- Add unit tests for link classification, path rewriting, fenced code blocks, inline links, image links, reference-style links, fragments, query strings, slash-terminated paths, and root-relative paths.
+- Add unit tests for link classification, path rewriting, inline links, image links, reference-style links, fragments, query strings, slash-terminated paths, and root-relative paths.
 - Add an integration test that packs a sample project and verifies the generated README is the packaged README.
 
 Useful test examples:
@@ -225,7 +223,7 @@ The resulting project file should look like this in the relevant spots:
 
 - Run the repository's normal package command.
 - Open the generated `.nupkg` and verify that the packaged `README.md` contains absolute GitHub links for repository-relative links.
-- Do not add source README path, repository URL, Git ref, or repository root properties unless a future repository demonstrates that the defaults are insufficient.
+- Do not add source README path, repository URL, ref, or repository root properties unless a future repository demonstrates that the defaults are insufficient.
 
 ## Acceptance Criteria
 
