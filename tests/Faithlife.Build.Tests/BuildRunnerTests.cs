@@ -74,6 +74,34 @@ internal sealed class BuildRunnerTests
 	}
 
 	[Test]
+	public void DotNetTargetsIncludeCoverageWhenCoverageRunSettingsExists()
+	{
+		var currentDirectory = Environment.CurrentDirectory;
+		var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+		Directory.CreateDirectory(tempDirectory);
+
+		try
+		{
+			Environment.CurrentDirectory = tempDirectory;
+			File.WriteAllText("coverage.runsettings", "<RunSettings />");
+
+			using var output = new StringWriter();
+			Console.SetOut(output);
+
+			Assert.That(BuildRunner.Execute([], build =>
+			{
+				build.AddDotNetTargets(new DotNetBuildSettings { SolutionName = "Test.sln" });
+			}), Is.Zero);
+			Assert.That(output.ToString(), Does.Match("coverage\\s+Runs tests with coverage and generates coverage reports"));
+		}
+		finally
+		{
+			Environment.CurrentDirectory = currentDirectory;
+			Directory.Delete(tempDirectory, recursive: true);
+		}
+	}
+
+	[Test]
 	public void DotNetBuildSettingsCloneClonesCoverageSettings()
 	{
 		var settings = new DotNetBuildSettings

@@ -123,7 +123,7 @@ public static class DotNetBuild
 				}
 			});
 
-		if (settings.CoverageSettings is not null)
+		if (settings.CoverageSettings is not null || File.Exists("coverage.runsettings"))
 		{
 			build.Target("coverage")
 				.DependsOn("build")
@@ -1015,7 +1015,7 @@ public static class DotNetBuild
 	{
 		ArgumentNullException.ThrowIfNull(settings);
 
-		var coverageSettings = settings.CoverageSettings ?? throw new BuildException("CoverageSettings must be set to run coverage.");
+		var coverageSettings = settings.CoverageSettings ?? new DotNetCoverageSettings();
 		var coverageTestResultsDirectory = Path.Combine(GetCoverageTestResultsDirectory(coverageSettings), Path.GetRandomFileName());
 		var coverageReportDirectory = GetCoverageReportDirectory(coverageSettings);
 		var coverageRunSettings = coverageSettings.GetCoverageRunSettingsPath();
