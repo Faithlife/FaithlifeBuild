@@ -120,6 +120,23 @@ Additionally, this property and item come from the .NET SDK and should not be se
 
 To check the exact MSBuild properties and items being used, read the [Runtime.Directory.Build.targets source code](./src/Faithlife.Build/Runtime.Directory.Build.targets).
 
+### Package README Links
+
+If a package reuses the repository `README.md` as its NuGet package README, relative links in that README will not work when rendered on nuget.org. Set `RewritePackageReadmeLinks` to `true` to generate a package-specific copy of the README during `dotnet pack`; repository-relative Markdown links are rewritten to absolute GitHub links, while same-document anchors and absolute links are left unchanged.
+
+```xml
+<PropertyGroup>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<RewritePackageReadmeLinks>true</RewritePackageReadmeLinks>
+</PropertyGroup>
+
+<ItemGroup>
+	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+</ItemGroup>
+```
+
+The generated README is packed as `README.md`; the source README remains unchanged. The package project must set `RepositoryUrl` or equivalent repository metadata so the generated links can point to the correct GitHub repository.
+
 ### Coverage
 
 Set `DotNetBuildSettings.CoverageSettings`, or place `coverage.runsettings` in the working directory, to add a standard `coverage` target that runs test projects under `tests/**/*.csproj` with Coverlet and generates reports with `dotnet dnx dotnet-reportgenerator-globaltool`.

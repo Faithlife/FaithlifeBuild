@@ -19,6 +19,7 @@
     <File Path=".github/conventions.yml" />
   </Folder>
   <Project Path="src/Faithlife.Build/Faithlife.Build.csproj" />
+  <Project Path="src/Faithlife.Build.Tasks/Faithlife.Build.Tasks.csproj" />
   <Project Path="tests/Faithlife.Build.Tests/Faithlife.Build.Tests.csproj" />
   <Project Path="tools/Build/Build.csproj" />
 </Solution>

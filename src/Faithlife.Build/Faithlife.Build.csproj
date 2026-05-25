@@ -7,6 +7,8 @@
     <IsPackable>true</IsPackable>
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RewritePackageReadmeLinks>true</RewritePackageReadmeLinks>
+    <FaithlifeBuildTasksOutputPath>..\..\artifacts\bin\Faithlife.Build.Tasks\$([System.String]::Copy('$(Configuration)').ToLowerInvariant())\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,13 +25,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Faithlife.Build.Tasks\Faithlife.Build.Tasks.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="Faithlife.Build.props" Pack="true" PackagePath="build" />
     <None Include="Faithlife.Build.props" Pack="true" PackagePath="buildTransitive" />
+    <None Include="Faithlife.Build.targets" Pack="true" PackagePath="build" />
+    <None Include="Faithlife.Build.targets" Pack="true" PackagePath="buildTransitive" />
+    <None Include="$(FaithlifeBuildTasksOutputPath)" Pack="true" PackagePath="tools\net8.0" Visible="false" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Runtime.Directory.Build.targets" />
+    <EmbeddedResource Include="Faithlife.Build.targets" LogicalName="Faithlife.Build.Faithlife.Build.targets" />
+    <EmbeddedResource Include="$(FaithlifeBuildTasksOutputPath)" LogicalName="Faithlife.Build.Faithlife.Build.Tasks.dll" />
   </ItemGroup>
+
+  <Import Project="Faithlife.Build.targets" />
 
 </Project>

@@ -1,7 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <VersionPrefix>5.29.1</VersionPrefix>
+    <VersionPrefix>5.30.0</VersionPrefix>
+    <VersionSuffix>beta.1</VersionSuffix>
     <PackageValidationBaselineVersion>5.29.1</PackageValidationBaselineVersion>
     <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
