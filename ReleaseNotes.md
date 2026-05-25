@@ -1,8 +1,8 @@
 # Release Notes
 
-## 5.30.0-beta.1
+## 5.30.0
 
-* Support `RewritePackageReadmeLinks`, which rewrites links in package README files so that they work at nuget.org.
+* Support the `RewritePackageReadmeLinks` project property, which rewrites relative links in package README files so that they work at nuget.org.
 
 ## 5.29.1
 
