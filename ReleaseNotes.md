@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.30.0-beta.1
+
+* Support `RewritePackageReadmeLinks`, which rewrites links in package README files so that they work at nuget.org.
+
 ## 5.29.1
 
 * Remove unused settings from `DotNetBuildSettings.CoverageSettings`. (We can restore them in the future if necessary.)
