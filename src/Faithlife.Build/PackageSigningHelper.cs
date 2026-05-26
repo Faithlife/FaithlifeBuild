@@ -69,8 +69,11 @@ internal static class PackageSigningHelper
 			// input path needs to be relative
 			var packagePathForSigning = Path.IsPathRooted(packagePath) ? Path.GetRelativePath(Environment.CurrentDirectory, packagePath) : packagePath;
 
-			// generate a temporary path for the signed package because "`psign-tool code` signing execution currently requires --output to avoid in-place package mutation"; https://github.com/Devolutions/psign/blob/58c55e507394c4c1f94e8b8facff8d4dfa5021f7/src/code.rs#L208-L212
-			var signedPackagePath = Path.Combine(Path.GetTempPath(), $"{Path.GetFileNameWithoutExtension(packagePath)}.signed.nupkg");
+			// generate a new path for the signed package because "`psign-tool code` signing execution currently requires --output to avoid in-place package mutation"; https://github.com/Devolutions/psign/blob/58c55e507394c4c1f94e8b8facff8d4dfa5021f7/src/code.rs#L208-L212
+			// use the same directory so that we don't have to worry about cross-device file moves when replacing the original package with the signed package
+			var packageFullPath = Path.GetFullPath(packagePath);
+			var packageDirectory = Path.GetDirectoryName(packageFullPath) ?? Environment.CurrentDirectory;
+			var signedPackagePath = Path.Combine(packageDirectory, $"{Path.GetFileNameWithoutExtension(packagePath)}.signed.nupkg");
 
 			AppRunner.RunApp(Path.Combine(toolPath, "psign-tool"),
 				new AppRunnerSettings
