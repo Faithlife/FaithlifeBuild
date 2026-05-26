@@ -24,6 +24,6 @@ public sealed class TrustedSigningSettings
 	/// <summary>
 	/// The access token to use for Azure Artifact Signing.
 	/// </summary>
-	/// <remarks>This is only used when signing on Linux; signing on Windows requires a managed identity. It should be acquired via <c>az account get-access-token --resource "https://codesigning.azure.net/" --query "accessToken"</c> or similar.</remarks>
+	/// <remarks>This is only used when signing on Linux; signing on Windows requires a managed identity. It should be acquired via <c>az account get-access-token --resource "https://codesigning.azure.net/" --query "accessToken" --output tsv</c> or similar.</remarks>
 	public string? AccessToken { get; set; }
 }
