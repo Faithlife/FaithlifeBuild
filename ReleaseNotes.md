@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.31.0 Beta 2
+
+* Change `TrustedSigningSettings.AccessToken` to `GetAccessToken` callback.
+
 ## 5.31.0 Beta 1
 
 * Support package signing on Linux using [psign](https://github.com/Devolutions/psign).

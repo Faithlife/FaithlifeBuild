@@ -27,8 +27,8 @@ internal static class PackageSigningHelper
 
 	private static Action<string> CreateWindowsTrustedSigningSigner(TrustedSigningSettings trustedSettings)
 	{
-		if (!string.IsNullOrWhiteSpace(trustedSettings.AccessToken))
-			Console.Error.WriteLine("Warning: SigningSettings.TrustedSigningSettings.AccessToken is ignored on Windows because dotnet sign uses managed identity.");
+		if (trustedSettings.GetAccessToken is not null)
+			Console.Error.WriteLine("Warning: SigningSettings.TrustedSigningSettings.GetAccessToken is ignored on Windows because dotnet sign uses managed identity.");
 
 		return CreateWindowsSigner([
 			"sign", "code", "trusted-signing",
@@ -52,8 +52,8 @@ internal static class PackageSigningHelper
 		var endpointUrl = trustedSettings.EndpointUrl?.AbsoluteUri ?? throw new BuildException("SigningSettings.TrustedSigningSettings.EndpointUrl is required.");
 		var account = trustedSettings.Account ?? throw new BuildException("SigningSettings.TrustedSigningSettings.Account is required.");
 		var certificateProfile = trustedSettings.CertificateProfile ?? throw new BuildException("SigningSettings.TrustedSigningSettings.CertificateProfile is required.");
-		var accessToken = !string.IsNullOrWhiteSpace(trustedSettings.AccessToken) ? trustedSettings.AccessToken :
-			throw new BuildException("SigningSettings.TrustedSigningSettings.AccessToken is required on Linux.");
+		if (trustedSettings.GetAccessToken?.Invoke() is not { Length: > 0 } accessToken)
+			throw new BuildException("SigningSettings.TrustedSigningSettings.GetAccessToken is required on Linux.");
 
 		var toolPath = Path.Combine("release", "sign");
 		DotNetRunner.RunDotNet(["tool", "install", "--tool-path", toolPath, "Devolutions.Psign.Tool"]);
