@@ -1,8 +1,11 @@
 <Project>
+  <!-- DO NOT EDIT: faithlife-dotnet-library-props/properties convention -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
   </PropertyGroup>
+  <!-- END DO NOT EDIT -->
   <ItemGroup>
     <PackageVersion Include="Bullseye" Version="6.1.0" />
     <PackageVersion Include="Glob" Version="1.1.9" />
@@ -20,9 +23,11 @@
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.2" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
   </ItemGroup>
+  <!-- DO NOT EDIT: faithlife-dotnet-library-props/analyzers convention -->
   <ItemGroup>
-    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.5.1" />
-    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.12.0" />
-    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+    <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.*" />
+    <GlobalPackageReference Include="NUnit.Analyzers" Version="4.*" />
+    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.*-*" />
   </ItemGroup>
+  <!-- END DO NOT EDIT -->
 </Project>

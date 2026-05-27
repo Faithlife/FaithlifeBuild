@@ -1,19 +1,23 @@
 <Project>
 
   <PropertyGroup>
-    <VersionPrefix>5.30.0</VersionPrefix>
+    <VersionPrefix>5.30.1</VersionPrefix>
     <PackageValidationBaselineVersion>5.29.1</PackageValidationBaselineVersion>
-    <LangVersion>12.0</LangVersion>
+    <NoWarn>$(NoWarn);1591;1998;NU1507;NU5105</NoWarn>
+    <GitHubOrganization>Faithlife</GitHubOrganization>
+    <RepositoryName>FaithlifeBuild</RepositoryName>
+  </PropertyGroup>
+
+  <!-- DO NOT EDIT: faithlife-dotnet-library-props convention -->
+  <PropertyGroup>
+    <LangVersion>14.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);1591;1998;NU1507;NU5105</NoWarn>
     <NeutralLanguage>en-US</NeutralLanguage>
     <DebugType>embedded</DebugType>
-    <GitHubOrganization>Faithlife</GitHubOrganization>
-    <RepositoryName>FaithlifeBuild</RepositoryName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://faithlife.github.io/$(RepositoryName)/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/$(GitHubOrganization)/$(RepositoryName)</PackageProjectUrl>
     <PackageReleaseNotes>https://github.com/$(GitHubOrganization)/$(RepositoryName)/blob/master/ReleaseNotes.md</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/$(GitHubOrganization)/$(RepositoryName).git</RepositoryUrl>
     <Authors>Faithlife</Authors>
@@ -33,5 +37,6 @@
     <NuGetAuditMode>all</NuGetAuditMode>
     <NuGetAuditLevel>low</NuGetAuditLevel>
   </PropertyGroup>
+  <!-- END DO NOT EDIT -->
 
 </Project>
