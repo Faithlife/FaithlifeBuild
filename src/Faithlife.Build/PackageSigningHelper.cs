@@ -3,13 +3,10 @@ namespace Faithlife.Build;
 internal static class PackageSigningHelper
 {
 	/// <summary>
-	/// Returns an <c>Action{string}</c> that, given a package path, signs the package in place.
+	/// Returns an <see cref="Action{T}"/> that, given a package path, signs the package in place.
 	/// </summary>
-	public static Action<string> CreatePackageSigner(DotNetSigningSettings signingSettings)
-	{
-		ArgumentNullException.ThrowIfNull(signingSettings);
-
-		return (BuildEnvironment.IsWindows(), BuildEnvironment.IsLinux(), signingSettings) switch
+	public static Action<string> CreatePackageSigner(DotNetSigningSettings signingSettings) =>
+		(BuildEnvironment.IsWindows(), BuildEnvironment.IsLinux(), signingSettings) switch
 		{
 			(_, _, { AzureKeyVaultSettings: null, TrustedSigningSettings: null }) => throw new BuildException("Either TrustedSigningSettings or AzureKeyVaultSettings must be specified."),
 			(_, _, { AzureKeyVaultSettings: { }, TrustedSigningSettings: { } }) => throw new BuildException("Only one of TrustedSigningSettings or AzureKeyVaultSettings can be specified."),
@@ -20,7 +17,6 @@ internal static class PackageSigningHelper
 			(false, true, { AzureKeyVaultSettings: null, TrustedSigningSettings: { } trustedSettings }) => CreateLinuxTrustedSigningSigner(trustedSettings),
 			_ => throw new NotImplementedException(),
 		};
-	}
 
 	private static Action<string> CreateWindowsAzureKeyVaultSigner(AzureKeyVaultSigningSettings azureSettings) =>
 		CreateWindowsSigner([
@@ -48,10 +44,7 @@ internal static class PackageSigningHelper
 	{
 		var toolPath = Path.Combine("release", "sign");
 		DotNetRunner.RunDotNet(["tool", "install", "--tool-path", toolPath, "--prerelease", "sign"]);
-		return packagePath => AppRunner.RunApp(Path.Combine(toolPath, "sign"), new AppRunnerSettings
-		{
-			Arguments = [.. signingArguments, packagePath],
-		});
+		return packagePath => AppRunner.RunApp(Path.Combine(toolPath, "sign"), [.. signingArguments, packagePath]);
 	}
 
 	private static Action<string> CreateLinuxTrustedSigningSigner(TrustedSigningSettings trustedSettings)
@@ -87,7 +80,7 @@ internal static class PackageSigningHelper
 						"--artifact-signing-account-name", account,
 						"--artifact-signing-profile-name", certificateProfile,
 						"--artifact-signing-access-token", accessToken,
-						"--timestamp-url", c_timestampUrl,
+						"--timestamp-url", "http://timestamp.acs.microsoft.com/",
 						"--timestamp-digest", "sha256",
 						"--output", signedPackagePath,
 						packagePathForSigning,
@@ -99,6 +92,4 @@ internal static class PackageSigningHelper
 			File.Move(signedPackagePath, packagePath, overwrite: true);
 		};
 	}
-
-	private const string c_timestampUrl = "http://timestamp.acs.microsoft.com/";
 }
