@@ -1,5 +1,5 @@
 <Project>
-  <!-- DO NOT EDIT: faithlife-dotnet-library-props/properties convention -->
+  <!-- DO NOT EDIT: dotnet-library-props/properties convention -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
@@ -23,7 +23,7 @@
     <PackageVersion Include="System.Formats.Asn1" Version="10.0.2" />
     <PackageVersion Include="XmlDocMarkdown.Core" Version="2.9.0" />
   </ItemGroup>
-  <!-- DO NOT EDIT: faithlife-dotnet-library-props/analyzers convention -->
+  <!-- DO NOT EDIT: dotnet-library-props/analyzers convention -->
   <ItemGroup>
     <GlobalPackageReference Include="Faithlife.Analyzers" Version="1.*" />
     <GlobalPackageReference Include="NUnit.Analyzers" Version="4.*" />
