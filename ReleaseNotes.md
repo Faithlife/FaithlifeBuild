@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.32.0
+
+* Require .NET 10.
+
 ## 5.31.0
 
 * Support package signing on Linux using [psign](https://github.com/Devolutions/psign).

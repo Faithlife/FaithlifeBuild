@@ -1,8 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <VersionPrefix>5.31.0</VersionPrefix>
-    <PackageValidationBaselineVersion>5.30.1</PackageValidationBaselineVersion>
+    <VersionPrefix>5.32.0</VersionPrefix>
+    <PackageValidationBaselineVersion>5.32.0</PackageValidationBaselineVersion>
     <NoWarn>$(NoWarn);1591;NU1507</NoWarn>
     <GitHubOrganization>Faithlife</GitHubOrganization>
     <RepositoryName>FaithlifeBuild</RepositoryName>

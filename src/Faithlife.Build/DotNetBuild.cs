@@ -523,7 +523,7 @@ public static class DotNetBuild
 						var sourceRepositoryProvider = new SourceRepositoryProvider(packageSourceProvider, NuGet.Protocol.Core.Types.Repository.Provider.GetCoreV3());
 						using var sourceCacheContext = new SourceCacheContext();
 						var nugetRepositories = sourceRepositoryProvider.GetRepositories()
-							.Select(x => x.GetResourceAsync<DependencyInfoResource>().GetAwaiter().GetResult())
+							.Select(x => x.GetResourceAsync<DependencyInfoResource>().GetAwaiter().GetResult()!)
 							.ToList();
 
 						var alreadyPushedPackages = new List<string>();
