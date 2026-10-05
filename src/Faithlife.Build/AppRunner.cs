@@ -144,7 +144,7 @@ public static class AppRunner
 		if (settings.EnvironmentVariables.Count != 0)
 		{
 			foreach (var (name, value) in settings.EnvironmentVariables)
-				startInfo.Environment.Add(name, value);
+				startInfo.Environment[name] = value;
 		}
 
 		using var process = new Process
