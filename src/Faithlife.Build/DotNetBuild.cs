@@ -1138,31 +1138,51 @@ public static class DotNetBuild
 	}
 
 	/// <summary>
-	/// Publishes a .NET project as a container image.
+	/// Publishes a .NET project as a Linux x64 container image.
 	/// </summary>
 	/// <param name="settings">The .NET Build Settings.</param>
 	/// <param name="projectPath">The path to the project to publish.</param>
 	/// <param name="containerSettings">The container publishing settings.</param>
+	/// <remarks>The project must already be built (e.g., by the <c>build</c> target); the existing build output
+	/// is published without being rebuilt, so this method can be called in parallel for multiple projects.</remarks>
 	public static void PublishContainer(this DotNetBuildSettings settings, string projectPath, DotNetPublishContainerSettings containerSettings)
 	{
 		ArgumentNullException.ThrowIfNull(projectPath);
 		ArgumentNullException.ThrowIfNull(containerSettings);
 
 		using var runtimeTargetsFile = RuntimeTargetsFile.Create();
-		RunDotNet("publish",
-			"--os", "linux",
-			"--arch", "x64",
-			settings.GetBuildNumberArg(),
-			settings.GetContinuousIntegrationBuildArg(),
-			settings.GetVerbosityArg(),
-			settings.GetMaxCpuCountArg(),
-			runtimeTargetsFile.GetBuildArg(),
-			"/t:PublishContainer",
-			containerSettings.Repository is { } repository ? $"-p:ContainerRepository={repository}" : null,
-			containerSettings.Family is { } family ? $"-p:ContainerFamily={family}" : null,
-			containerSettings.Registry is { } registry ? $"-p:ContainerRegistry={registry}" : null,
-			containerSettings.ImageTags is { Count: > 0 } imageTags ? $"-p:ContainerImageTags=\"{string.Join(';', imageTags)}\"" : null,
-			projectPath);
+		var appRunnerSettings = new AppRunnerSettings
+		{
+			Arguments =
+			[
+				"publish",
+				projectPath,
+				"-c",
+				settings.GetConfiguration(),
+				settings.GetPlatformArg(),
+				settings.GetBuildNumberArg(),
+				settings.GetContinuousIntegrationBuildArg(),
+				"--no-build",
+				settings.GetVerbosityArg(),
+				settings.GetMaxCpuCountArg(),
+				runtimeTargetsFile.GetBuildArg(),
+				"/t:PublishContainer",
+				"-p:ContainerRuntimeIdentifier=linux-x64",
+				containerSettings.Repository is { } repository ? $"-p:ContainerRepository={repository}" : null,
+				containerSettings.Family is { } family ? $"-p:ContainerFamily={family}" : null,
+				containerSettings.Registry is { } registry ? $"-p:ContainerRegistry={registry}" : null,
+				containerSettings.ImageTags is { Count: > 0 } imageTags ? $"-p:ContainerImageTags=\"{string.Join(';', imageTags)}\"" : null,
+				.. settings.GetExtraPropertyArgs("publish-container"),
+			],
+		};
+
+		// see https://github.com/dotnet/sdk-container-builds/blob/main/docs/RegistryAuthentication.md#authentication-via-environment-variables
+		if (containerSettings.RegistryUserName is { } registryUserName)
+			appRunnerSettings.EnvironmentVariables["DOTNET_CONTAINER_REGISTRY_UNAME"] = registryUserName;
+		if (containerSettings.RegistryPassword is { } registryPassword)
+			appRunnerSettings.EnvironmentVariables["DOTNET_CONTAINER_REGISTRY_PWORD"] = registryPassword;
+
+		RunDotNet(appRunnerSettings);
 	}
 
 	/// <summary>

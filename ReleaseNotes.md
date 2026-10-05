@@ -1,5 +1,12 @@
 # Release Notes
 
+## 5.32.0
+
+* `PublishContainer` publishes the existing build output (with `--no-build`) instead of rebuilding the project for `linux-x64`, so it can be called in parallel for multiple projects.
+  * **Breaking:** The project must be built first, e.g., by depending on the `build` target.
+  * Pass the build configuration, platform, and `ExtraProperties` (for the `publish-container` target) to `dotnet publish`.
+* Add `DotNetPublishContainerSettings.RegistryUserName` and `RegistryPassword` for authenticating to the container registry.
+
 ## 5.31.0
 
 * Support package signing on Linux using [psign](https://github.com/Devolutions/psign).
