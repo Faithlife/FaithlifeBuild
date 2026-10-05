@@ -79,7 +79,7 @@ public sealed class DotNetBuildSettings
 	/// A function that returns any extra properties for the specified build target.
 	/// </summary>
 	/// <remarks>Supported build targets include <c>clean</c>, <c>restore</c>, <c>build</c>, <c>test</c>,
-	/// <c>coverage</c>, and <c>package</c>.</remarks>
+	/// <c>coverage</c>, <c>package</c>, and <c>publish-container</c>.</remarks>
 	public Func<string, IEnumerable<(string Key, string Value)>>? ExtraProperties { get; set; }
 
 	/// <summary>
