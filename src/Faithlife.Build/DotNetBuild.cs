@@ -524,6 +524,7 @@ public static class DotNetBuild
 						using var sourceCacheContext = new SourceCacheContext();
 						var nugetRepositories = sourceRepositoryProvider.GetRepositories()
 							.Select(x => x.GetResourceAsync<DependencyInfoResource>().GetAwaiter().GetResult())
+							.OfType<DependencyInfoResource>()
 							.ToList();
 
 						var alreadyPushedPackages = new List<string>();
