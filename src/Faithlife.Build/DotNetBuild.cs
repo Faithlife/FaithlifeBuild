@@ -1260,12 +1260,12 @@ public static class DotNetBuild
 		{
 			var tempPath = Path.Combine(Path.GetTempPath(), $"FaithlifeBuild.{Guid.NewGuid().ToString("n")[^8..]}");
 			Directory.CreateDirectory(tempPath);
-			Directory.CreateDirectory(Path.Combine(tempPath, "tools", "net8.0"));
+			Directory.CreateDirectory(Path.Combine(tempPath, "tools", "net10.0"));
 
 			var assembly = Assembly.GetExecutingAssembly();
 			CopyResource(assembly, "Faithlife.Build.Runtime.Directory.Build.targets", Path.Combine(tempPath, "Runtime.Directory.Build.targets"));
 			CopyResource(assembly, "Faithlife.Build.Faithlife.Build.targets", Path.Combine(tempPath, "Faithlife.Build.targets"));
-			CopyResource(assembly, "Faithlife.Build.Faithlife.Build.Tasks.dll", Path.Combine(tempPath, "tools", "net8.0", "Faithlife.Build.Tasks.dll"));
+			CopyResource(assembly, "Faithlife.Build.Faithlife.Build.Tasks.dll", Path.Combine(tempPath, "tools", "net10.0", "Faithlife.Build.Tasks.dll"));
 
 			return new(tempPath, Path.Combine(tempPath, "Runtime.Directory.Build.targets"));
 		}

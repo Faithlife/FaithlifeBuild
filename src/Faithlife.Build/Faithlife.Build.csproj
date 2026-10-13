@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Description>A build automation system using C# build scripts.</Description>
     <PackageTags>build automation csharp</PackageTags>
     <IsPackable>true</IsPackable>
@@ -21,7 +21,6 @@
     <PackageReference Include="NuGet.Packaging" />
     <PackageReference Include="NuGet.Protocol" />
     <PackageReference Include="Polly" />
-    <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +32,7 @@
     <None Include="Faithlife.Build.props" Pack="true" PackagePath="buildTransitive" />
     <None Include="Faithlife.Build.targets" Pack="true" PackagePath="build" />
     <None Include="Faithlife.Build.targets" Pack="true" PackagePath="buildTransitive" />
-    <None Include="$(FaithlifeBuildTasksOutputPath)" Pack="true" PackagePath="tools\net8.0" Visible="false" />
+    <None Include="$(FaithlifeBuildTasksOutputPath)" Pack="true" PackagePath="tools\net10.0" Visible="false" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 

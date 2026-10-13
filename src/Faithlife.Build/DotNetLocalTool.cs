@@ -116,11 +116,12 @@ public sealed class DotNetLocalTool
 		if (manifestPath is null)
 			return [];
 
-		return [.. JsonDocument.Parse(File.ReadAllText(manifestPath))
+		return JsonDocument.Parse(File.ReadAllText(manifestPath))
 			.RootElement
 			.GetProperty("tools")
 			.EnumerateObject()
-			.SelectMany(tool => tool.Value.GetProperty("commands").EnumerateArray().Select(x => (tool.Name, NuGetVersion.Parse(tool.Value.GetProperty("version").GetString()!), x.GetString()!)))];
+			.SelectMany(tool => tool.Value.GetProperty("commands").EnumerateArray().Select(x => (tool.Name, NuGetVersion.Parse(tool.Value.GetProperty("version").GetString()!), x.GetString()!)))
+			.ToList();
 	}
 
 	private static string? TryGetDotNetLocalToolManifestPath(string directory)
