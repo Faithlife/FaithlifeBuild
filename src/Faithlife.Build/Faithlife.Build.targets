@@ -3,8 +3,8 @@
   <PropertyGroup>
     <_FaithlifeBuildConfiguration>$([System.String]::Copy('$(Configuration)').ToLowerInvariant())</_FaithlifeBuildConfiguration>
     <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' and Exists('$(MSBuildThisFileDirectory)..\Faithlife.Build.Tasks\Faithlife.Build.Tasks.csproj') ">$(MSBuildThisFileDirectory)..\..\artifacts\bin\Faithlife.Build.Tasks\$(_FaithlifeBuildConfiguration)\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
-    <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' and Exists('$(MSBuildThisFileDirectory)tools\net8.0\Faithlife.Build.Tasks.dll') ">$(MSBuildThisFileDirectory)tools\net8.0\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
-    <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' ">$(MSBuildThisFileDirectory)..\tools\net8.0\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
+    <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' and Exists('$(MSBuildThisFileDirectory)tools\net10.0\Faithlife.Build.Tasks.dll') ">$(MSBuildThisFileDirectory)tools\net10.0\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
+    <FaithlifeBuildTasksAssemblyFile Condition=" '$(FaithlifeBuildTasksAssemblyFile)' == '' ">$(MSBuildThisFileDirectory)..\tools\net10.0\Faithlife.Build.Tasks.dll</FaithlifeBuildTasksAssemblyFile>
   </PropertyGroup>
 
   <UsingTask TaskName="Faithlife.Build.Tasks.RewritePackageReadmeLinks" AssemblyFile="$(FaithlifeBuildTasksAssemblyFile)" />

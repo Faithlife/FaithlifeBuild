@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.33.0
+
+* Faithlife.Build now targets .NET 10. **Breaking:** .NET 8 is no longer supported.
+
 ## 5.32.0
 
 * `PublishContainer` publishes the existing build output (with `--no-build`) instead of rebuilding the project for `linux-x64`, so it can be called in parallel for multiple projects.
@@ -11,7 +15,7 @@
 
 * Support package signing on Linux using [psign](https://github.com/Devolutions/psign).
 * Add `TrustedSigningSettings.GetAccessToken`.
- 
+
 ## 5.30.1
 
 * Update package README.
