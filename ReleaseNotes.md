@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.33.1
+
+* Update NuGet dependencies to non-vulnerable versions.
+
 ## 5.33.0
 
 * Faithlife.Build now targets .NET 10. **Breaking:** .NET 8 is no longer supported.
