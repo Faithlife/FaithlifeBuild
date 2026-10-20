@@ -44,9 +44,9 @@ public static partial class PackageReadmeLinkRewriter
 			return destination;
 
 		var useTree = path.EndsWith('/') || path.EndsWith('\\');
-		var fullPath = Path.GetFullPath(path.StartsWith('/') || path.StartsWith('\\') ?
-			Path.Combine(repositoryRoot, path.TrimStart('/', '\\')) :
-			Path.Combine(sourceDirectory, path));
+		var fullPath = Path.GetFullPath(path.StartsWith('/') || path.StartsWith('\\')
+			? Path.Combine(repositoryRoot, path.TrimStart('/', '\\'))
+			: Path.Combine(sourceDirectory, path));
 		var relativePath = Path.GetRelativePath(repositoryRoot, fullPath).Replace('\\', '/');
 		if (useTree && !relativePath.EndsWith('/'))
 			relativePath += "/";
