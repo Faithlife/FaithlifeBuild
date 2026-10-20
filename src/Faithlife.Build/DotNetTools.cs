@@ -193,15 +193,15 @@ public sealed class DotNetTools
 
 	private sealed class NuGetVersionComparer : IComparer<string>
 	{
-		public int Compare(string? left, string? right)
+		public int Compare(string? x, string? y)
 		{
-			if (left is null)
-				return right is null ? 0 : -1;
-			if (right is null)
+			if (x is null)
+				return y is null ? 0 : -1;
+			if (y is null)
 				return 1;
 
-			var leftHyphenParts = left.Split('-', 2);
-			var rightHyphenParts = right.Split('-', 2);
+			var leftHyphenParts = x.Split('-', 2);
+			var rightHyphenParts = y.Split('-', 2);
 
 			var leftDotParts = leftHyphenParts[0].Split('.');
 			var rightDotParts = rightHyphenParts[0].Split('.');
