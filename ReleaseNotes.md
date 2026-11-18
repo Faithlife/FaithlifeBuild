@@ -1,5 +1,9 @@
 # Release Notes
 
+## 5.33.2
+
+* Read solution name from build settings at execution time.
+
 ## 5.33.1
 
 * Update NuGet dependencies to non-vulnerable versions.
